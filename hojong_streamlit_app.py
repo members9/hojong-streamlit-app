@@ -4,14 +4,10 @@ import pickle
 import numpy as np
 from collections import deque
 import os
-from dotenv import load_dotenv
 from openai import OpenAI
 import streamlit as st
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-#load_dotenv()
-#api_key = os.getenv("OPENAI_API_KEY")
-#client = OpenAI(api_key=api_key)
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 def normalize(vecs):
     norms = np.linalg.norm(vecs, axis=1, keepdims=True)
@@ -66,7 +62,7 @@ def is_relevant_question(query, threshold=SIMILARITY_THRESHOLD):
     query_vec = normalize(query_vec)
     D, _ = index_cosine.search(query_vec, 1)
     max_similarity = D[0][0]
-    print(f"🤖 질문과 관광기업 서비스간 유사도 확인: {max_similarity:.4f}")
+    st.info(f"질문과 관광기업 서비스간 유사도 확인: {max_similarity:.4f}")
     return max_similarity >= threshold
 
 def ask_gpt(messages):
@@ -120,67 +116,48 @@ def make_prompt(query, context, is_best=False):
 7. 부드러운 상담사 말투로 정리해주세요.
 """
 
-print("\n🤖 안녕하세요? 관광기업 서비스 가이드 호종이입니다. 'exit'을 입력하면 종료됩니다.\n")
+# Streamlit UI
+st.title("🧭 관광기업 서비스 추천 챗봇")
+user_input = st.text_input("질문을 입력하세요:", key="input")
 
-while True:
-    user_input = input("\n🤖 호종이에게 어떤 서비스나 기업을 찾으시는지 물어보세요: \n")
-
-    if user_input.lower() == "exit":
-        print("🤖 호종이는 이만 물러가겠습니다. 언제든지 다시 불러주세요!")
-        break
-
+if user_input:
     if user_input.startswith("자세히") and last_results:
-        try:
-            keyword = user_input.replace("자세히", "").strip()
-            matches = [s for s in last_results if keyword in s["기업명"]]
-            if not matches:
-                print("ℹ️  해당 키워드를 포함한 기업명이 없습니다.")
-                continue
-            elif len(matches) > 1:
-                print("ℹ️  여러 개의 기업명이 일치합니다. 더 구체적으로 입력해주세요.")
-                for s in matches:
-                    print(f"- {s['기업명']}")
-                continue
-
+        keyword = user_input.replace("자세히", "").strip()
+        matches = [s for s in last_results if keyword in s["기업명"]]
+        if not matches:
+            st.warning("해당 키워드를 포함한 기업명이 없습니다.")
+        elif len(matches) > 1:
+            st.warning("여러 개의 기업명이 일치합니다. 더 구체적으로 입력해주세요.")
+            for s in matches:
+                st.markdown(f"- {s['기업명']}")
+        else:
             s = matches[0]
+            st.subheader("📄 서비스 상세정보")
+            for k, v in s.items():
+                st.markdown(f"**{k}**: {v}")
             service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
             company_link = f"https://www.tourvoucher.or.kr/user/entrprsManage/provdEntrprs/BD_selectProvdEntrprs.do?entrprsId={s['기업ID']}"
-            print("\n📄 서비스 상세정보")
-            for k, v in s.items():
-                print(f"{k}: {v}")
-            print(f"🔗 서비스 링크: {service_link}")
-            print(f"🏢 기업 링크: {company_link}")
-        except:
-            print("❌ 기업명으로 조회 중 오류가 발생했습니다. 예: '자세히 트립'")
-        continue
+            st.markdown(f"[🔗 서비스 링크]({service_link})")
+            st.markdown(f"[🏢 기업 링크]({company_link})")
+    else:
+        if not is_relevant_question(user_input):
+            st.error("질문의 내용을 관광기업이나 서비스와 관련된 내용으로 다시 작성해주세요.")
+        else:
+            best_mode = is_best_recommendation_query(user_input)
+            exclude = None if best_mode else excluded_company_ids
+            last_results = recommend_services(user_input, exclude_company_ids=exclude)
 
-    print("\n🤖 호종이가 질문을 분석 중입니다...")
-    if not is_relevant_question(user_input):
-        print("ℹ️  죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해주세요.")
-        continue
+            if not best_mode:
+                for s in last_results:
+                    excluded_company_ids.add(s["기업ID"])
+            all_results.append(last_results)
 
-    best_mode = is_best_recommendation_query(user_input)
-    exclude = None if best_mode else excluded_company_ids
-
-    print("🤖 호종이가 관련 서비스를 찾는 중입니다...")
-    last_results = recommend_services(user_input, exclude_company_ids=exclude)
-
-    if not best_mode:
-        for s in last_results:
-            excluded_company_ids.add(s['기업ID'])
-
-    all_results.append(last_results)
-
-    print("🤖 호종이가 추천 내용을 정리 중입니다...")
-    context = make_context(last_results)
-    gpt_prompt = make_prompt(user_input, context, is_best=best_mode)
-
-    chat_history = [
-        {"role": "system", "content": "당신은 관광기업 상담 전문가 호종이입니다."},
-        {"role": "user", "content": gpt_prompt}
-    ]
-    gpt_reply = ask_gpt(chat_history)
-
-    print("\n🤖 호종이 추천:")
-    print(gpt_reply)
-    print("\nℹ️  각 추천 서비스에 대해 더 알고 싶으면 '자세히 기업명' 처럼 입력하세요.")
+            context = make_context(last_results)
+            gpt_prompt = make_prompt(user_input, context, is_best=best_mode)
+            chat_history = [
+                {"role": "system", "content": "당신은 관광기업 상담 전문가 호종이입니다."},
+                {"role": "user", "content": gpt_prompt}
+            ]
+            reply = ask_gpt(chat_history)
+            st.subheader("🤖 호종이 추천")
+            st.markdown(reply)
