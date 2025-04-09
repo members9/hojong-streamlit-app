@@ -1,4 +1,3 @@
-
 import openai
 import faiss
 import pickle
@@ -7,10 +6,8 @@ from collections import deque
 import streamlit as st
 from openai import OpenAI
 
-# OpenAI 클라이언트 초기화
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# FAISS 및 메타데이터 로드
 index = faiss.read_index("service_index.faiss")
 with open("service_metadata.pkl", "rb") as f:
     metadata = pickle.load(f)
@@ -27,7 +24,6 @@ index_cosine.add(xb)
 
 SIMILARITY_THRESHOLD = 0.30
 
-# 세션 상태 초기화
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "last_results" not in st.session_state:
@@ -36,8 +32,6 @@ if "excluded_company_ids" not in st.session_state:
     st.session_state.excluded_company_ids = set()
 if "all_results" not in st.session_state:
     st.session_state.all_results = deque(maxlen=3)
-if "user_input" not in st.session_state:
-    st.session_state.user_input = ""
 
 def get_embedding(text, model="text-embedding-3-small"):
     response = client.embeddings.create(input=[text], model=model)
@@ -51,11 +45,9 @@ def recommend_services(query, top_k=5, exclude_company_ids=None):
     query_vec = get_embedding(query)
     query_vec = np.array(query_vec).astype('float32').reshape(1, -1)
     query_vec = normalize(query_vec)
-
     D, indices = index_cosine.search(query_vec, 100)
     results = []
     seen_companies = set(exclude_company_ids) if exclude_company_ids else set()
-
     for i in indices[0]:
         service = metadata[i]
         cid = service["기업ID"]
@@ -93,7 +85,6 @@ def make_summary_context(summary_memory):
         if key not in seen:
             seen.add(key)
             deduplicated.insert(0, item)
-
     return "\n".join([
         f"{i+1}. {s['서비스명']} ({s['기업명']})\n- 유형: {s.get('서비스유형', '정보 없음')}\n- 요약: {s.get('서비스요약', '')}"
         for i, s in enumerate(deduplicated)
@@ -105,11 +96,10 @@ def make_prompt(query, context, is_best=False):
         extra = f"지금까지 추천한 서비스 목록은 다음과 같습니다:\n{history}\n이전에 추천된 기업도 포함해서 조건에 가장 부합하는 최고의 조합을 제시해주세요."
     else:
         extra = "이전 추천된 기업과 중복되지 않는 새로운 추천을 최대 5개까지 부탁드립니다."
-
     return f"""당신은 관광수혜기업에게 추천 서비스를 제공하는 AI 상담사 호종이입니다.
 
 사용자의 질문은 다음과 같습니다:
-"{query}"
+\"{query}\"
 
 그리고 관련된 서비스 목록은 아래와 같습니다:
 {context}
@@ -121,36 +111,50 @@ def make_prompt(query, context, is_best=False):
 2. 동일한 회사 또는 서비스는 중복하지 말고, 새로운 서비스 중심으로 추천해주세요.
 3. 조건을 일부 완화하거나 유사한 목적을 가진 대체 서비스도 추천 가능합니다.
 4. 각 추천은 번호를 붙이고, 기업명, 서비스명, 서비스 유형, 금액, 기한, 장점, 단점, 추천이유를 분석적으로 설명해주세요.
-5. 4번의 답변 생성 시 반드시 서비스명과 기업명은 따옴표(")로 묶어주고, 목록 표기시에는 반드시 대시(-) 로만 나열해주세요.
-6. 답변 시 불필요하게 특수문자(**, ## 등)로 머릿말을 사용 하지 말아주세요.
-7. 부드러운 상담사 말투로 정리해주세요.
+5. 서비스명과 기업명은 반드시 따옴표(\"\")로 묶어주세요. 목록은 대시(-)로 표기해주세요.
+6. 특수문자 사용 없이 부드러운 상담사 말투로 정리해주세요.
 """
 
-# UI 구성
 st.title("관광기업 서비스 추천 AI 🤖")
 st.markdown("서비스 추천을 원하시는 질문을 하시면, 호종이가 도와드립니다!")
-
-# 대화창
 st.markdown("---")
-scroll_container = st.container()
-with scroll_container:
-    for user_msg, ai_msg in st.session_state.chat_history:
-        st.markdown(f"**🙋 사용자 질문:** {user_msg}")
-        st.markdown(f"🤖 **호종이 답변:** {ai_msg}")
-        st.markdown("")
 
-# 유사도 메시지 표시
+for user_msg, ai_msg in st.session_state.chat_history:
+    st.markdown("---")
+    st.markdown(f"\n**🙋 사용자 질문:** {user_msg}")
+    st.markdown(f"🤖 **호종이 답변:** {ai_msg}")
+    st.markdown("")
+
 if "similarity_score" in st.session_state:
     st.info(f"🔍 질문과 관광기업 서비스간 유사도: {st.session_state.similarity_score:.4f}")
 
-# 입력창은 하단
 with st.form("input_form", clear_on_submit=True):
-    user_input = st.text_area("질문을 입력하세요", key="user_input", height=80, label_visibility="collapsed")
+    user_input = st.text_area("질문을 입력하세요", height=80, label_visibility="collapsed")
     submitted = st.form_submit_button("질문하기", use_container_width=True)
 
     if submitted and user_input:
+        if user_input.startswith("자세히") and st.session_state.last_results:
+            keyword = user_input.replace("자세히", "").strip()
+            matches = [s for s in st.session_state.last_results if keyword in s["기업명"]]
+            if not matches:
+                st.warning("ℹ️  해당 키워드를 포함한 기업명이 없습니다.")
+            elif len(matches) > 1:
+                st.warning("ℹ️  여러 개의 기업명이 일치합니다. 더 구체적으로 입력해주세요.")
+                for s in matches:
+                    st.markdown(f"- {s['기업명']}")
+            else:
+                s = matches[0]
+                service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
+                company_link = f"https://www.tourvoucher.or.kr/user/entrprsManage/provdEntrprs/BD_selectProvdEntrprs.do?entrprsId={s['기업ID']}"
+                st.success("📄 서비스 상세정보:")
+                for k, v in s.items():
+                    st.markdown(f"- **{k}**: {v}")
+                st.markdown(f"🔗 [서비스 링크]({service_link})")
+                st.markdown(f"🏢 [기업 링크]({company_link})")
+            st.stop()
+
         if not is_relevant_question(user_input):
-            st.warning("⚠️ 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 작성해주세요.")
+            st.warning("⚠️ 질문의 내용을 관광기업이나 서비스와 관련된 내용으로 다시 작성해주세요.")
         else:
             best_mode = is_best_recommendation_query(user_input)
             exclude = None if best_mode else st.session_state.excluded_company_ids
@@ -172,9 +176,7 @@ with st.form("input_form", clear_on_submit=True):
                 {"role": "user", "content": gpt_prompt}
             ]
             reply = ask_gpt(chat_history)
-
             st.session_state.chat_history.append((user_input, reply))
             st.rerun()
 
-# 추가 안내 메시지
-st.markdown("ℹ️  각 추천 서비스에 대해 더 알고 싶으면 '자세히 기업명' 처럼 입력하세요.")
+st.markdown("ℹ️ 각 추천 서비스에 대해 더 알고 싶으면 '자세히 기업명' 처럼 입력하세요.")
