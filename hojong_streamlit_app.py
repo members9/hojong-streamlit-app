@@ -1,21 +1,23 @@
+
 import openai
 import faiss
 import pickle
 import numpy as np
 from collections import deque
-import os
 from openai import OpenAI
 import streamlit as st
 
+# 환경 설정
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+# FAISS 및 메타데이터 로드
+index = faiss.read_index("service_index.faiss")
+with open("service_metadata.pkl", "rb") as f:
+    metadata = pickle.load(f)
 
 def normalize(vecs):
     norms = np.linalg.norm(vecs, axis=1, keepdims=True)
     return vecs / norms
-
-index = faiss.read_index("service_index.faiss")
-with open("service_metadata.pkl", "rb") as f:
-    metadata = pickle.load(f)
 
 xb = index.reconstruct_n(0, index.ntotal)
 xb = normalize(xb)
@@ -23,22 +25,38 @@ d = xb.shape[1]
 index_cosine = faiss.IndexFlatIP(d)
 index_cosine.add(xb)
 
+# 상태 변수 초기화
 SIMILARITY_THRESHOLD = 0.30
-last_results = []
-excluded_company_ids = set()
-all_results = deque(maxlen=3)
+if "excluded_company_ids" not in st.session_state:
+    st.session_state.excluded_company_ids = set()
+if "all_results" not in st.session_state:
+    st.session_state.all_results = deque(maxlen=3)
+if "last_results" not in st.session_state:
+    st.session_state.last_results = []
 
+# 임베딩
 def get_embedding(text, model="text-embedding-3-small"):
     response = client.embeddings.create(input=[text], model=model)
     return response.data[0].embedding
 
+# 유사도 필터링
+def is_relevant_question(query):
+    query_vec = get_embedding(query)
+    query_vec = np.array(query_vec).astype("float32").reshape(1, -1)
+    query_vec = normalize(query_vec)
+    D, _ = index_cosine.search(query_vec, 1)
+    st.session_state.similarity = float(D[0][0])
+    return st.session_state.similarity >= SIMILARITY_THRESHOLD
+
+# 추천 여부 판단
 def is_best_recommendation_query(query):
     keywords = ["가장", "최고", "제일", "1등", "1위", "진짜 추천", "강력 추천", "정말 추천", "최선의 방안"]
     return any(k in query for k in keywords)
 
+# 서비스 추천
 def recommend_services(query, top_k=5, exclude_company_ids=None):
     query_vec = get_embedding(query)
-    query_vec = np.array(query_vec).astype('float32').reshape(1, -1)
+    query_vec = np.array(query_vec).astype("float32").reshape(1, -1)
     query_vec = normalize(query_vec)
 
     D, indices = index_cosine.search(query_vec, 100)
@@ -53,18 +71,9 @@ def recommend_services(query, top_k=5, exclude_company_ids=None):
             seen_companies.add(cid)
         if len(results) == top_k:
             break
-
     return results
 
-def is_relevant_question(query, threshold=SIMILARITY_THRESHOLD):
-    query_vec = get_embedding(query)
-    query_vec = np.array(query_vec).astype('float32').reshape(1, -1)
-    query_vec = normalize(query_vec)
-    D, _ = index_cosine.search(query_vec, 1)
-    max_similarity = D[0][0]
-    st.info(f"질문과 관광기업 서비스간 유사도 확인: {max_similarity:.4f}")
-    return max_similarity >= threshold
-
+# 대화 생성
 def ask_gpt(messages):
     response = client.chat.completions.create(model="gpt-4o", messages=messages)
     return response.choices[0].message.content
@@ -91,7 +100,7 @@ def make_summary_context(summary_memory):
 
 def make_prompt(query, context, is_best=False):
     if is_best:
-        history = make_summary_context(all_results)
+        history = make_summary_context(st.session_state.all_results)
         extra = f"지금까지 추천한 서비스 목록은 다음과 같습니다:\n{history}\n이전에 추천된 기업도 포함해서 조건에 가장 부합하는 최고의 조합을 제시해주세요."
     else:
         extra = "이전 추천된 기업과 중복되지 않는 새로운 추천을 최대 5개까지 부탁드립니다."
@@ -112,52 +121,57 @@ def make_prompt(query, context, is_best=False):
 3. 조건을 일부 완화하거나 유사한 목적을 가진 대체 서비스도 추천 가능합니다.
 4. 각 추천은 번호를 붙이고, 기업명, 서비스명, 서비스 유형, 금액, 기한, 장점, 단점, 추천이유를 분석적으로 설명해주세요.
 5. 4번의 답변 생성 시 반드시 서비스명과 기업명은 따옴표(")로 묶어주고, 목록 표기시에는 대시(-) 로만 나열해주세요.
-6. 답변 시 불필요하게 특수문자(**, ## 등)로 머릿말을 사용 하지 말아주세요.
+6. 답변 시 불필요하게 특수문자(*, # 등)로 머릿말을 사용하지 말아주세요.
 7. 부드러운 상담사 말투로 정리해주세요.
 """
 
-# Streamlit UI
-st.title("🧭 관광기업 서비스 추천 챗봇")
-user_input = st.text_input("질문을 입력하세요:", key="input")
+# UI 구성
+st.title("관광기업 서비스 추천 챗봇 🧳")
+st.markdown("서비스 추천을 원하시는 질문을 하시면, 호종이가 도와드립니다!")
 
-if user_input:
-    if user_input.startswith("자세히") and last_results:
-        keyword = user_input.replace("자세히", "").strip()
-        matches = [s for s in last_results if keyword in s["기업명"]]
-        if not matches:
-            st.warning("해당 키워드를 포함한 기업명이 없습니다.")
-        elif len(matches) > 1:
-            st.warning("여러 개의 기업명이 일치합니다. 더 구체적으로 입력해주세요.")
-            for s in matches:
-                st.markdown(f"- {s['기업명']}")
-        else:
-            s = matches[0]
-            st.subheader("📄 서비스 상세정보")
-            for k, v in s.items():
-                st.markdown(f"**{k}**: {v}")
-            service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
-            company_link = f"https://www.tourvoucher.or.kr/user/entrprsManage/provdEntrprs/BD_selectProvdEntrprs.do?entrprsId={s['기업ID']}"
-            st.markdown(f"[🔗 서비스 링크]({service_link})")
-            st.markdown(f"[🏢 기업 링크]({company_link})")
+# 답변 출력 섹션
+if "chat_log" not in st.session_state:
+    st.session_state.chat_log = []
+
+for i, chat in enumerate(reversed(st.session_state.chat_log)):
+    st.markdown(f"**질문 {len(st.session_state.chat_log)-i}:** {chat['question']}")
+    st.success(chat["answer"])
+
+# 입력창 아래 유사도 메시지
+if "similarity" in st.session_state:
+    st.caption(f"🔎 입력한 질문과 서비스 데이터 간 유사도: {st.session_state.similarity:.4f}")
+
+# 입력창
+with st.form(key="query_form"):
+    user_input = st.text_area("💬 질문을 입력하세요", height=80, placeholder="예: 우리 회사에 적합한 숙박 예약 플랫폼을 추천해줘")
+    submitted = st.form_submit_button("호종이에게 물어보기")
+
+if submitted and user_input.strip():
+    if not is_relevant_question(user_input):
+        st.warning("질문이 관광기업 서비스와 관련성이 낮습니다. 다시 입력해 주세요.")
     else:
-        if not is_relevant_question(user_input):
-            st.error("질문의 내용을 관광기업이나 서비스와 관련된 내용으로 다시 작성해주세요.")
-        else:
-            best_mode = is_best_recommendation_query(user_input)
-            exclude = None if best_mode else excluded_company_ids
-            last_results = recommend_services(user_input, exclude_company_ids=exclude)
+        best_mode = is_best_recommendation_query(user_input)
+        exclude = None if best_mode else st.session_state.excluded_company_ids
+        results = recommend_services(user_input, exclude_company_ids=exclude)
+        st.session_state.last_results = results
 
-            if not best_mode:
-                for s in last_results:
-                    excluded_company_ids.add(s["기업ID"])
-            all_results.append(last_results)
+        if not best_mode:
+            for s in results:
+                st.session_state.excluded_company_ids.add(s["기업ID"])
 
-            context = make_context(last_results)
-            gpt_prompt = make_prompt(user_input, context, is_best=best_mode)
-            chat_history = [
-                {"role": "system", "content": "당신은 관광기업 상담 전문가 호종이입니다."},
-                {"role": "user", "content": gpt_prompt}
-            ]
-            reply = ask_gpt(chat_history)
-            st.subheader("🤖 호종이 추천")
-            st.markdown(reply)
+        st.session_state.all_results.append(results)
+        context = make_context(results)
+        prompt = make_prompt(user_input, context, is_best=best_mode)
+
+        messages = [
+            {"role": "system", "content": "당신은 관광기업 상담 전문가 호종이입니다."},
+            {"role": "user", "content": prompt}
+        ]
+        gpt_reply = ask_gpt(messages)
+
+        st.session_state.chat_log.append({
+            "question": user_input,
+            "answer": gpt_reply
+        })
+
+        st.rerun()
