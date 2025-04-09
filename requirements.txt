@@ -2,5 +2,6 @@ openai
 faiss-cpu
 numpy
 streamlit
+streamlit_chat
 pandas
 python-dotenv
