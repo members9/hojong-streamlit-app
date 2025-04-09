@@ -37,6 +37,8 @@ if "all_results" not in st.session_state:
     st.session_state.all_results = deque(maxlen=3)
 if "user_input" not in st.session_state:
     st.session_state.user_input = ""
+if "similarity_score_display" not in st.session_state:
+    st.session_state.similarity_score_display = False
 
 def get_embedding(text, model="text-embedding-3-small"):
     response = client.embeddings.create(input=[text], model=model)
@@ -80,10 +82,7 @@ def ask_gpt(messages):
 
 def make_context(results):
     return "\n\n".join([
-        f"{i+1}. {s['서비스명']} ({s['기업명']})\n"
-        f"- 유형: {s.get('서비스유형', '정보 없음')}\n"
-        f"- 요약: {s.get('서비스요약', '')}\n"
-        f"- 금액: {s.get('서비스금액', '정보 없음')} / 기한: {s.get('서비스기한', '정보 없음')}"
+        f"{i+1}. {s['서비스명']} ({s['기업명']})\n- 유형: {s.get('서비스유형', '정보 없음')}\n- 요약: {s.get('서비스요약', '')}\n- 금액: {s.get('서비스금액', '정보 없음')} / 기한: {s.get('서비스기한', '정보 없음')}"
         for i, s in enumerate(results)
     ])
 
@@ -95,6 +94,7 @@ def make_summary_context(summary_memory):
         if key not in seen:
             seen.add(key)
             deduplicated.insert(0, item)
+
     return "\n".join([
         f"{i+1}. {s['서비스명']} ({s['기업명']}) - {s.get('서비스요약', '')}"
         for i, s in enumerate(deduplicated)
@@ -123,44 +123,42 @@ def make_prompt(query, context, is_best=False):
 3. 조건을 일부 완화하거나 유사한 목적을 가진 대체 서비스도 추천 가능합니다.
 4. 각 추천은 번호를 붙이고, 기업명, 서비스명, 서비스 유형, 금액, 기한, 장점, 단점, 추천이유를 분석적으로 설명해주세요.
 5. 4번의 답변 생성 시 반드시 서비스명과 기업명은 따옴표(")로 묶어주고, 목록 표기시에는 반드시 대시(-) 로만 나열해주세요.
-6. 답변 시 불필요하게 특수문자(**, ## 등)로 머릿말을 사용하지 말아주세요.
+6. 답변 시 불필요하게 특수문자(**, ## 등)로 머릿말을 사용 하지 말아주세요.
 7. 부드러운 상담사 말투로 정리해주세요.
 """
 
-# UI
+# UI 시작
 st.title("관광기업 서비스 추천 AI 🤖")
 st.markdown("서비스 추천을 원하시는 질문을 하시면, 호종이가 도와드립니다!")
-
 st.markdown("---")
+
+# 채팅창
 scroll_container = st.container()
 with scroll_container:
     for user_msg, ai_msg in st.session_state.chat_history:
         st.markdown(f"**🙋 사용자 질문:** {user_msg}")
         st.markdown(ai_msg)
-    st.markdown("ℹ️  각 추천 서비스에 대해 더 알고 싶으면 `자세히 기업명` 처럼 입력하세요.")
+    st.markdown("ℹ️  각 추천 서비스에 대해 더 알고 싶으면 '자세히 기업명'처럼 입력하세요.")
 
-if "similarity_score" in st.session_state:
+# 유사도 정보 (질문 이후에만 표시)
+if "similarity_score" in st.session_state and st.session_state.similarity_score_display:
     st.info(f"🔍 질문과 관광기업 서비스간 유사도: {st.session_state.similarity_score:.4f}")
+    st.session_state.similarity_score_display = False  # 한 번만 출력
 
-if "selected_service" in st.session_state:
-    s = st.session_state.selected_service
-    service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
-    company_link = f"https://www.tourvoucher.or.kr/user/entrprsManage/provdEntrprs/BD_selectProvdEntrprs.do?entrprsId={s['기업ID']}"
-    with st.expander("🔍 선택한 서비스 자세히 보기", expanded=True):
-        for k, v in s.items():
-            st.markdown(f"**{k}**: {v}")
-        st.markdown(f"[🔗 서비스 링크]({service_link})")
-        st.markdown(f"[🏢 기업 링크]({company_link})")
-
+# 입력창
 with st.form("input_form", clear_on_submit=True):
     user_input = st.text_area("질문을 입력하세요", key="user_input", height=80, label_visibility="collapsed")
     submitted = st.form_submit_button("질문하기", use_container_width=True)
 
     if submitted and user_input:
-        # 👉 자세히 처리 먼저
         if user_input.startswith("자세히") and st.session_state.last_results:
             keyword = user_input.replace("자세히", "").strip()
+            st.write("✅ 현재 last_results 기업명 목록:")
+            for s in st.session_state.last_results:
+                st.write(f"- {s['기업명']}")
+
             matches = [s for s in st.session_state.last_results if keyword in s["기업명"]]
+
             if not matches:
                 st.warning("해당 키워드를 포함한 기업명이 없습니다.")
             elif len(matches) > 1:
@@ -178,12 +176,10 @@ with st.form("input_form", clear_on_submit=True):
                     st.markdown(f"[🏢 기업 링크]({company_link})")
             st.stop()
 
-        # 👉 일반 질문 처리
         if not is_relevant_question(user_input):
             st.warning("⚠️ 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 작성해주세요.")
         else:
-            st.info(f"🔍 질문과 관광기업 서비스간 유사도: {st.session_state.similarity_score:.4f}")
-
+            st.session_state.similarity_score_display = True
             best_mode = is_best_recommendation_query(user_input)
             exclude = None if best_mode else st.session_state.excluded_company_ids
 
@@ -195,7 +191,6 @@ with st.form("input_form", clear_on_submit=True):
                     st.session_state.excluded_company_ids.add(s['기업ID'])
 
             st.session_state.all_results.append(last_results)
-
             context = make_context(last_results)
             gpt_prompt = make_prompt(user_input, context, is_best=best_mode)
 
