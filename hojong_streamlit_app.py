@@ -147,8 +147,8 @@ if st.session_state.selected_service:
         st.markdown(f"**{k}**: {v}")
     service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
     company_link = f"https://www.tourvoucher.or.kr/user/entrprsManage/provdEntrprs/BD_selectProvdEntrprs.do?entrprsId={s['기업ID']}"
-    st.markdown(f"[🔗 서비스 링크]({service_link})  
-[🏢 기업 링크]({company_link})")
+    st.markdown(f"[🔗 서비스 링크]({service_link})")
+    st.markdown(f"[🏢 기업 링크]({company_link})")
     st.stop()
 
 # 채팅 출력
