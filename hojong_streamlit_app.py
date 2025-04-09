@@ -164,4 +164,4 @@ if send and user_input.strip():
 
         # 대화 기록 업데이트
         st.session_state.chat_history.append((user_input, reply))
-        st.experimental_rerun()
+        st.rerun()
