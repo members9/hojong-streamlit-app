@@ -1,4 +1,3 @@
-import openai
 import faiss
 import pickle
 import numpy as np
@@ -37,8 +36,8 @@ if "all_results" not in st.session_state:
     st.session_state.all_results = deque(maxlen=3)
 if "user_input" not in st.session_state:
     st.session_state.user_input = ""
-if "similarity_score_display" not in st.session_state:
-    st.session_state.similarity_score_display = False
+if "selected_service" not in st.session_state:
+    st.session_state.selected_service = None
 
 def get_embedding(text, model="text-embedding-3-small"):
     response = client.embeddings.create(input=[text], model=model)
@@ -81,7 +80,7 @@ def ask_gpt(messages):
     return response.choices[0].message.content
 
 def make_context(results):
-    return "\n\n".join([
+    return "\n".join([
         f"{i+1}. {s['서비스명']} ({s['기업명']})\n- 유형: {s.get('서비스유형', '정보 없음')}\n- 요약: {s.get('서비스요약', '')}\n- 금액: {s.get('서비스금액', '정보 없음')} / 기한: {s.get('서비스기한', '정보 없음')}"
         for i, s in enumerate(results)
     ])
@@ -89,14 +88,14 @@ def make_context(results):
 def make_summary_context(summary_memory):
     seen = set()
     deduplicated = []
-    for item in reversed(summary_memory):
-        key = (item['서비스명'], item['기업명'], item.get('서비스금액', '없음'))
-        if key not in seen:
-            seen.add(key)
-            deduplicated.insert(0, item)
-
+    for batch in reversed(summary_memory):
+        for item in batch:
+            key = (item['서비스명'], item['기업명'], item.get('서비스금액', '없음'))
+            if key not in seen:
+                seen.add(key)
+                deduplicated.insert(0, item)
     return "\n".join([
-        f"{i+1}. {s['서비스명']} ({s['기업명']}) - {s.get('서비스요약', '')}"
+        f"{i+1}. {s['서비스명']} ({s['기업명']})\n- 유형: {s.get('서비스유형', '')}\n- 요약: {s.get('서비스요약', '')}"
         for i, s in enumerate(deduplicated)
     ])
 
@@ -106,7 +105,6 @@ def make_prompt(query, context, is_best=False):
         extra = f"지금까지 추천한 서비스 목록은 다음과 같습니다:\n{history}\n이전에 추천된 기업도 포함해서 조건에 가장 부합하는 최고의 조합을 제시해주세요."
     else:
         extra = "이전 추천된 기업과 중복되지 않는 새로운 추천을 최대 5개까지 부탁드립니다."
-
     return f"""당신은 관광수혜기업에게 추천 서비스를 제공하는 AI 상담사 호종이입니다.
 
 사용자의 질문은 다음과 같습니다:
@@ -127,23 +125,18 @@ def make_prompt(query, context, is_best=False):
 7. 부드러운 상담사 말투로 정리해주세요.
 """
 
-# UI 시작
+# UI 구성
 st.title("관광기업 서비스 추천 AI 🤖")
 st.markdown("서비스 추천을 원하시는 질문을 하시면, 호종이가 도와드립니다!")
-st.markdown("---")
 
-# 채팅창
+# 대화 출력 영역
+st.markdown("---")
 scroll_container = st.container()
 with scroll_container:
     for user_msg, ai_msg in st.session_state.chat_history:
         st.markdown(f"**🙋 사용자 질문:** {user_msg}")
-        st.markdown(ai_msg)
-    st.markdown("ℹ️  각 추천 서비스에 대해 더 알고 싶으면 '자세히 기업명'처럼 입력하세요.")
-
-# 유사도 정보 (질문 이후에만 표시)
-if "similarity_score" in st.session_state and st.session_state.similarity_score_display:
-    st.info(f"🔍 질문과 관광기업 서비스간 유사도: {st.session_state.similarity_score:.4f}")
-    st.session_state.similarity_score_display = False  # 한 번만 출력
+        st.markdown(ai_msg, unsafe_allow_html=True)
+    st.markdown("ℹ️ 각 추천 서비스에 대해 더 알고 싶으면 '자세히 기업명'처럼 입력하세요.")
 
 # 입력창
 with st.form("input_form", clear_on_submit=True):
@@ -151,21 +144,19 @@ with st.form("input_form", clear_on_submit=True):
     submitted = st.form_submit_button("질문하기", use_container_width=True)
 
     if submitted and user_input:
-        if user_input.startswith("자세히") and st.session_state.last_results:
+        if user_input.startswith("자세히") and st.session_state.all_results:
             keyword = user_input.replace("자세히", "").strip()
-            st.write("✅ 현재 keyword:"+keyword)
-            st.write("✅ 현재 last_results 기업명 목록:")
-            for s in st.session_state.last_results:
-                st.write(f"- {s['기업명']}")
-
-            matches = [s for s in st.session_state.last_results if keyword in s["기업명"]]
+            all_services_flat = [s for batch in st.session_state.all_results for s in batch]
+            matches = [s for s in all_services_flat if keyword in s["기업명"]]
+            st.markdown(f"✅ 현재 keyword: {keyword}")
+            st.markdown("✅ 현재 기업명 목록:\n" + "\n".join([s["기업명"] for s in all_services_flat]))
 
             if not matches:
-                st.warning("해당 키워드를 포함한 기업명이 없습니다.")
+                st.warning("❌ 해당 키워드를 포함한 기업명이 없습니다.")
             elif len(matches) > 1:
-                st.warning("여러 개의 기업명이 일치합니다. 더 구체적으로 입력해주세요.")
-                for s in matches:
-                    st.markdown(f"- {s['기업명']}")
+                st.warning("⚠️ 여러 개의 기업명이 일치합니다. 더 구체적으로 입력해주세요.")
+                for m in matches:
+                    st.markdown(f"- {m['기업명']}")
             else:
                 s = matches[0]
                 service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
@@ -175,31 +166,31 @@ with st.form("input_form", clear_on_submit=True):
                         st.markdown(f"**{k}**: {v}")
                     st.markdown(f"[🔗 서비스 링크]({service_link})")
                     st.markdown(f"[🏢 기업 링크]({company_link})")
-            st.stop()
-
-        if not is_relevant_question(user_input):
-            st.warning("⚠️ 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 작성해주세요.")
         else:
-            st.session_state.similarity_score_display = True
-            best_mode = is_best_recommendation_query(user_input)
-            exclude = None if best_mode else st.session_state.excluded_company_ids
+            if not is_relevant_question(user_input):
+                st.warning("⚠️ 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 작성해주세요.")
+            else:
+                st.info(f"🔍 질문과 관광기업 서비스간 유사도: {st.session_state.similarity_score:.4f}")
+                best_mode = is_best_recommendation_query(user_input)
+                exclude = None if best_mode else st.session_state.excluded_company_ids
 
-            last_results = recommend_services(user_input, exclude_company_ids=exclude)
-            st.session_state.last_results = last_results
+                last_results = recommend_services(user_input, exclude_company_ids=exclude)
+                st.session_state.last_results = last_results
 
-            if not best_mode:
-                for s in last_results:
-                    st.session_state.excluded_company_ids.add(s['기업ID'])
+                if not best_mode:
+                    for s in last_results:
+                        st.session_state.excluded_company_ids.add(s['기업ID'])
 
-            st.session_state.all_results.append(last_results)
-            context = make_context(last_results)
-            gpt_prompt = make_prompt(user_input, context, is_best=best_mode)
+                st.session_state.all_results.append(last_results)
 
-            chat_history = [
-                {"role": "system", "content": "당신은 관광기업 상담 전문가 호종이입니다."},
-                {"role": "user", "content": gpt_prompt}
-            ]
-            reply = ask_gpt(chat_history)
+                context = make_context(last_results)
+                gpt_prompt = make_prompt(user_input, context, is_best=best_mode)
 
-            st.session_state.chat_history.append((user_input, reply))
-            st.rerun()
+                chat_history = [
+                    {"role": "system", "content": "당신은 관광기업 상담 전문가 호종이입니다."},
+                    {"role": "user", "content": gpt_prompt}
+                ]
+                reply = ask_gpt(chat_history)
+
+                st.session_state.chat_history.append((user_input, reply))
+                st.rerun()
