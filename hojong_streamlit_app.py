@@ -6,10 +6,12 @@ from collections import deque
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
+import streamlit as st
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=api_key)
+#load_dotenv()
+#api_key = os.getenv("OPENAI_API_KEY")
+#client = OpenAI(api_key=api_key)
 
 def normalize(vecs):
     norms = np.linalg.norm(vecs, axis=1, keepdims=True)
