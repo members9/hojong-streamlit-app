@@ -153,6 +153,7 @@ with st.form("input_form", clear_on_submit=True):
     if submitted and user_input:
         if user_input.startswith("자세히") and st.session_state.last_results:
             keyword = user_input.replace("자세히", "").strip()
+            st.write("✅ 현재 keyword:"+keyword)
             st.write("✅ 현재 last_results 기업명 목록:")
             for s in st.session_state.last_results:
                 st.write(f"- {s['기업명']}")
