@@ -1,3 +1,4 @@
+
 import openai
 import faiss
 import pickle
@@ -174,3 +175,6 @@ with st.form("input_form", clear_on_submit=True):
 
             st.session_state.chat_history.append((user_input, reply))
             st.rerun()
+
+# 추가 안내 메시지
+st.markdown("ℹ️  각 추천 서비스에 대해 더 알고 싶으면 '자세히 기업명' 처럼 입력하세요.")
