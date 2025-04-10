@@ -178,18 +178,18 @@ for msg in st.session_state.chat_messages:
 with st.form("chat_form", clear_on_submit=True):
     st.markdown("""
         <style>
-            .input-row { display: flex; flex-direction: row; gap: 8px; align-items: flex-end; }
+            .input-row { display: flex; flex-direction: row; gap: 2px; align-items: flex-end; }
             .input-row textarea { flex-grow: 1; }
         </style>
     """, unsafe_allow_html=True)
 
     st.markdown("<div class='input-row'>", unsafe_allow_html=True)
-    user_input = st.text_area(" 질문을 입력하세요.", height=80, label_visibility="collapsed", key="input_box")
+    user_input = st.text_area(" 질문을 입력하세요.", height=120, label_visibility="collapsed", key="input_box")
     submitted = st.form_submit_button("물어보기")
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("""
-    <div style='text-align: right; font-size:12px; margin-top: -4px;'>
+    <div style='text-align: right; font-size:12px; margin-top: -4px; margin-right: 8px;'>
         ℹ️ "자세히 기업명" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
     </div>
 """, unsafe_allow_html=True)    
