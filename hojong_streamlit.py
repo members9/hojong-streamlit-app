@@ -176,7 +176,7 @@ for msg in st.session_state.chat_messages:
     content = msg["content"].replace("\n", "<br>")
     alignment = "flex-end" if msg["role"] == "user" else "flex-start"
     max_width = "66%"
-    bg_color = "#FFF176" if msg["role"] == "user" else "#DDFFFD"
+    bg_color = "#FFF176" if msg["role"] == "user" else "#F2F2FF"
     text_align = "left" if msg["role"] == "user" else "left"
     font_size = "100%" if "서비스 링크" in content else "100%"
 
@@ -243,7 +243,7 @@ if submitted and user_input.strip():
                     except: pass
                 elif k == "기업 핵심역량":
                     v = v.replace("_x000D_", "")
-                details.append(f"{k}: {v}")
+                details.append(f"• {k}: {v}")
             reply = "<br>".join(details) + f"<br>🔗 서비스 링크: <a href='{service_link}' target='_blank'>{service_link}</a><br>🏢 기업 링크: <a href='{company_link}' target='_blank'>{company_link}</a>"
         st.session_state.chat_messages.append({"role": "assistant", "content": reply})
 
