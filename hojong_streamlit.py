@@ -166,7 +166,7 @@ for msg in st.session_state.chat_messages:
 
     st.markdown(
         f"""
-        <div style='display: flex; justify-content: {alignment}; margin-bottom: 20px;'>
+        <div style='display: flex; justify-content: {alignment}; margin-bottom: 30px;'>
             <div style='max-width: {max_width}; background-color: {bg_color}; color: #000000; padding: 8px; border-radius: 5px; text-align: {text_align}; line-height: 1.25; word-wrap: break-word; font-size: {font_size};'>
                 {content}
             </div>
@@ -179,8 +179,8 @@ with st.form("chat_form", clear_on_submit=True):
     st.markdown("""
         <style>
             .stForm {
-                padding: 6px 8px !important;                    /* 상하좌우 padding 최소화 */
-                margin-top: -6px !important;                    /* 위 요소와 간격 좁히기 */
+                padding: 1px 1px !important;                    /* 상하좌우 padding 최소화 */
+                margin-top: -20px !important;                    /* 위 요소와 간격 좁히기 */
                 box-shadow: 0 0 0 1px #44444450 !important;     /* 얇은 테두리 느낌 */
                 border-radius: 6px !important;                  /* 둥근 느낌 유지 */
             }
