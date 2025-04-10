@@ -10,6 +10,14 @@ st.markdown("""
             font-family: 'Noto Sans KR', sans-serif !important;
         }
     </style>
+    <style>
+        /* 전체 배경을 검은색으로 설정 */
+        html, body, [class*="css"] {
+            background-color: #000000 !important;
+            color: #FFFFFF !important;  /* 텍스트를 흰색으로 설정 */
+            font-family: 'Noto Sans KR', sans-serif !important;  /* 폰트는 그대로 */
+        }
+    </style>   
 """, unsafe_allow_html=True)
 
 
@@ -164,15 +172,7 @@ def make_prompt(query, context, is_best=False):
 """
 
 # ----------------------- Streamlit UI ----------------------- #
-st.markdown("""
-    <style>
-        /* 전체 배경을 검은색으로 설정 */
-        html, body, [class*="css"] {
-            background-color: #000000 !important;
-            color: #FFFFFF !important;  /* 텍스트를 흰색으로 설정 */
-            font-family: 'Noto Sans KR', sans-serif !important;  /* 폰트는 그대로 */
-        }
-    </style>           
+st.markdown("""    
     <h1 style='text-align: center;'>혁신이용권 서비스 파인더</h1>
     <p style='text-align: center; font-size:14px;'>🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
