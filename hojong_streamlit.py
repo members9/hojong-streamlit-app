@@ -155,10 +155,24 @@ st.markdown("<h1 style='text-align: center;'>관광공사 서비스 파인더 AI
 st.markdown("<p style='text-align: center; font-size:14px;'>🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>", unsafe_allow_html=True)
 
 for msg in st.session_state.chat_messages:
+    content = msg["content"]
+    bg_color = "#FFF176" if msg["role"] == "user" else "#FFFFFF"
+    st.markdown(
+        f"""
+        <div style='background-color:{bg_color}; color:#000000; padding:8px; border-radius:5px; margin-bottom:5px;'>
+            {content}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+"""
+for msg in st.session_state.chat_messages:
     if msg["role"] == "user":
         st.markdown(f"<p style='background-color:#FFF176; color:#000000; padding:8px; border-radius:5px; text-align:left;'>{msg['content']}</p>", unsafe_allow_html=True)
     else:
         st.markdown(f"<p style='background-color:#FFFFFF; color:#000000; padding:8px; border-radius:5px; text-align:left;'>{msg['content']}</p>", unsafe_allow_html=True)
+"""
 
 st.markdown("<p style='text-align:center; font-size:12px;'>\"자세히 기업명\" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.</p>", unsafe_allow_html=True)
 
@@ -185,7 +199,7 @@ if submitted and user_input.strip():
             details = []
             for k, v in s.items():
                 if k == "기업 3개년 평균 매출":
-                    try: v = format(int(float(v)), ",") + "원\n"
+                    try: v = format(int(v), ",") + "원\n"
                     except: pass
                 elif k == "기업 인력현황":
                     try: v = f"{int(float(v))}명\n"
