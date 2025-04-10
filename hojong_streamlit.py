@@ -179,10 +179,10 @@ with st.form("chat_form", clear_on_submit=True):
     st.markdown("""
         <style>
             .stForm {
-                padding: 1px 1px !important;                    /* 상하좌우 padding 최소화 */
-                margin-top: -20px !important;                    /* 위 요소와 간격 좁히기 */
-                box-shadow: 0 0 0 1px #44444450 !important;     /* 얇은 테두리 느낌 */
-                border-radius: 6px !important;                  /* 둥근 느낌 유지 */
+                padding: -6px 10px !important;                      /* 상하좌우 padding 최소화 */
+                margin-top: 20px !important;                        /* 위 요소와 간격 좁히기 */
+                box-shadow: 0 0 0 1px #44444450 !important;         /* 얇은 테두리 느낌 */
+                border-radius: 6px !important;                      /* 둥근 느낌 유지 */
             }
             .input-row { display: flex; flex-direction: row; gap: 20px; align-items: flex-end; padding: 1px; margin-top: -8px; border: none;}
             .input-row textarea { flex-grow: 1; margin-top: 0px; padding: 1px; border: none;}
