@@ -152,7 +152,7 @@ def make_prompt(query, context, is_best=False):
 
 # ----------------------- Streamlit UI ----------------------- #
 st.markdown("""
-    <h1 style='text-align: center;'>관광공사 서비스 파인더</h1>
+    <h1 style='text-align: center;'>관광공사 혁신이용권 서비스 파인더</h1>
     <p style='text-align: center; font-size:14px;'>🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
 
@@ -167,7 +167,7 @@ for msg in st.session_state.chat_messages:
     st.markdown(
         f"""
         <div style='display: flex; justify-content: {alignment}; margin-bottom: 5px;'>
-            <div style='max-width: {max_width}; background-color: {bg_color}; color: #000000; padding: 8px; border-radius: 5px; text-align: {text_align}; line-height: 1.25; word-wrap: break-word; font-size: {font_size};'>
+            <div style='max-width: {max_width}; background-color: {bg_color}; color: #000000; padding: 6px 10px; border-radius: 8px; text-align: {text_align}; line-height: 1.2; word-wrap: break-word; font-size: {font_size};'>
                 {content}
             </div>
         </div>
@@ -179,7 +179,8 @@ with st.form("chat_form", clear_on_submit=True):
     st.markdown("""
         <style>
             .input-row { display: flex; flex-direction: row; gap: 8px; align-items: flex-end; }
-            .input-row textarea { flex-grow: 1; }
+            .input-row textarea { flex-grow: 1; width: 100%; }
+            .submit-button { margin-bottom: 0; height: 40px; }
         </style>
     """, unsafe_allow_html=True)
 
