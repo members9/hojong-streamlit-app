@@ -151,7 +151,7 @@ def make_prompt(query, context, is_best=False):
 """
 
 # ----------------------- Streamlit UI ----------------------- #
-st.markdown("<h1 style='text-align: center;'>관광공사 서비스 파인더 AI</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>관광공사 서비스 파인더</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; font-size:14px;'>🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>", unsafe_allow_html=True)
 
 for msg in st.session_state.chat_messages:
@@ -163,7 +163,7 @@ for msg in st.session_state.chat_messages:
         unsafe_allow_html=True
     )
 
-st.markdown("<p style='text-align:center; font-size:12px;'>\"자세히 기업명\" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; font-size:12px;'>ℹ️  \"자세히 기업명\" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.</p>", unsafe_allow_html=True)
 
 with st.form("chat_form", clear_on_submit=True):
     user_input = st.text_area("메시지 입력", height=80, label_visibility="collapsed")
@@ -188,16 +188,19 @@ if submitted and user_input.strip():
             details = []
             for k, v in s.items():
                 if k == "기업 3개년 평균 매출":
-                    try: v = format(int(v), ",") + "원\n"
+                    try: v = format(int(v), ",") + "원"
                     except: pass
                 elif k == "기업 인력현황":
-                    try: v = f"{int(float(v))}명\n"
+                    try: v = f"{int(float(v))}명"
                     except: pass
                 elif k == "기업 핵심역량":
-                    v = v.replace("_x000D_", "\n")
+                    v = v.replace("_x000D_", "")
                 details.append(f"{k}: {v}\n")
             reply = "\n".join(details) + f"\n🔗 서비스 링크: {service_link}\n\n🏢 기업 링크: {company_link}\n"
-        st.session_state.chat_messages.append({"role": "assistant", "content": reply})
+        st.session_state.chat_messages.append({
+            "role": "assistant",
+            "content": f"<div style='background-color:#FFFFFF; color:#000000; padding:8px; border-radius:5px; margin-bottom:5px; line-height:1.0; font-size:80%;'>{reply}</div>"
+        })
     else:
         if not is_relevant_question(user_input):
             msg = "죄송하지만, 관광기업이나 서비스 관련 질문으로 다시 말씀해 주세요."
