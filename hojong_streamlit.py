@@ -166,7 +166,7 @@ for msg in st.session_state.chat_messages:
 
     st.markdown(
         f"""
-        <div style='display: flex; justify-content: {alignment}; margin-bottom: 5px;'>
+        <div style='display: flex; justify-content: {alignment}; margin-bottom: 20px;'>
             <div style='max-width: {max_width}; background-color: {bg_color}; color: #000000; padding: 8px; border-radius: 5px; text-align: {text_align}; line-height: 1.25; word-wrap: break-word; font-size: {font_size};'>
                 {content}
             </div>
@@ -178,7 +178,7 @@ for msg in st.session_state.chat_messages:
 with st.form("chat_form", clear_on_submit=True):
     st.markdown("""
         <style>
-            .input-row { display: flex; flex-direction: row; gap: 20px; align-items: flex-end; padding: 6px; margin-top: -8px; border: none;}
+            .input-row { display: flex; flex-direction: row; gap: 20px; align-items: flex-end; padding: 1px; margin-top: -8px; border: none;}
             .input-row textarea { flex-grow: 1; margin-top: 0px; padding: 1px; border: none;}
         </style>
     """, unsafe_allow_html=True)
