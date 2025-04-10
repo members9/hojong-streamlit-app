@@ -216,4 +216,4 @@ if submitted and user_input.strip():
             st.session_state.conversation_history.append({"role": "assistant", "content": gpt_reply})
             st.session_state.chat_messages.append({"role": "assistant", "content": gpt_reply})
 
-    st.experimental_rerun()
+    st.rerun()
