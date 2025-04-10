@@ -178,7 +178,7 @@ for msg in st.session_state.chat_messages:
 with st.form("chat_form", clear_on_submit=True):
     st.markdown("""
         <style>
-            .input-row { display: flex; flex-direction: row; gap: 20px; align-items: flex-end; padding: 6px; margin-top: -8px;}
+            .input-row { display: flex; flex-direction: row; gap: 20px; align-items: flex-end; padding: 6px; margin-top: -8px; border: none;}
             .input-row textarea { flex-grow: 1; margin-top: 0px; }
         </style>
     """, unsafe_allow_html=True)
