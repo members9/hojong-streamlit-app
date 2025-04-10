@@ -30,7 +30,7 @@ index_cosine.add(xb)
 
 SIMILARITY_THRESHOLD = 0.30
 
-# ----------------------- 함수 정의 ----------------------- #
+# ----------------------- 함수 정의 ----------------------- # 
 def get_embedding(text, model="text-embedding-3-small"):
     # 기존 openai.Embedding.create 대신 client.embeddings.create 사용
     response = client.embeddings.create(input=[text], model=model)
