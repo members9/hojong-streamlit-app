@@ -189,12 +189,11 @@ with st.form("chat_form", clear_on_submit=True):
     submitted = st.form_submit_button("물어보기")
     st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("""
-        <div style='text-align: right; font-size:12px; margin-top: 5px;'>
-            ℹ️ "자세히 기업명" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
-        </div>
-    """, unsafe_allow_html=True)
-
+st.markdown("""
+    <div style='display: flex; justify-content: flex-end; margin-top: -10px; margin-right: 8px; font-size: 12px;'>
+        ℹ️ "자세히 기업명" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
+    </div>
+""", unsafe_allow_html=True)
 
 if submitted and user_input.strip():
     st.session_state.conversation_history.append({"role": "user", "content": user_input})
