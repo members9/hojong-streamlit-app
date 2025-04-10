@@ -185,7 +185,7 @@ with st.form("chat_form", clear_on_submit=True):
                 gap: 8px;
                 align-items: flex-end;
                 border: 1px solid #444;
-                padding: 12px;
+                padding: 10px;  /* 기존 12px에서 10px로 약 20% 감소 */
                 border-radius: 8px;
             }
             .input-row textarea {
@@ -193,10 +193,12 @@ with st.form("chat_form", clear_on_submit=True):
             }
         </style>
         <div class='input-row'>
+            <textarea name="input_box" rows="4" style="width:100%;" placeholder="질문을 입력하세요"></textarea>
+            <button type="submit">물어보기</button>
+        </div>
     """, unsafe_allow_html=True)
 
-    user_input = st.text_area("", height=80, label_visibility="collapsed", key="input_box")
-    submitted = st.form_submit_button("물어보기")  # ✅ 이 라인을 반드시 포함
+    submitted = st.form_submit_button("물어보기")  # 이 줄은 유지
 
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -206,7 +208,6 @@ st.markdown("""
         ℹ️ "<b>자세히 기업명</b>" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
     </div>
 """, unsafe_allow_html=True)
-
 
 if submitted and user_input.strip():
     st.session_state.conversation_history.append({"role": "user", "content": user_input})
