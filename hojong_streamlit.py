@@ -152,7 +152,6 @@ def make_prompt(query, context, is_best=False):
 
 # ----------------------- Streamlit UI ----------------------- #
 st.markdown("<h1 style='text-align: center;'>관광공사 서비스 가이드 AI</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size:14px;'>🤖 호종이에게 물어보세요.</p>", unsafe_allow_html=True)
 
 for msg in st.session_state.chat_messages:
     if msg["role"] == "user":
@@ -212,7 +211,6 @@ if submitted and user_input.strip():
             prompt = make_prompt(user_input, context, is_best=best_mode)
             st.session_state.conversation_history.append({"role": "user", "content": prompt})
             gpt_reply = ask_gpt(st.session_state.conversation_history)
-            gpt_reply = gpt_reply.replace("\n\n", "\n")
             st.session_state.conversation_history.append({"role": "assistant", "content": gpt_reply})
             st.session_state.chat_messages.append({"role": "assistant", "content": gpt_reply})
 
