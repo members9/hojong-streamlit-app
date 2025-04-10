@@ -6,18 +6,13 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
 
-        html, body, [class*="css"] {
-            font-family: 'Noto Sans KR', sans-serif !important;
-        }
-    </style>
-    <style>
         /* 전체 배경을 검은색으로 설정 */
         html, body, [class*="css"] {
             background-color: #000000 !important;
             color: #FFFFFF !important;  /* 텍스트를 흰색으로 설정 */
             font-family: 'Noto Sans KR', sans-serif !important;  /* 폰트는 그대로 */
         }
-    </style>   
+    </style>
 """, unsafe_allow_html=True)
 
 
