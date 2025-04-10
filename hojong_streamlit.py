@@ -152,7 +152,7 @@ def make_prompt(query, context, is_best=False):
 
 # ----------------------- Streamlit UI ----------------------- #
 st.markdown("""
-    <h1 style='text-align: center;'>관광공사 혁신이용권 서비스 파인더</h1>
+    <h1 style='text-align: center;'>혁신이용권 서비스 파인더</h1>
     <p style='text-align: center; font-size:14px;'>🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
 
@@ -175,25 +175,41 @@ for msg in st.session_state.chat_messages:
         unsafe_allow_html=True
     )
 
+# 채팅 입력 전체를 감싸는 박스 스타일 적용
+st.markdown("""
+    <div style='border: 1px solid #444; padding: 16px 12px 24px 12px; border-radius: 8px; margin-top: 20px;'>
+""", unsafe_allow_html=True)
+
 with st.form("chat_form", clear_on_submit=True):
     st.markdown("""
         <style>
-            .input-row { display: flex; flex-direction: row; gap: 8px; align-items: flex-end; }
-            .input-row textarea { flex-grow: 1; width: 100%; }
-            .submit-button { margin-bottom: 0; height: 40px; }
+            .input-row {
+                display: flex;
+                flex-direction: row;
+                gap: 8px;
+                align-items: flex-end;
+            }
+            .input-row textarea {
+                flex-grow: 1;
+            }
         </style>
+        <div class='input-row'>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div class='input-row'>", unsafe_allow_html=True)
     user_input = st.text_area("", height=80, label_visibility="collapsed", key="input_box")
     submitted = st.form_submit_button("물어보기")
+
     st.markdown("</div>", unsafe_allow_html=True)
 
+st.markdown("</div>", unsafe_allow_html=True)  # 닫는 div
+
+# 하단 안내 문구 오른쪽 정렬
 st.markdown("""
-    <div style='display: flex; justify-content: flex-end; margin-top: -10px; margin-right: 8px; font-size: 12px;'>
-        ℹ️ "자세히 기업명" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
+    <div style='display: flex; justify-content: flex-end; margin-top: 15px; margin-right: 8px; font-size: 14px;'>
+        ℹ️ "<b>자세히 기업명</b>" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
     </div>
 """, unsafe_allow_html=True)
+
 
 if submitted and user_input.strip():
     st.session_state.conversation_history.append({"role": "user", "content": user_input})
