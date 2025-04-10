@@ -162,7 +162,7 @@ for msg in st.session_state.chat_messages:
     max_width = "66%"
     bg_color = "#FFF176" if msg["role"] == "user" else "#FFFFFF"
     text_align = "left" if msg["role"] == "user" else "left"
-    font_size = "80%" if "서비스 링크" in content else "100%"
+    font_size = "100%" if "서비스 링크" in content else "100%"
 
     st.markdown(
         f"""
@@ -176,17 +176,24 @@ for msg in st.session_state.chat_messages:
     )
 
 with st.form("chat_form", clear_on_submit=True):
-    cols = st.columns([3, 1])
-    with cols[0]:
-        user_input = st.text_area("", height=80, label_visibility="collapsed")
-    with cols[1]:
-        submitted = st.form_submit_button("물어보기")
+    st.markdown("""
+        <style>
+            .input-row { display: flex; flex-direction: row; gap: 8px; align-items: flex-end; }
+            .input-row textarea { flex-grow: 1; }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<div class='input-row'>", unsafe_allow_html=True)
+    user_input = st.text_area("", height=80, label_visibility="collapsed", key="input_box")
+    submitted = st.form_submit_button("물어보기")
+    st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("""
-        <div style='text-align: right; font-size:12px; margin-top:-10px;'>
+        <div style='text-align: right; font-size:12px; margin-top: 5px;'>
             ℹ️ "자세히 기업명" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
         </div>
     """, unsafe_allow_html=True)
+
 
 if submitted and user_input.strip():
     st.session_state.conversation_history.append({"role": "user", "content": user_input})
@@ -213,7 +220,7 @@ if submitted and user_input.strip():
                     try: v = f"{int(float(v))}명"
                     except: pass
                 elif k == "기업 핵심역량":
-                    v = v.replace("_x000D_", "<br>")
+                    v = v.replace("_x000D_", "")
                 details.append(f"{k}: {v}")
             reply = "<br>".join(details) + f"<br>🔗 서비스 링크: <a href='{service_link}' target='_blank'>{service_link}</a><br>🏢 기업 링크: <a href='{company_link}' target='_blank'>{company_link}</a>"
         st.session_state.chat_messages.append({"role": "assistant", "content": reply})
