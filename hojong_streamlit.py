@@ -185,7 +185,7 @@ with st.form("chat_form", clear_on_submit=True):
                 gap: 8px;
                 align-items: flex-end;
                 border: 1px solid #444;
-                padding: 10px;  /* 기존 12px에서 10px로 약 20% 감소 */
+                padding: 10px;  /* 기존보다 20% 줄임 */
                 border-radius: 8px;
             }
             .input-row textarea {
@@ -193,15 +193,14 @@ with st.form("chat_form", clear_on_submit=True):
             }
         </style>
         <div class='input-row'>
-            <textarea name="input_box" rows="4" style="width:100%;" placeholder="질문을 입력하세요"></textarea>
+            <textarea name="input_box" rows="4" style="width:100%;" placeholder="질문을 입력하세요" id="input_box"></textarea>
             <button type="submit">물어보기</button>
         </div>
     """, unsafe_allow_html=True)
 
-    submitted = st.form_submit_button("물어보기")  # 이 줄은 유지
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
+    submitted = st.form_submit_button("물어보기")
+    user_input = st.query_params.get("input_box", "")  # 기본 입력값 처리
+    
 # 하단 안내 문구 오른쪽 정렬
 st.markdown("""
     <div style='display: flex; justify-content: flex-end; margin-top: -4px; margin-right: 8px; font-size: 12px;'>
