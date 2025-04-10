@@ -160,7 +160,7 @@ for msg in st.session_state.chat_messages:
         st.markdown(
             f"""
             <div style='display: flex; justify-content: flex-end; margin-bottom: 5px;'>
-                <div style='max-width: 66%; background-color: #FFF176; color: #000000; padding: 8px; border-radius: 5px;'>
+                <div style='max-width: 66%; background-color: #FFF176; color: #000000; padding: 8px; border-radius: 5px; text-align: right;'>
                     {content}
                 </div>
             </div>
@@ -171,7 +171,7 @@ for msg in st.session_state.chat_messages:
         st.markdown(
             f"""
             <div style='display: flex; justify-content: flex-start; margin-bottom: 5px;'>
-                <div style='max-width: 66%; background-color: #FFFFFF; color: #000000; padding: 8px; border-radius: 5px;'>
+                <div style='max-width: 66%; background-color: #FFFFFF; color: #000000; padding: 8px; border-radius: 5px; text-align: left;'>
                     {content}
                 </div>
             </div>
@@ -182,5 +182,60 @@ for msg in st.session_state.chat_messages:
 st.markdown("<p style='text-align:center; font-size:12px;'>ℹ️  \"자세히 기업명\" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.</p>", unsafe_allow_html=True)
 
 with st.form("chat_form", clear_on_submit=True):
-    user_input = st.text_area("메시지 입력", height=80, label_visibility="collapsed")
+    user_input = st.text_area("", height=80, label_visibility="collapsed")
     submitted = st.form_submit_button("물어보기")
+
+if submitted and user_input.strip():
+    st.session_state.conversation_history.append({"role": "user", "content": user_input})
+    st.session_state.chat_messages.append({"role": "user", "content": user_input})
+
+    if user_input.startswith("자세히"):
+        keyword = user_input.replace("자세히", "").strip()
+        all_results = list(itertools.chain.from_iterable(st.session_state.all_results))
+        matches = [s for s in all_results if keyword in s["기업명"]]
+        if not matches:
+            reply = "해당 키워드를 포함한 기업명이 없습니다."
+        elif len(matches) > 1:
+            reply = "여러 개의 기업명이 일치합니다:<br>" + "<br>".join(f"- {s['기업명']}" for s in matches)
+        else:
+            s = matches[0]
+            service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
+            company_link = f"https://www.tourvoucher.or.kr/user/entrprsManage/provdEntrprs/BD_selectProvdEntrprs.do?entrprsId={s['기업ID']}"
+            details = []
+            for k, v in s.items():
+                if k == "기업 3개년 평균 매출":
+                    try: v = format(int(v), ",") + "원"
+                    except: pass
+                elif k == "기업 인력현황":
+                    try: v = f"{int(float(v))}명"
+                    except: pass
+                elif k == "기업 핵심역량":
+                    v = v.replace("_x000D_", "")
+                details.append(f"{k}: {v}")
+            reply = "<br>".join(details) + f"<br>🔗 서비스 링크: {service_link}<br>🏢 기업 링크: {company_link}"
+        st.session_state.chat_messages.append({"role": "assistant", "content": reply})
+
+    else:
+        if not is_relevant_question(user_input):
+            msg = "❗ 관광기업이나 서비스 관련 질문으로 다시 말씀해 주세요."
+            st.session_state.chat_messages.append({"role": "assistant", "content": msg})
+        else:
+            best_mode = is_best_recommendation_query(user_input)
+            exclude = None if best_mode else st.session_state.excluded_company_ids
+            results = recommend_services(user_input, exclude_company_ids=exclude)
+
+            if not best_mode:
+                for s in results:
+                    st.session_state.excluded_company_ids.add(s["기업ID"])
+
+            st.session_state.last_results = results
+            st.session_state.all_results.append(results)
+            context = make_context(results)
+            prompt = make_prompt(user_input, context, is_best=best_mode)
+
+            st.session_state.conversation_history.append({"role": "user", "content": prompt})
+            gpt_reply = ask_gpt(st.session_state.conversation_history)
+            st.session_state.conversation_history.append({"role": "assistant", "content": gpt_reply})
+            st.session_state.chat_messages.append({"role": "assistant", "content": gpt_reply})
+
+    st.rerun()
