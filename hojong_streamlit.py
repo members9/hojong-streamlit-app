@@ -242,7 +242,7 @@ if submitted and user_input.strip():
                     try: v = f"{int(float(v))}명"
                     except: pass
                 elif k == "기업 핵심역량":
-                    v = v.replace("_x000D_", "")
+                    v = v.replace("_x000D_", ", ")
                 details.append(f"• {k}: {v}")
             reply = "<br>".join(details) + f"<br>🔗 서비스 링크: <a href='{service_link}' target='_blank'>{service_link}</a><br>🏢 기업 링크: <a href='{company_link}' target='_blank'>{company_link}</a>"
         st.session_state.chat_messages.append({"role": "assistant", "content": reply})
