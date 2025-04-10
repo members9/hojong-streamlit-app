@@ -120,39 +120,35 @@ def make_summary_context(summary_memory):
         for i, s in enumerate(deduplicated)
     ])
 
-def format_detailed_info(s):
-    lines = [f"기업명: {s['기업명']}", f"기업ID: {s['기업ID']}", f"서비스번호: {s['서비스번호']}", f"서비스명: {s['서비스명']}", f"서비스유형: {s['서비스유형']}"]
-    lines.append(f"서비스요약: {s['서비스요약']}")
-    for i in range(1, 6):
-        key = f"서비스특징{i}"
-        if key in s and s[key]:
-            lines.append(f"서비스특징{i}: {s[key]}")
-    mapping = {
-        "기업의 법인여부": "법인여부",
-        "기업 위치": "위치",
-        "기업 핵심역량": "핵심역량",
-        "기업 3개년 평균 매출": "3개년 평균 매출",
-        "기업 해당분야업력": "해당분야업력",
-        "기업 주요사업내용": "주요사업내용",
-        "기업 인력현황": "인력현황",
-        "서비스금액": "금액",
-        "서비스기한": "기한"
-    }
-    for k, label in mapping.items():
-        if k in s:
-            v = s[k]
-            if k == "기업 3개년 평균 매출":
-                try: v = format(int(float(v)), ",") + "원"
-                except: pass
-            elif k == "기업 인력현황":
-                try: v = f"{int(float(v))}명"
-                except: pass
-            elif k == "기업 핵심역량":
-                v = v.replace("_x000D_", "")
-            lines.append(f"{label}: {v}")
-    lines.append(f"🔗 서비스 링크: https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}")
-    lines.append(f"🏢 기업 링크: https://www.tourvoucher.or.kr/user/entrprsManage/provdEntrprs/BD_selectProvdEntrprs.do?entrprsId={s['기업ID']}")
-    return "\n".join(lines)
+def make_prompt(query, context, is_best=False):
+    if "추천" in query:
+        style_instruction = (
+            "- 답변은 목록 형식으로 출력해 주세요. 각 추천 항목은 번호를 붙이고, 기업명, 서비스명, 서비스 유형, 금액, 기한, 법인여부, 위치, 핵심역량, 3개년 평균 매출, 해당분야업력, 주요사업내용, 인력현황을 상세하게 기술해 주세요.\n"
+            "- 서비스명과 기업명은 반드시 따옴표로 묶고, 목록은 대시(-)로 나열해 주세요."
+        )
+    else:
+        style_instruction = "- 답변은 서술식으로 작성해 주세요. 기업 정보도 자연스럽게 설명해 주세요."
+
+    extra = ""
+    if is_best:
+        history = make_summary_context(st.session_state.all_results)
+        extra = f"\n지금까지 추천한 서비스 목록:\n{history}\n이전에 추천된 기업도 포함해서 최고의 조합을 제시해 주세요."
+
+    return f"""
+당신은 관광수혜기업에게 추천 서비스를 제공하는 AI 상담사 호종이입니다.
+
+사용자의 질문은 다음과 같습니다:
+"{query}"
+
+관련 서비스 목록:
+{context}
+
+📌 조건:
+{style_instruction}
+{extra}
+- 동일한 기업의 서비스가 여러 개일 경우, 하나만 선택해 주세요.
+- 특수문자는 사용하지 말고, 부드러운 상담사 말투로 답변해 주세요.
+"""
 
 # ----------------------- Streamlit UI ----------------------- #
 st.markdown("<h1 style='text-align: center;'>관광공사 서비스 파인더 AI</h1>", unsafe_allow_html=True)
@@ -183,7 +179,21 @@ if submitted and user_input.strip():
         elif len(matches) > 1:
             reply = "여러 개의 기업명이 일치합니다:\n" + "\n".join(f"- {s['기업명']}" for s in matches)
         else:
-            reply = format_detailed_info(matches[0])
+            s = matches[0]
+            service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
+            company_link = f"https://www.tourvoucher.or.kr/user/entrprsManage/provdEntrprs/BD_selectProvdEntrprs.do?entrprsId={s['기업ID']}"
+            details = []
+            for k, v in s.items():
+                if k == "기업 3개년 평균 매출":
+                    try: v = format(int(float(v)), ",") + "원\n"
+                    except: pass
+                elif k == "기업 인력현황":
+                    try: v = f"{int(float(v))}명\n"
+                    except: pass
+                elif k == "기업 핵심역량":
+                    v = v.replace("_x000D_", "\n")
+                details.append(f"{k}: {v}\n")
+            reply = "\n".join(details) + f"\n🔗 서비스 링크: {service_link}\n\n🏢 기업 링크: {company_link}\n"
         st.session_state.chat_messages.append({"role": "assistant", "content": reply})
     else:
         if not is_relevant_question(user_input):
