@@ -1,4 +1,4 @@
-openai
+openai>=0.27.0
 faiss-cpu
 numpy
 streamlit
