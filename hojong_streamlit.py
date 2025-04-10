@@ -1,5 +1,18 @@
 # hojong_streamlit.py
 import streamlit as st
+
+# ✅ 전체 폰트 스타일 추가
+st.markdown("""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
+
+        html, body, [class*="css"] {
+            font-family: 'Noto Sans KR', sans-serif !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+
 import faiss
 import pickle
 import numpy as np
