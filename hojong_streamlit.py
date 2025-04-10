@@ -176,7 +176,7 @@ for msg in st.session_state.chat_messages:
     content = msg["content"].replace("\n", "<br>")
     alignment = "flex-end" if msg["role"] == "user" else "flex-start"
     max_width = "66%"
-    bg_color = "#FFF176" if msg["role"] == "user" else "#FFFFFF"
+    bg_color = "#FFF176" if msg["role"] == "user" else "#404040"
     text_align = "left" if msg["role"] == "user" else "left"
     font_size = "100%" if "서비스 링크" in content else "100%"
 
