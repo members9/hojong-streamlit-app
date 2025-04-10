@@ -9,7 +9,7 @@ import itertools  # 여러 리스트를 합치기 위해 사용
 from collections import deque
 from openai import OpenAI
 
-# OpenAI 클라이언트 초기화
+# OpenAI 클라이언트 초기화 (API 키는 st.secrets에서 읽어옵니다)
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # FAISS 인덱스와 메타데이터 로드 (앱 시작 시 한 번만 로드)
@@ -32,8 +32,9 @@ SIMILARITY_THRESHOLD = 0.30
 
 # ----------------------- 함수 정의 ----------------------- #
 def get_embedding(text, model="text-embedding-3-small"):
-    response = openai.Embedding.create(input=[text], model=model)
-    return response['data'][0]['embedding']
+    # 기존 openai.Embedding.create 대신 client.embeddings.create 사용
+    response = client.embeddings.create(input=[text], model=model)
+    return response.data[0].embedding
 
 def is_best_recommendation_query(query):
     keywords = ["가장", "최고", "제일", "1등", "1위", "진짜 추천", "강력 추천", "정말 추천", "최선"]
@@ -170,7 +171,7 @@ with chat_container:
             st.markdown(f"<p style='background-color:#FFFFFF; padding:8px; border-radius:5px; text-align:left;'>{msg['content']}</p>", unsafe_allow_html=True)
 
 # 하단 메시지 안내
-st.markdown("<p style='text-align:center; font-size:12px;'>""자세히 기업명"" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; font-size:12px;'>\"자세히 기업명\" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.</p>", unsafe_allow_html=True)
 
 # ----------------------- 채팅 입력 폼 ----------------------- #
 with st.form(key="chat_form", clear_on_submit=True):
@@ -178,7 +179,7 @@ with st.form(key="chat_form", clear_on_submit=True):
     submitted = st.form_submit_button("물어보기")
 
 if submitted and user_input.strip() != "":
-    # 사용자가 입력한 메시지를 대화 이력 및 채팅 메시지에 추가
+    # 사용자 입력을 대화 이력 및 채팅 메시지에 추가
     st.session_state.conversation_history.append({"role": "user", "content": user_input})
     st.session_state.chat_messages.append({"role": "user", "content": user_input})
     
