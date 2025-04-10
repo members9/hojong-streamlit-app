@@ -167,7 +167,7 @@ for msg in st.session_state.chat_messages:
     st.markdown(
         f"""
         <div style='display: flex; justify-content: {alignment}; margin-bottom: 5px;'>
-            <div style='max-width: {max_width}; background-color: {bg_color}; color: #000000; padding: 6px 10px; border-radius: 8px; text-align: {text_align}; line-height: 1.2; word-wrap: break-word; font-size: {font_size};'>
+            <div style='max-width: {max_width}; background-color: {bg_color}; color: #000000; padding: 8px; border-radius: 5px; text-align: {text_align}; line-height: 1.25; word-wrap: break-word; font-size: {font_size};'>
                 {content}
             </div>
         </div>
@@ -175,37 +175,24 @@ for msg in st.session_state.chat_messages:
         unsafe_allow_html=True
     )
 
-# 채팅 입력 전체를 감싸는 박스 스타일 적용
 with st.form("chat_form", clear_on_submit=True):
     st.markdown("""
         <style>
-            .input-row {
-                display: flex;
-                flex-direction: row;
-                gap: 8px;
-                align-items: flex-end;
-                border: 0x solid #444;
-                padding: 10px;  /* 기존보다 20% 줄임 */
-                border-radius: 8px;
-            }
-            .input-row textarea {
-                flex-grow: 1;
-            }
+            .input-row { display: flex; flex-direction: row; gap: 8px; align-items: flex-end; }
+            .input-row textarea { flex-grow: 1; }
         </style>
-        <div class='input-row'>
-            <textarea name="input_box" rows="4" style="width:100%;" placeholder="질문을 입력하세요" id="input_box"></textarea>
-        </div>
     """, unsafe_allow_html=True)
 
+    st.markdown("<div class='input-row'>", unsafe_allow_html=True)
+    user_input = st.text_area(" 질문을 입력하세요.", height=80, label_visibility="collapsed", key="input_box")
     submitted = st.form_submit_button("물어보기")
-    user_input = st.query_params.get("input_box", "")  # 기본 입력값 처리
-    
-# 하단 안내 문구 오른쪽 정렬
+    st.markdown("</div>", unsafe_allow_html=True)
+
 st.markdown("""
-    <div style='display: flex; justify-content: flex-end; margin-top: -4px; margin-right: 8px; font-size: 12px;'>
-        ℹ️ "<b>자세히 기업명</b>" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
+    <div style='text-align: right; font-size:12px; margin-top: -4px;'>
+        ℹ️ "자세히 기업명" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
     </div>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True)    
 
 if submitted and user_input.strip():
     st.session_state.conversation_history.append({"role": "user", "content": user_input})
