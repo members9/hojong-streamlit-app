@@ -157,19 +157,16 @@ st.markdown("<p style='text-align: center; font-size:14px;'>🤖 호종이에게
 for msg in st.session_state.chat_messages:
     content = msg["content"]
     bg_color = "#FFF176" if msg["role"] == "user" else "#FFFFFF"
+    formatted = content.replace("\n", "<br>")
     st.markdown(
-        f"""
-        <div style='background-color:{bg_color}; color:#000000; padding:8px; border-radius:5px; margin-bottom:5px;'>
-            {content}
-        </div>
-        """,
+        f"<div style='background-color:{bg_color}; color:#000000; padding:8px; border-radius:5px; margin-bottom:5px; line-height:1.25;'>{formatted}</div>",
         unsafe_allow_html=True
     )
 
 st.markdown("<p style='text-align:center; font-size:12px;'>\"자세히 기업명\" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.</p>", unsafe_allow_html=True)
 
 with st.form("chat_form", clear_on_submit=True):
-    user_input = st.text_area("메시지 입력", height=80)
+    user_input = st.text_area("메시지 입력", height=80, label_visibility="collapsed")
     submitted = st.form_submit_button("물어보기")
 
 if submitted and user_input.strip():
