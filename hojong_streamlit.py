@@ -177,7 +177,7 @@ for msg in st.session_state.chat_messages:
 
 # 채팅 입력 전체를 감싸는 박스 스타일 적용
 st.markdown("""
-    <div style='border: 1px solid #444; padding: 16px 12px 24px 12px; border-radius: 8px; margin-top: 20px;'>
+    <div style='border: 1px solid #444; padding: 16px 12px 24px 12px; border-radius: 8px; margin-top: 5px;'>
 """, unsafe_allow_html=True)
 
 with st.form("chat_form", clear_on_submit=True):
@@ -205,7 +205,7 @@ st.markdown("</div>", unsafe_allow_html=True)  # 닫는 div
 
 # 하단 안내 문구 오른쪽 정렬
 st.markdown("""
-    <div style='display: flex; justify-content: flex-end; margin-top: 15px; margin-right: 8px; font-size: 14px;'>
+    <div style='display: flex; justify-content: flex-end; margin-top: 4px; margin-right: 8px; font-size: 12px;'>
         ℹ️ "<b>자세히 기업명</b>" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
     </div>
 """, unsafe_allow_html=True)
