@@ -184,7 +184,7 @@ with st.form("chat_form", clear_on_submit=True):
                 flex-direction: row;
                 gap: 8px;
                 align-items: flex-end;
-                border: 1px solid #444;
+                border: 0x solid #444;
                 padding: 10px;  /* 기존보다 20% 줄임 */
                 border-radius: 8px;
             }
@@ -194,7 +194,6 @@ with st.form("chat_form", clear_on_submit=True):
         </style>
         <div class='input-row'>
             <textarea name="input_box" rows="4" style="width:100%;" placeholder="질문을 입력하세요" id="input_box"></textarea>
-            <button type="submit">물어보기</button>
         </div>
     """, unsafe_allow_html=True)
 
