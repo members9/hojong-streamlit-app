@@ -195,7 +195,7 @@ with st.form("chat_form", clear_on_submit=True):
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("""
-    <div style='text-align: right; font-size:13px; margin-top: -4px; margin-right: 8px;'>
+    <div style='text-align: right; font-size:13px; margin-top: -40px; margin-right: 8px;'>
         ℹ️ "자세히  기업명" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
     </div>
 """, unsafe_allow_html=True)    
