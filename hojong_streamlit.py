@@ -151,39 +151,42 @@ def make_prompt(query, context, is_best=False):
 """
 
 # ----------------------- Streamlit UI ----------------------- #
-st.markdown("<h1 style='text-align: center;'>관광공사 서비스 파인더</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size:14px;'>🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>", unsafe_allow_html=True)
+st.markdown("""
+    <h1 style='text-align: center;'>관광공사 서비스 파인더</h1>
+    <p style='text-align: center; font-size:14px;'>🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
+""", unsafe_allow_html=True)
 
 for msg in st.session_state.chat_messages:
     content = msg["content"].replace("\n", "<br>")
-    if msg["role"] == "user":
-        st.markdown(
-            f"""
-            <div style='display: flex; justify-content: flex-end; margin-bottom: 5px;'>
-                <div style='max-width: 66%; background-color: #FFF176; color: #000000; padding: 8px; border-radius: 5px; text-align: right;'>
-                    {content}
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-    else:
-        st.markdown(
-            f"""
-            <div style='display: flex; justify-content: flex-start; margin-bottom: 5px;'>
-                <div style='max-width: 66%; background-color: #FFFFFF; color: #000000; padding: 8px; border-radius: 5px; text-align: left;'>
-                    {content}
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    alignment = "flex-end" if msg["role"] == "user" else "flex-start"
+    max_width = "66%"
+    bg_color = "#FFF176" if msg["role"] == "user" else "#FFFFFF"
+    text_align = "left" if msg["role"] == "user" else "left"
+    font_size = "80%" if "서비스 링크" in content else "100%"
 
-st.markdown("<p style='text-align:center; font-size:12px;'>ℹ️  \"자세히 기업명\" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.</p>", unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div style='display: flex; justify-content: {alignment}; margin-bottom: 5px;'>
+            <div style='max-width: {max_width}; background-color: {bg_color}; color: #000000; padding: 8px; border-radius: 5px; text-align: {text_align}; line-height: 1.25; word-wrap: break-word; font-size: {font_size};'>
+                {content}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 with st.form("chat_form", clear_on_submit=True):
-    user_input = st.text_area("", height=80, label_visibility="collapsed")
-    submitted = st.form_submit_button("물어보기")
+    cols = st.columns([3, 1])
+    with cols[0]:
+        user_input = st.text_area("", height=80, label_visibility="collapsed")
+    with cols[1]:
+        submitted = st.form_submit_button("물어보기")
+
+    st.markdown("""
+        <div style='text-align: right; font-size:12px; margin-top:-10px;'>
+            ℹ️ "자세히 기업명" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
+        </div>
+    """, unsafe_allow_html=True)
 
 if submitted and user_input.strip():
     st.session_state.conversation_history.append({"role": "user", "content": user_input})
@@ -194,9 +197,9 @@ if submitted and user_input.strip():
         all_results = list(itertools.chain.from_iterable(st.session_state.all_results))
         matches = [s for s in all_results if keyword in s["기업명"]]
         if not matches:
-            reply = "해당 키워드를 포함한 기업명이 없습니다."
+            reply = "❗ 해당 키워드를 포함한 기업명이 없습니다."
         elif len(matches) > 1:
-            reply = "여러 개의 기업명이 일치합니다:<br>" + "<br>".join(f"- {s['기업명']}" for s in matches)
+            reply = "❗ 여러 개의 기업명이 일치합니다:<br>" + "<br>".join(f"- {s['기업명']}" for s in matches)
         else:
             s = matches[0]
             service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
@@ -210,9 +213,9 @@ if submitted and user_input.strip():
                     try: v = f"{int(float(v))}명"
                     except: pass
                 elif k == "기업 핵심역량":
-                    v = v.replace("_x000D_", "")
+                    v = v.replace("_x000D_", "<br>")
                 details.append(f"{k}: {v}")
-            reply = "<br>".join(details) + f"<br>🔗 서비스 링크: {service_link}<br>🏢 기업 링크: {company_link}"
+            reply = "<br>".join(details) + f"<br>🔗 서비스 링크: <a href='{service_link}' target='_blank'>{service_link}</a><br>🏢 기업 링크: <a href='{company_link}' target='_blank'>{company_link}</a>"
         st.session_state.chat_messages.append({"role": "assistant", "content": reply})
 
     else:
