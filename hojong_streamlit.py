@@ -195,8 +195,8 @@ with st.form("chat_form", clear_on_submit=True):
         <div class='input-row'>
     """, unsafe_allow_html=True)
 
-    user_input = st.text_area("", height=60, label_visibility="collapsed", key="input_box")
-    submitted = st.form_submit_button("물어보기")
+    user_input = st.text_area("", height=80, label_visibility="collapsed", key="input_box")
+    submitted = st.form_submit_button("물어보기")  # ✅ 이 라인을 반드시 포함
 
     st.markdown("</div>", unsafe_allow_html=True)
 
