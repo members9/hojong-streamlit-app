@@ -179,10 +179,11 @@ with st.form("chat_form", clear_on_submit=True):
     st.markdown("""
         <style>
             .stForm {
-                padding: -20px 10px !important;                      /* 상하좌우 padding 최소화 */
-                margin-top: 20px !important;                        /* 위 요소와 간격 좁히기 */
-                box-shadow: 0 0 0 1px #44444450 !important;         /* 얇은 테두리 느낌 */
-                border-radius: 6px !important;                      /* 둥근 느낌 유지 */
+                border: none !important;
+                box-shadow: none !important;
+                background-color: transparent !important;
+                padding: 0 !important;
+                margin: 0 !important;
             }
             .input-row { display: flex; flex-direction: row; gap: 20px; align-items: flex-end; padding: 1px; margin-top: -8px; border: none;}
             .input-row textarea { flex-grow: 1; margin-top: 0px; padding: 1px; border: none;}
@@ -195,7 +196,7 @@ with st.form("chat_form", clear_on_submit=True):
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("""
-    <div style='text-align: right; font-size:13px; margin-top: -40px; margin-right: 8px;'>
+    <div style='text-align: right; font-size:13px; margin-top: -120px; margin-right: 8px;'>
         ℹ️ "자세히  기업명" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.
     </div>
 """, unsafe_allow_html=True)    
