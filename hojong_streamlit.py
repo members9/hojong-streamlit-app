@@ -170,7 +170,7 @@ with chat_container:
             st.markdown(f"<p style='background-color:#FFFFFF; padding:8px; border-radius:5px; text-align:left;'>{msg['content']}</p>", unsafe_allow_html=True)
 
 # 하단 메시지 안내
-st.markdown("<p style='text-align:center; font-size:12px;'>자세히 기업명 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; font-size:12px;'>""자세히 기업명"" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.</p>", unsafe_allow_html=True)
 
 # ----------------------- 채팅 입력 폼 ----------------------- #
 with st.form(key="chat_form", clear_on_submit=True):
