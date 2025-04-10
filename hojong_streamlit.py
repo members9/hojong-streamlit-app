@@ -156,9 +156,9 @@ st.markdown("<p style='text-align: center; font-size:14px;'>🤖 호종이에게
 
 for msg in st.session_state.chat_messages:
     if msg["role"] == "user":
-        st.markdown(f"<p style='background-color:#DCF8C6; padding:8px; border-radius:5px; text-align:right;'>{msg['content']}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='background-color:#FFF176; color:#000000; padding:8px; border-radius:5px; text-align:left;'>{msg['content']}</p>", unsafe_allow_html=True)
     else:
-        st.markdown(f"<p style='background-color:#FFFFFF; padding:8px; border-radius:5px; text-align:left;'>{msg['content']}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='background-color:#FFFFFF; color:#000000; padding:8px; border-radius:5px; text-align:left;'>{msg['content']}</p>", unsafe_allow_html=True)
 
 st.markdown("<p style='text-align:center; font-size:12px;'>\"자세히 기업명\" 을 입력하시면 보다 상세한 정보를 얻을 수 있습니다.</p>", unsafe_allow_html=True)
 
