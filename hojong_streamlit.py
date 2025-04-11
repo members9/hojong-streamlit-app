@@ -71,10 +71,7 @@ def is_followup_question(prev, current):
         {"role": "user", "content": f"이전 질문: {prev}\n현재 질문: {current}"}
     ]
     try:
-        reply = openai.ChatCompletion.create(
-            model="gpt-4o",
-            messages=messages
-        )
+        reply = client.chat.completions.create(model="gpt-4o", messages=messages)
         answer = reply['choices'][0]['message']['content'].strip().lower()
         result = "yes" in answer  # 'yes' 포함 여부로 판단
         st.session_state.followup_cache[key] = result  # ✅ 캐시 저장
