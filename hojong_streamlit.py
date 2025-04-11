@@ -197,7 +197,7 @@ def make_prompt(query, context, is_best):
 
 # ✅ UI 출력 영역
 st.markdown("""
-    <h1 class="responsive-title">혁신바우처 서비스 파인더</h1>
+    <div class="responsive-title">혁신바우처 서비스 파인더</div>
     <p style='text-align: center; font-size:14px;'>🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
 
