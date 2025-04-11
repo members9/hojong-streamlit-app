@@ -246,7 +246,7 @@ for msg in st.session_state.chat_messages:
             <div class="user-msg">
                 {msg["content"].replace(chr(10), "<br>")}
             </div>
-            f"<div class='timestamp'>{msg['timestamp']}</div>"
+            <div class='timestamp'>{msg['timestamp']}</div>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -256,7 +256,7 @@ for msg in st.session_state.chat_messages:
                 {msg["content"].replace(chr(10), "<br>")}               
             </div>
             <div class="msg-time">{now_time}</div>
-            f"<div class='timestamp'>{msg['timestamp']}</div>"
+            <div class='timestamp'>{msg['timestamp']}</div>
         </div>
         """, unsafe_allow_html=True)
 
