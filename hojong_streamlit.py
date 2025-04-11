@@ -38,12 +38,32 @@ st.markdown("""
         .chatbot-msg {
             display: inline-block; 
             text-align: left; 
-            background-color: #000000; 
-            color: #FFFFFF; 
+            background-color: #FFFFFF; 
+            color: #000000; 
             padding: 10px 14px; 
             border-radius: 12px 0px 12px 12px; 
             margin: 0 0 30px 0; 
             max-width: 66%;'>
+        }
+        .input-row {
+            background-color: #000000; 
+            color: #FFFFFF; 
+        }
+        .input-row textarea {
+            flex-grow: 1;
+            min-width: 250px;
+            background-color: #1c1c1c;
+            color: #fff;
+            border-radius: 6px;
+            padding: 10px;
+            border: 1px solid #444;
+        }
+        .send-button button {
+            background-color: #444;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
         }
         @media screen and (max-width: 768px) {
             .input-row {
@@ -187,7 +207,7 @@ for msg in st.session_state.chat_messages:
         """, unsafe_allow_html=True)
 
 with st.form("chat_form", clear_on_submit=True):
-    st.markdown("<div>", unsafe_allow_html=True)
+    st.markdown("<div class='input-row'>", unsafe_allow_html=True)
     user_input = st.text_area("", height=100, label_visibility="collapsed")
     submitted = st.form_submit_button("물어보기")
     st.markdown("</div>", unsafe_allow_html=True)
