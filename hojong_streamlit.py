@@ -67,15 +67,14 @@ st.markdown("""
         }
         /* ✅ 기타 */
         .responsive-title {
-            font-size: clamp(18px, 5vw, 40px);
+            font-size: clamp(40px, 5vw, 60px);
             font-weight: 700;
             color: #000000;  /* 진한 레드 */
             text-align: center;
             white-space: nowrap;
             overflow: hidden;
-            margin: 8px auto 12px auto;
-            width: 80%;
-            padding-bottom: 6px;
+            width: 100%;
+            padding-bottom: 2px;
         }
         .user-guide {
             font-size: 13px; 
