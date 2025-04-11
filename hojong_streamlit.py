@@ -8,7 +8,6 @@ import random
 import itertools
 from collections import deque
 from openai import OpenAI
-import html
 
 # ✅ 스타일 및 반응형 CSS 추가
 st.markdown("""
@@ -40,13 +39,6 @@ st.markdown("""
         }
 
         /* ✅ 사용자/챗봇 말풍선 */
-        .chat-container {
-            background-color: #bacee0;  /* 채팅 전체 영역의 배경색 */
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 24px;
-            min-height: 200px;  
-        }
         .user-msg-box {
             text-align: right;
         }
@@ -60,7 +52,7 @@ st.markdown("""
             color: #000000; 
             padding: 10px 14px; 
             border-radius: 12px 0px 12px 12px; 
-            margin: 0 0 20px 0; 
+            margin: 0 0 30px 0; 
             max-width: 66%;
         }
         .chatbot-msg {
@@ -70,11 +62,9 @@ st.markdown("""
             color: #000000; 
             padding: 10px 14px; 
             border-radius: 12px 0px 12px 12px; 
-            margin: 0 0 20px 0; 
+            margin: 0 0 30px 0; 
             max-width: 66%;
         }
-        
-        /* ✅ 사용법 */
         .user-guide {
             font-size: 13px; 
             margin-top: 4px; 
@@ -205,32 +195,23 @@ st.markdown("""
     <p style='text-align: center; font-size:14px;'>🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
 
-# 채팅 영역 전체 감싸기
-# ✅ 채팅 메시지를 하나의 HTML 문자열로 누적
-chat_html = '<div class="chat-container">'
-
 for msg in st.session_state.chat_messages:
-    escaped_content = html.escape(msg["content"]).replace(chr(10), "<br>")
-    
     if msg["role"] == "user":
-        chat_html += f"""
+        st.markdown(f"""
         <div class="user-msg-box">
             <div class="user-msg">
-                {escaped_content}
+                {msg["content"].replace(chr(10), "<br>")}
             </div>
         </div>
-        """
+        """, unsafe_allow_html=True)
     else:
-        chat_html += f"""
+        st.markdown(f"""
         <div class="chatbot-msg-box">
-            <div class="chatbot-msg">
-                {escaped_content}
+            <div class="chatbot-msg"> 
+                {msg["content"].replace(chr(10), "<br>")}
             </div>
         </div>
-        """
-
-chat_html += '</div>'
-st.markdown(chat_html, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
 with st.form("chat_form", clear_on_submit=True):
     st.markdown("<div class='input-row'>", unsafe_allow_html=True)
