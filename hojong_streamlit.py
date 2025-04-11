@@ -98,6 +98,10 @@ st.markdown("""
                 align-items: stretch !important;
             }
         }
+        
+        .main .block-container {
+            padding-top: 1rem !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
