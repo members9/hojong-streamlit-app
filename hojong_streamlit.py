@@ -16,22 +16,22 @@ st.markdown("""
         
         html, body, .stApp {
             background-color: #FFFFFF !important;
-            color: #000000 !important;
+            color: #0c0c0c !important;
             font-family: 'Noto Sans KR', sans-serif !important;
         }
 
         /* ✅ 입력창 */
         .stTextArea textarea {
             background-color: #f0f0f0 !important;
-            color: #000000 !important;
+            color: #0c0c0c !important;
             border-radius: 6px !important;
             padding: 10px !important;
-            border: 2px solid #DDDDDD !important;
+            border: 1px solid #DDDDDD !important;
         }
 
         /* ✅ 버튼 */
         .stButton > button {
-            background-color: #000000 !important;
+            background-color: #0c0c0c !important;
             color: #FFFFFF !important;
             padding: 10px 16px !important;
             border-radius: 6px !important;
@@ -65,7 +65,13 @@ st.markdown("""
             margin: 0 0 30px 0; 
             max-width: 66%;
         }
-
+        .user-guide {
+            font-size: 14px; 
+            margin-top: 4px; 
+            color: #0c0c0c; 
+            text-align: left;
+        }
+        
         @media screen and (max-width: 768px) {
             .input-row {
                 flex-direction: column;
@@ -214,7 +220,7 @@ with st.form("chat_form", clear_on_submit=True):
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("""
-    <div style='font-size: 14px; margin-top: 4px; color: #CCCCCC; text-align: left;'>
+    <div user-guide>
         ℹ️ 사용법 안내:<br>
         •&nbsp;<b>"자세히 기업명"</b>을 입력하면 해당 기업의 상세 정보를 확인할 수 있어요.<br>
         •&nbsp;<b>"강력 추천"</b> 을 포함하여 질문하면 앞서 제시된 내용들을 포함한 전체 추천을 받아볼 수 있어요.<br>
