@@ -9,6 +9,7 @@ import itertools
 from collections import deque
 from openai import OpenAI
 from datetime import datetime
+from zoneinfo import ZoneInfo  # Python 3.9 이상
 
 # ✅ 스타일 및 반응형 CSS 추가
 st.markdown("""
@@ -121,6 +122,9 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
+
+def get_kst_time():
+    return datetime.now(ZoneInfo("Asia/Seoul")).strftime("%p %I:%M")
 
 # ✅ 상태 초기화
 if "conversation_history" not in st.session_state:
@@ -274,7 +278,7 @@ st.markdown("""
 
 if submitted and user_input.strip():
     st.session_state.conversation_history.append({"role": "user", "content": user_input})
-    st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": datetime.now().strftime("%p %I:%M")})
+    st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": get_kst_time()})
 
     if user_input.startswith("자세히"):
         keyword = user_input.replace("자세히", "").strip()
@@ -288,12 +292,12 @@ if submitted and user_input.strip():
             s = matches[0]
             details = [f"• {k}: {v}" for k, v in s.items()]
             reply = "<br>".join(details)
-        st.session_state.chat_messages.append({"role": "assistant", "content": reply, "timestamp": datetime.now().strftime("%p %I:%M")})
+        st.session_state.chat_messages.append({"role": "assistant", "content": reply, "timestamp": get_kst_time()})
         st.rerun()
     else:
         if not is_relevant_question(user_input):
             msg = "❗ 관광기업이나 서비스 관련 질문으로 다시 말씀해 주세요."
-            st.session_state.chat_messages.append({"role": "assistant", "content": msg, "timestamp": datetime.now().strftime("%p %I:%M")})
+            st.session_state.chat_messages.append({"role": "assistant", "content": msg, "timestamp": get_kst_time()})
             st.rerun()
 
         best_mode = is_best_recommendation_query(user_input)
@@ -313,6 +317,6 @@ if submitted and user_input.strip():
 
         gpt_reply = ask_gpt(st.session_state.conversation_history)
         st.session_state.conversation_history.append({"role": "assistant", "content": gpt_reply})
-        st.session_state.chat_messages.append({"role": "assistant", "content": gpt_reply, "timestamp": datetime.now().strftime("%p %I:%M")})
+        st.session_state.chat_messages.append({"role": "assistant", "content": gpt_reply, "timestamp": get_kst_time()})
 
         st.rerun()
