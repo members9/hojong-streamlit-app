@@ -15,7 +15,7 @@ st.markdown("""
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
         
         html, body, .stApp {
-            background-color: #FFFFFF !important;
+            background-color: #baceee0 !important;
             color: #0c0c0c !important;
             font-family: 'Noto Sans KR', sans-serif !important;
         }
@@ -66,7 +66,7 @@ st.markdown("""
             max-width: 66%;
         }
         .user-guide {
-            font-size: 14px; 
+            font-size: 13px; 
             margin-top: 4px; 
             color: #0c0c0c; 
             text-align: left;
