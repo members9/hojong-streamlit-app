@@ -34,6 +34,8 @@ if "chat_messages" not in st.session_state:
     st.session_state.chat_messages = []
 if "embedding_cache" not in st.session_state:
     st.session_state.embedding_cache = {}
+if "followup_cache" not in st.session_state:
+    st.session_state.followup_cache = {}
 
 # ✅ GPT 및 FAISS 세팅
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -55,16 +57,13 @@ if "user_query_history" not in st.session_state:
 if "embedding_query_text" not in st.session_state:
     st.session_state.embedding_query_text = None
 
-# ✅ GPT 후속 질문 판단 캐시 저장소 (전역)
-followup_cache = {}
-
 # ✅ 후속 질문 여부 판단
 def is_followup_question(prev, current):
     key = (prev.strip(), current.strip())  # 전처리된 질문 쌍을 캐시 키로 사용
 
-    if key in followup_cache:
+    if key in st.session_state.followup_cache:
         st.write(f"⚠️ [CACHE HIT] Cache에 후속 질문 여부 판단 완료: {key}")
-        return followup_cache[key]
+        return st.session_state.followup_cache[key]
 
     st.write(f"🧠 [CACHE MISS] ChatGPT에 후속 질문 여부 판단 중: {key}")
     messages = [
@@ -78,7 +77,7 @@ def is_followup_question(prev, current):
         )
         answer = reply['choices'][0]['message']['content'].strip().lower()
         result = "yes" in answer  # 'yes' 포함 여부로 판단
-        followup_cache[key] = result  # ✅ 캐시 저장
+        st.session_state.followup_cache[key] = result  # ✅ 캐시 저장
         return result
     except Exception as e:
         st.write(f"[❌ GPT 오류] 후속 질문 판단 실패: {e}")
@@ -302,21 +301,21 @@ if submitted and user_input.strip():
 
     else:
         
-            # ✅ 후속 질문 판단: 이전 질문이 있을 때만 수행
-        if user_query_history:
-            previous_input = user_query_history[-1]
-            if not is_followup_question(previous_input, user_input):
+        # ✅ 후속 질문 판단: 이전 질문이 있을 때만 수행
+        if st.session_state.user_query_history:
+            st.session_state.previous_input = st.session_state.user_query_history[-1]
+            if not is_followup_question(st.session_state.previous_input, user_input):
                 st.write("🔁 [INFO] 독립된 질문입니다. 기준 임베딩 갱신.")
-                embedding_query_text = user_input
+                st.session_state.embedding_query_text = user_input
             else:
                 st.write("➡️ [INFO] 후속 질문입니다. 기준 임베딩 유지.")
         else:
             st.write("🌱 [INFO] 최초 질문입니다. 기준 임베딩 설정.")
-            embedding_query_text = user_input
+            st.session_state.embedding_query_text = user_input
 
         # 사용자 입력을 대화 이력과 히스토리에 각각 추가
         #conversation_history.append({"role": "user", "content": user_input})
-        user_query_history.append(user_input)  # ✅ 무한 저장 리스트에 추가
+        st.session_state.user_query_history.append(user_input)  # ✅ 무한 저장 리스트에 추가
         
         
         best_mode = is_best_recommendation_query(user_input)
