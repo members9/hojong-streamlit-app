@@ -49,9 +49,9 @@ st.markdown("""
             text-align: right !important;
         }
         .user-msg-box .timestamp {
-            text-align: left;  /* 왼쪽 하단 */
-            margin-left: auto;
-            margin-right: 10px;
+            margin-top: 4px;
+            text-align: right;
+            width: 66%;
         }
         .user-msg {
             display: inline-block !important;
@@ -67,9 +67,9 @@ st.markdown("""
             text-align: left !important;
         }
         .chatbot-msg-box .timestamp {
-            text-align: right;  /* 오른쪽 하단 */
-            margin-left: 10px;
-            margin-right: auto;
+            margin-top: 4px;
+            text-align: left;
+            width: 66%;
         }
         .chatbot-msg {
             display: inline-block !important; 
