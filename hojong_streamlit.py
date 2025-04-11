@@ -44,6 +44,7 @@ st.markdown("""
             padding: 16px;
             border-radius: 12px;
             margin-bottom: 24px;
+            min-height: 200px;  
         }
         .user-msg-box {
             text-align: right;
