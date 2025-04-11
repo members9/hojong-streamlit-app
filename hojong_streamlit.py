@@ -19,33 +19,8 @@ st.markdown("""
             color: #FFFFFF !important;
             font-family: 'Noto Sans KR', sans-serif !important;
         }
-        .user-msg-box {
-            text-align: right;
-        }
-        .chatbot-msg-box {
-            text-align: left;
-        }
-        .user-msg {
-            display: inline-block; 
-            text-align: left; 
-            background-color: #FFEB3B; 
-            color: #000000; 
-            padding: 10px 14px; 
-            border-radius: 12px 0px 12px 12px; 
-            margin: 0 0 30px 0; 
-            max-width: 66%;'>
-        }
-        .chatbot-msg {
-            display: inline-block; 
-            text-align: left; 
-            background-color: #FFFFFF; 
-            color: #000000; 
-            padding: 10px 14px; 
-            border-radius: 12px 0px 12px 12px; 
-            margin: 0 0 30px 0; 
-            max-width: 66%;'>
-        }
-         /* ✅ 입력창 스타일 */
+
+        /* ✅ 입력창 스타일 */
         .input-row textarea, .stTextArea textarea {
             background-color: #f0f0f0 !important;
             color: #000000 !important;
@@ -61,6 +36,34 @@ st.markdown("""
             padding: 8px 16px;
             border-radius: 6px;
             border: 1px solid #666;
+        }
+
+        /* ✅ 사용자/챗봇 말풍선 */
+        .user-msg-box {
+            text-align: right;
+        }
+        .chatbot-msg-box {
+            text-align: left;
+        }
+        .user-msg {
+            display: inline-block; 
+            text-align: left; 
+            background-color: #FFEB3B; 
+            color: #000000; 
+            padding: 10px 14px; 
+            border-radius: 12px 0px 12px 12px; 
+            margin: 0 0 30px 0; 
+            max-width: 66%;
+        }
+        .chatbot-msg {
+            display: inline-block; 
+            text-align: left; 
+            background-color: #FFFFFF; 
+            color: #000000; 
+            padding: 10px 14px; 
+            border-radius: 12px 0px 12px 12px; 
+            margin: 0 0 30px 0; 
+            max-width: 66%;
         }
 
         @media screen and (max-width: 768px) {
