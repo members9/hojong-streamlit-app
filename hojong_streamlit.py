@@ -205,30 +205,31 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 채팅 영역 전체 감싸기
-st.markdown("""
-<div class="chat-container">
-""", unsafe_allow_html=True)
+# ✅ 채팅 메시지를 하나의 HTML 문자열로 누적
+chat_html = '<div class="chat-container">'
 
 for msg in st.session_state.chat_messages:
     if msg["role"] == "user":
-        st.markdown(f"""
+        chat_html += f"""
         <div class="user-msg-box">
             <div class="user-msg">
                 {msg["content"].replace(chr(10), "<br>")}
             </div>
         </div>
-        """, unsafe_allow_html=True)
+        """
     else:
-        st.markdown(f"""
+        chat_html += f"""
         <div class="chatbot-msg-box">
-            <div class="chatbot-msg"> 
+            <div class="chatbot-msg">
                 {msg["content"].replace(chr(10), "<br>")}
             </div>
         </div>
-        """, unsafe_allow_html=True)
-        
-# div 닫기
-st.markdown("</div>", unsafe_allow_html=True)
+        """
+
+chat_html += '</div>'
+
+# ✅ 반드시 한 번만 출력해야 CSS가 감싸짐
+st.markdown(chat_html, unsafe_allow_html=True)
 
 with st.form("chat_form", clear_on_submit=True):
     st.markdown("<div class='input-row'>", unsafe_allow_html=True)
