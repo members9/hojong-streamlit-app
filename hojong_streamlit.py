@@ -40,14 +40,11 @@ st.markdown("""
         }
 
         /* ✅ 사용자/챗봇 말풍선 */
-        .timestamp {
-            font-size: 11px;
-            color: #666;
-            margin-top: 2px;
-            width: 60px;
-        }
         .user-msg-box {
             text-align: right !important;
+        }
+        .chatbot-msg-box {
+            text-align: left !important;
         }
         .user-msg {
             display: inline-block !important;
@@ -59,14 +56,6 @@ st.markdown("""
             margin: 0 0 30px 0 !important; 
             max-width: 66% !important;
         }
-        .user-msg-time {
-            margin-top: 4px;
-            text-align: right;
-            width: 66%;
-        }
-        .chatbot-msg-box {
-            text-align: left !important;
-        }
         .chatbot-msg {
             display: inline-block !important; 
             text-align: left !important !important; 
@@ -77,12 +66,12 @@ st.markdown("""
             margin: 0 0 30px 0 !important; 
             max-width: 66% !important;
         }
-        .chatbot-msg-time {
-            margin-top: 4px;
-            text-align: left;
-            width: 66%;
+        .msg-time {
+            font-size: 11px;
+            color: #555;
+            text-align: right;
+            margin-top: 6px;
         }
-        
         /* ✅ 기타 */
         .responsive-title {
             font-size: clamp(40px, 5vw, 60px) !important;
@@ -247,7 +236,7 @@ for msg in st.session_state.chat_messages:
             <div class="user-msg">
                 {msg["content"].replace(chr(10), "<br>")}
             </div>
-            <div class='user-msg-time timestamp'>{msg['timestamp']}</div>
+            <div class="msg-time">{now_time}</div>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -256,7 +245,7 @@ for msg in st.session_state.chat_messages:
             <div class="chatbot-msg"> 
                 {msg["content"].replace(chr(10), "<br>")}               
             </div>
-            <div class='chatbot-msg-time timestamp'>{msg['timestamp']}</div>
+            <div class="msg-time">{now_time}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -292,12 +281,12 @@ if submitted and user_input.strip():
             s = matches[0]
             details = [f"• {k}: {v}" for k, v in s.items()]
             reply = "<br>".join(details)
-        st.session_state.chat_messages.append({"role": "assistant", "content": reply, "timestamp": datetime.now().strftime("%p %I:%M")})
+        st.session_state.chat_messages.append({"role": "assistant", "content": reply})
         st.rerun()
     else:
         if not is_relevant_question(user_input):
             msg = "❗ 관광기업이나 서비스 관련 질문으로 다시 말씀해 주세요."
-            st.session_state.chat_messages.append({"role": "assistant", "content": msg, "timestamp": datetime.now().strftime("%p %I:%M")})
+            st.session_state.chat_messages.append({"role": "assistant", "content": msg})
             st.rerun()
 
         best_mode = is_best_recommendation_query(user_input)
@@ -317,6 +306,6 @@ if submitted and user_input.strip():
 
         gpt_reply = ask_gpt(st.session_state.conversation_history)
         st.session_state.conversation_history.append({"role": "assistant", "content": gpt_reply})
-        st.session_state.chat_messages.append({"role": "assistant", "content": gpt_reply, "timestamp": datetime.now().strftime("%p %I:%M")})
+        st.session_state.chat_messages.append({"role": "assistant", "content": gpt_reply})
 
         st.rerun()
