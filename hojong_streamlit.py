@@ -21,20 +21,21 @@ st.markdown("""
         }
 
         /* ✅ 입력창 스타일 */
-        .input-row textarea, .stTextArea textarea {
-            color: #FFFFFF !important;
-            border-radius: 6px;
-            padding: 10px;
-            border: 1px solid #666;
+        textarea {
+            background-color: #f0f0f0 !important;
+            color: #000000 !important;
+            border-radius: 6px !important;
+            padding: 10px !important;
+            border: 1px solid #666 !important;
         }
 
         /* ✅ 물어보기 버튼 스타일 */
-        .stButton > button {
+        button[kind="primary"] {
             background-color: #000000 !important;
             color: #FFFFFF !important;
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: 1px solid #666;
+            border-radius: 6px !important;
+            border: 1px solid #666 !important;
+            padding: 8px 16px !important;
         }
 
         /* ✅ 사용자/챗봇 말풍선 */
