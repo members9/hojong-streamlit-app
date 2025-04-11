@@ -26,7 +26,7 @@ st.markdown("""
             color: #000000 !important;
             border-radius: 6px !important;
             padding: 10px !important;
-            border: 2px solid #666 !important;
+            border: 2px solid #DDDDDD !important;
         }
 
         /* ✅ 버튼 */
