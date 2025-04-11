@@ -181,7 +181,7 @@ for msg in st.session_state.chat_messages:
     if msg["role"] == "user":
         st.markdown(f"""
         <div style='text-align: right;'>
-            <div style='display: inline-block; text-align: left; background-color: #FFEB3B; color: #000000; padding: 10px 14px; border-radius: 12px 0px 12px 12px; margin: 6px 0; max-width: 66%;'>
+            <div style='display: inline-block; text-align: left; background-color: #FFEB3B; color: #000000; padding: 10px 14px; border-radius: 12px 0px 12px 12px; margin: 0 0 30px 0; max-width: 66%;'>
                 {msg["content"].replace(chr(10), "<br>")}
             </div>
         </div>
@@ -189,7 +189,7 @@ for msg in st.session_state.chat_messages:
     else:
         st.markdown(f"""
         <div style='text-align: left;'>
-            <div style='display: inline-block; text-align: left; background-color: #F1F1F1; color: #000000; padding: 10px 14px; border-radius: 0px 12px 12px 12px; margin: 6px 0; max-width: 66%;'>
+            <div style='display: inline-block; text-align: left; background-color: #DDDDDD; color: #000000; padding: 10px 14px; border-radius: 0px 12px 12px 12px; margin: 0 0 30px 0; max-width: 66%;'>
                 {msg["content"].replace(chr(10), "<br>")}
             </div>
         </div>
