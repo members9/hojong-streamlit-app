@@ -78,7 +78,7 @@ st.markdown("""
         }
         .responsive-subtitle {
             font-size: clamp(14px, 5vw, 12px) !important;
-            color: #FF0000 !important;  
+            color: #0c0c0c !important;  
             text-align: center !important;
             white-space: nowrap !important;
             overflow: hidden !important;
@@ -86,7 +86,7 @@ st.markdown("""
             padding-bottom: 2px !important;
         }
         .user-guide {
-            font-size: 12px !important;
+            font-size: 14px !important;
             margin-top: 4px !important; 
             color: #0c0c0c !important; 
             text-align: left !important;
