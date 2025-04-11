@@ -1,6 +1,13 @@
 # ✅ Streamlit 기반 최종 통합 버전 (UI + 로직 통합)
 
 import streamlit as st
+import faiss
+import pickle
+import numpy as np
+import random
+import itertools
+from collections import deque
+from openai import OpenAI
 
 # ✅ 스타일 및 반응형 CSS 추가
 st.markdown("""
@@ -8,7 +15,7 @@ st.markdown("""
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
         
         html, body, .stApp {
-            background-color: #bacee0 !important;
+            background-color: #FFFFFF !important;
             color: #0c0c0c !important;
             font-family: 'Noto Sans KR', sans-serif !important;
         }
@@ -32,6 +39,12 @@ st.markdown("""
         }
 
         /* ✅ 사용자/챗봇 말풍선 */
+        .chat-container {
+            background-color: #bacee0;  /* 채팅 전체 영역의 배경색 */
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
         .user-msg-box {
             text-align: right;
         }
@@ -45,7 +58,7 @@ st.markdown("""
             color: #000000; 
             padding: 10px 14px; 
             border-radius: 12px 0px 12px 12px; 
-            margin: 0 0 30px 0; 
+            margin: 0 0 20px 0; 
             max-width: 66%;
         }
         .chatbot-msg {
@@ -55,9 +68,11 @@ st.markdown("""
             color: #000000; 
             padding: 10px 14px; 
             border-radius: 12px 0px 12px 12px; 
-            margin: 0 0 30px 0; 
+            margin: 0 0 20px 0; 
             max-width: 66%;
         }
+        
+        /* ✅ 사용법 */
         .user-guide {
             font-size: 13px; 
             margin-top: 4px; 
@@ -73,16 +88,6 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
-
-
-import faiss
-import pickle
-import numpy as np
-import random
-import itertools
-from collections import deque
-from openai import OpenAI
-
 
 # ✅ 상태 초기화
 if "conversation_history" not in st.session_state:
@@ -196,6 +201,11 @@ def make_prompt(query, context, is_best):
 st.markdown("""
     <h1 style='text-align: center;'>혁신바우처 서비스 파인더</h1>
     <p style='text-align: center; font-size:14px;'>🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
+""", unsafe_allow_html=True)
+
+# 채팅 영역 전체 감싸기
+st.markdown("""
+<div class="chat-container">
 """, unsafe_allow_html=True)
 
 for msg in st.session_state.chat_messages:
