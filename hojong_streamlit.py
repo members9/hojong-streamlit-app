@@ -2,6 +2,7 @@
 
 import streamlit as st
 
+st.sidebar.info(f"🧾 Streamlit Version: {st.__version__}")
 # ✅ 스타일 및 반응형 CSS 추가
 st.markdown("""
     <style>
