@@ -75,7 +75,7 @@ st.markdown("""
             overflow: hidden !important;
             width: 100% !important;
             padding-bottom: 2px !important;
-            margin-top: -24px !important;
+            margin-top: -100px !important;
         }
         .responsive-subtitle {
             font-size: clamp(14px, 5vw, 12px) !important;
