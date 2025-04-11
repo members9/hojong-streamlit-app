@@ -58,7 +58,7 @@ st.markdown("""
             font-size: 11px;
             color: #666;
             margin-top: 2px;
-            width: 60px;
+            width: 66%;
         }    
         .chatbot-msg-box {
             text-align: left !important;
@@ -78,7 +78,7 @@ st.markdown("""
             font-size: 11px;
             color: #666;
             margin-top: 2px;
-            width: 60px;
+            width: 66%;
         }   
         /* ✅ 기타 */
         .responsive-title {
@@ -236,14 +236,13 @@ st.markdown("""
     <p class="responsive-subtitle">🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
 
-now_time = datetime.now().strftime("%p %I:%M").replace("AM", "오전").replace("PM", "오후")
 for msg in st.session_state.chat_messages:
     if msg["role"] == "user":
         st.markdown(f"""
         <div class="user-msg-box">
             <div class="user-msg">
                 {msg["content"].replace(chr(10), "<br>")}
-                <div class="user-msg-time">{now_time}</div>
+                <div class="user-msg-time">{msg['timestamp']}</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -252,7 +251,7 @@ for msg in st.session_state.chat_messages:
         <div class="chatbot-msg-box">
             <div class="chatbot-msg"> 
                 {msg["content"].replace(chr(10), "<br>")}
-                <div class="chatbot-msg-time">{now_time}</div>
+                <div class="chatbot-msg-time">{msg['timestamp']}</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -275,7 +274,7 @@ st.markdown("""
 
 if submitted and user_input.strip():
     st.session_state.conversation_history.append({"role": "user", "content": user_input})
-    st.session_state.chat_messages.append({"role": "user", "content": user_input})
+    st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": datetime.now().strftime("%p %I:%M")})
 
     if user_input.startswith("자세히"):
         keyword = user_input.replace("자세히", "").strip()
@@ -289,12 +288,12 @@ if submitted and user_input.strip():
             s = matches[0]
             details = [f"• {k}: {v}" for k, v in s.items()]
             reply = "<br>".join(details)
-        st.session_state.chat_messages.append({"role": "assistant", "content": reply})
+        st.session_state.chat_messages.append({"role": "assistant", "content": reply, "timestamp": datetime.now().strftime("%p %I:%M")})
         st.rerun()
     else:
         if not is_relevant_question(user_input):
             msg = "❗ 관광기업이나 서비스 관련 질문으로 다시 말씀해 주세요."
-            st.session_state.chat_messages.append({"role": "assistant", "content": msg})
+            st.session_state.chat_messages.append({"role": "assistant", "content": msg, "timestamp": datetime.now().strftime("%p %I:%M")})
             st.rerun()
 
         best_mode = is_best_recommendation_query(user_input)
@@ -314,6 +313,6 @@ if submitted and user_input.strip():
 
         gpt_reply = ask_gpt(st.session_state.conversation_history)
         st.session_state.conversation_history.append({"role": "assistant", "content": gpt_reply})
-        st.session_state.chat_messages.append({"role": "assistant", "content": gpt_reply})
+        st.session_state.chat_messages.append({"role": "assistant", "content": gpt_reply, "timestamp": datetime.now().strftime("%p %I:%M")})
 
         st.rerun()
