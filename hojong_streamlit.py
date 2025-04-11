@@ -1,34 +1,40 @@
 # ✅ Streamlit 기반 최종 통합 버전 (UI + 로직 통합)
 
 import streamlit as st
+import faiss
+import pickle
+import numpy as np
+import random
+import itertools
+from collections import deque
+from openai import OpenAI
 
-st.sidebar.info(f"🧾 Streamlit Version: {st.__version__}")
 # ✅ 스타일 및 반응형 CSS 추가
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
         
-        html, body, .stApp {
+        html, body, .stApp, .block-container, section.main {
             background-color: #000000 !important;
             color: #FFFFFF !important;
             font-family: 'Noto Sans KR', sans-serif !important;
         }
 
         /* ✅ 입력창 스타일 */
-        textarea {
-            background-color: #f0f0f0 !important;
-            color: #000000 !important;
-            border-radius: 6px !important;
-            padding: 10px !important;
-            border: 1px solid #666 !important;
+        form textarea {
+            color: #FFFFFF !important;
+            border-radius: 6px;
+            padding: 10px;
+            border: 1px solid #666;
         }
 
         /* ✅ 물어보기 버튼 스타일 */
-        button[title="물어보기"] {
+        form button {
             background-color: #000000 !important;
-            color: white !important;
-            border: 1px solid #ccc !important;
-            border-radius: 6px !important;
+            color: #FFFFFF !important;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #666;
         }
 
         /* ✅ 사용자/챗봇 말풍선 */
@@ -66,28 +72,7 @@ st.markdown("""
             }
         }
     </style>
-    <script>
-        // 버튼에 title 강제 지정
-        window.addEventListener('load', function () {
-            const buttons = parent.document.querySelectorAll('button');
-            for (const btn of buttons) {
-                if (btn.innerText === "물어보기") {
-                    btn.title = "물어보기";
-                }
-            }
-        });
-    </script>
 """, unsafe_allow_html=True)
-
-
-import faiss
-import pickle
-import numpy as np
-import random
-import itertools
-from collections import deque
-from openai import OpenAI
-
 
 # ✅ 상태 초기화
 if "conversation_history" not in st.session_state:
