@@ -255,7 +255,6 @@ for msg in st.session_state.chat_messages:
             <div class="chatbot-msg"> 
                 {msg["content"].replace(chr(10), "<br>")}               
             </div>
-            <div class="msg-time">{now_time}</div>
             <div class='timestamp'>{msg['timestamp']}</div>
         </div>
         """, unsafe_allow_html=True)
