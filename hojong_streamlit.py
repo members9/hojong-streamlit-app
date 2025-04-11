@@ -40,11 +40,18 @@ st.markdown("""
         }
 
         /* ✅ 사용자/챗봇 말풍선 */
+        .timestamp {
+            font-size: 11px;
+            color: #888888;
+            margin-top: 4px;
+        }
         .user-msg-box {
             text-align: right !important;
         }
-        .chatbot-msg-box {
-            text-align: left !important;
+        .user-msg-box .timestamp {
+            text-align: left;  /* 왼쪽 하단 */
+            margin-left: auto;
+            margin-right: 10px;
         }
         .user-msg {
             display: inline-block !important;
@@ -56,6 +63,14 @@ st.markdown("""
             margin: 0 0 30px 0 !important; 
             max-width: 66% !important;
         }
+        .chatbot-msg-box {
+            text-align: left !important;
+        }
+        .chatbot-msg-box .timestamp {
+            text-align: right;  /* 오른쪽 하단 */
+            margin-left: 10px;
+            margin-right: auto;
+        }
         .chatbot-msg {
             display: inline-block !important; 
             text-align: left !important !important; 
@@ -66,12 +81,7 @@ st.markdown("""
             margin: 0 0 30px 0 !important; 
             max-width: 66% !important;
         }
-        .msg-time {
-            font-size: 11px;
-            color: #555;
-            text-align: right;
-            margin-top: 6px;
-        }
+        
         /* ✅ 기타 */
         .responsive-title {
             font-size: clamp(40px, 5vw, 60px) !important;
@@ -235,17 +245,18 @@ for msg in st.session_state.chat_messages:
         <div class="user-msg-box">
             <div class="user-msg">
                 {msg["content"].replace(chr(10), "<br>")}
-                <div class="msg-time">{now_time}</div>
             </div>
+            f"<div class='timestamp'>{msg['timestamp']}</div>"
         </div>
         """, unsafe_allow_html=True)
     else:
         st.markdown(f"""
         <div class="chatbot-msg-box">
             <div class="chatbot-msg"> 
-                {msg["content"].replace(chr(10), "<br>")}
-                <div class="msg-time">{now_time}</div>
+                {msg["content"].replace(chr(10), "<br>")}               
             </div>
+            <div class="msg-time">{now_time}</div>
+            f"<div class='timestamp'>{msg['timestamp']}</div>"
         </div>
         """, unsafe_allow_html=True)
 
@@ -267,7 +278,7 @@ st.markdown("""
 
 if submitted and user_input.strip():
     st.session_state.conversation_history.append({"role": "user", "content": user_input})
-    st.session_state.chat_messages.append({"role": "user", "content": user_input})
+    st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": datetime.now().strftime("%p %I:%M")})
 
     if user_input.startswith("자세히"):
         keyword = user_input.replace("자세히", "").strip()
@@ -281,12 +292,12 @@ if submitted and user_input.strip():
             s = matches[0]
             details = [f"• {k}: {v}" for k, v in s.items()]
             reply = "<br>".join(details)
-        st.session_state.chat_messages.append({"role": "assistant", "content": reply})
+        st.session_state.chat_messages.append({"role": "assistant", "content": reply, "timestamp": datetime.now().strftime("%p %I:%M")})
         st.rerun()
     else:
         if not is_relevant_question(user_input):
             msg = "❗ 관광기업이나 서비스 관련 질문으로 다시 말씀해 주세요."
-            st.session_state.chat_messages.append({"role": "assistant", "content": msg})
+            st.session_state.chat_messages.append({"role": "assistant", "content": msg, "timestamp": datetime.now().strftime("%p %I:%M")})
             st.rerun()
 
         best_mode = is_best_recommendation_query(user_input)
@@ -306,6 +317,6 @@ if submitted and user_input.strip():
 
         gpt_reply = ask_gpt(st.session_state.conversation_history)
         st.session_state.conversation_history.append({"role": "assistant", "content": gpt_reply})
-        st.session_state.chat_messages.append({"role": "assistant", "content": gpt_reply})
+        st.session_state.chat_messages.append({"role": "assistant", "content": gpt_reply, "timestamp": datetime.now().strftime("%p %I:%M")})
 
         st.rerun()
