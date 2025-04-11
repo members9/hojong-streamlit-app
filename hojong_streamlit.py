@@ -91,6 +91,7 @@ st.markdown("""
             margin-top: 4px !important; 
             color: #0c0c0c !important; 
             text-align: left !important;
+            line-height: 1.4 !important;
         }
         
         @media screen and (max-width: 768px) {
