@@ -45,26 +45,24 @@ st.markdown("""
             margin: 0 0 30px 0; 
             max-width: 66%;'>
         }
-        .input-row {
-            background-color: #000000; 
-            color: #FFFFFF; 
-        }
-        .input-row textarea {
-            flex-grow: 1;
-            min-width: 250px;
-            background-color: #1c1c1c;
-            color: #fff;
+         /* ✅ 입력창 스타일 */
+        .input-row textarea, .stTextArea textarea {
+            background-color: #f0f0f0 !important;
+            color: #000000 !important;
             border-radius: 6px;
             padding: 10px;
-            border: 1px solid #444;
+            border: 1px solid #666;
         }
-        .send-button button {
-            background-color: #444;
-            color: white;
+
+        /* ✅ 물어보기 버튼 스타일 */
+        .stButton > button {
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
             padding: 8px 16px;
             border-radius: 6px;
-            border: none;
+            border: 1px solid #666;
         }
+
         @media screen and (max-width: 768px) {
             .input-row {
                 flex-direction: column;
