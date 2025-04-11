@@ -13,7 +13,7 @@ from openai import OpenAI
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
-        html, body, [class*="css"] {
+        html, body, .stApp, .block-container, section.main {
             background-color: #000000 !important;
             color: #FFFFFF !important;
             font-family: 'Noto Sans KR', sans-serif !important;
@@ -173,7 +173,7 @@ def make_prompt(query, context, is_best):
 
 # ✅ UI 출력 영역
 st.markdown("""
-    <h1 style='text-align: center;'>혁신이용권 서비스 파인더</h1>
+    <h1 style='text-align: center;'>혁신바우처 서비스 파인더</h1>
     <p style='text-align: center; font-size:14px;'>🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
 
@@ -202,7 +202,7 @@ with st.form("chat_form", clear_on_submit=True):
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("""
-    <div style='font-size: 14px; margin-top: 4px; color: #CCCCCC; text-align: left;'>
+    <div class='custom-guide-box'>
         ℹ️ 사용법 안내:<br>
         •&nbsp;<b>"자세히 기업명"</b>을 입력하면 해당 기업의 상세 정보를 확인할 수 있어요.<br>
         •&nbsp;<b>"강력 추천"</b> 을 포함하여 질문하면 앞서 제시된 내용들을 포함한 전체 추천을 받아볼 수 있어요.<br>
