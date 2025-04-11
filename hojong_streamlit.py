@@ -67,9 +67,15 @@ st.markdown("""
         }
         /* ✅ 기타 */
         .responsive-title {
-            font-size: clamp(18px, 5vw, 40px);  /* 화면 좁아질수록 작아짐 */
+            font-size: clamp(18px, 5vw, 40px);
+            font-weight: 700;
+            color: #000000;  /* 진한 레드 */
             text-align: center;
-            white-space: nowrap;  /* 줄바꿈 방지 */
+            white-space: nowrap;
+            overflow: hidden;
+            margin: 8px auto 12px auto;
+            width: 80%;
+            padding-bottom: 6px;
         }
         .user-guide {
             font-size: 13px; 
