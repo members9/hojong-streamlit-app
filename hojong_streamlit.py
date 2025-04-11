@@ -178,7 +178,22 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 for msg in st.session_state.chat_messages:
-    st.markdown(f"<div class='message-box'>{msg['content'].replace(chr(10), '<br>')}</div>", unsafe_allow_html=True)
+    if msg["role"] == "user":
+        st.markdown(f"""
+        <div style='text-align: right;'>
+            <div style='display: inline-block; background-color: #FFEB3B; color: #000000; padding: 10px 14px; border-radius: 12px 0px 12px 12px; margin: 6px 0; max-width: 80%;'>
+                {msg["content"].replace(chr(10), "<br>")}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown(f"""
+        <div style='text-align: left;'>
+            <div style='display: inline-block; background-color: #F1F1F1; color: #000000; padding: 10px 14px; border-radius: 0px 12px 12px 12px; margin: 6px 0; max-width: 80%;'>
+                {msg["content"].replace(chr(10), "<br>")}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
 with st.form("chat_form", clear_on_submit=True):
     st.markdown("<div class='input-row'>", unsafe_allow_html=True)
