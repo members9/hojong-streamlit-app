@@ -8,6 +8,7 @@ import random
 import itertools
 from collections import deque
 from openai import OpenAI
+from datetime import datetime
 
 # ✅ 스타일 및 반응형 CSS 추가
 st.markdown("""
@@ -64,6 +65,12 @@ st.markdown("""
             border-radius: 12px 0px 12px 12px !important; 
             margin: 0 0 30px 0 !important; 
             max-width: 66% !important;
+        }
+        .msg-time {
+            font-size: 11px;
+            color: #555;
+            text-align: right;
+            margin-top: 6px;
         }
         /* ✅ 기타 */
         .responsive-title {
@@ -221,12 +228,14 @@ st.markdown("""
     <p class="responsive-subtitle">🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
 
+now_time = datetime.now().strftime("%p %I:%M").replace("AM", "오전").replace("PM", "오후")
 for msg in st.session_state.chat_messages:
     if msg["role"] == "user":
         st.markdown(f"""
         <div class="user-msg-box">
             <div class="user-msg">
                 {msg["content"].replace(chr(10), "<br>")}
+                <div class="msg-time">{now_time}</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -235,6 +244,7 @@ for msg in st.session_state.chat_messages:
         <div class="chatbot-msg-box">
             <div class="chatbot-msg"> 
                 {msg["content"].replace(chr(10), "<br>")}
+                <div class="msg-time">{now_time}</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
