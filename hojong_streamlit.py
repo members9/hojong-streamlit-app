@@ -19,10 +19,10 @@ st.markdown("""
             color: #FFFFFF !important;
             font-family: 'Noto Sans KR', sans-serif !important;
         }
-        .user-msg box {
+        .user-msg-box {
             text-align: right;
         }
-        .chatbot-msg box {
+        .chatbot-msg-box {
             text-align: left;
         }
         .message-box {
@@ -187,7 +187,7 @@ st.markdown("""
 for msg in st.session_state.chat_messages:
     if msg["role"] == "user":
         st.markdown(f"""
-        <div class="user-msg box">
+        <div class="user-msg-box">
             <div style='display: inline-block; text-align: left; background-color: #FFEB3B; color: #000000; padding: 10px 14px; border-radius: 12px 0px 12px 12px; margin: 0 0 30px 0; max-width: 66%;'>
                 {msg["content"].replace(chr(10), "<br>")}
             </div>
@@ -195,7 +195,7 @@ for msg in st.session_state.chat_messages:
         """, unsafe_allow_html=True)
     else:
         st.markdown(f"""
-        <div class="chatbot-msg box">
+        <div class="chatbot-msg-box">
             <div style='display: inline-block; text-align: left; background-color: #DDDDDD; color: #000000; padding: 10px 14px; border-radius: 0px 12px 12px 12px; margin: 0 0 30px 0; max-width: 66%;'>
                 {msg["content"].replace(chr(10), "<br>")}
             </div>
