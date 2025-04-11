@@ -225,6 +225,9 @@ for msg in st.session_state.chat_messages:
             </div>
         </div>
         """, unsafe_allow_html=True)
+        
+# div 닫기
+st.markdown("</div>", unsafe_allow_html=True)
 
 with st.form("chat_form", clear_on_submit=True):
     st.markdown("<div class='input-row'>", unsafe_allow_html=True)
