@@ -14,7 +14,7 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
         
-        html, body, .stApp, .block-container, section.main {
+        html, body, .stApp {
             background-color: #000000 !important;
             color: #FFFFFF !important;
             font-family: 'Noto Sans KR', sans-serif !important;
