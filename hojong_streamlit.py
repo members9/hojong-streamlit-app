@@ -66,12 +66,6 @@ st.markdown("""
             margin: 0 0 30px 0 !important; 
             max-width: 66% !important;
         }
-        .msg-time {
-            font-size: 11px;
-            color: #555;
-            text-align: right;
-            margin-top: 6px;
-        }
         /* ✅ 기타 */
         .responsive-title {
             font-size: clamp(40px, 5vw, 60px) !important;
@@ -235,17 +229,17 @@ for msg in st.session_state.chat_messages:
         <div class="user-msg-box">
             <div class="user-msg">
                 {msg["content"].replace(chr(10), "<br>")}
+                <div class="msg-time">{now_time}</div>
             </div>
-            <div class="msg-time">{now_time}</div>
         </div>
         """, unsafe_allow_html=True)
     else:
         st.markdown(f"""
         <div class="chatbot-msg-box">
             <div class="chatbot-msg"> 
-                {msg["content"].replace(chr(10), "<br>")}               
+                {msg["content"].replace(chr(10), "<br>")}
+                <div class="msg-time">{now_time}</div>
             </div>
-            <div class="msg-time">{now_time}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -267,7 +261,7 @@ st.markdown("""
 
 if submitted and user_input.strip():
     st.session_state.conversation_history.append({"role": "user", "content": user_input})
-    st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": datetime.now().strftime("%p %I:%M")})
+    st.session_state.chat_messages.append({"role": "user", "content": user_input})
 
     if user_input.startswith("자세히"):
         keyword = user_input.replace("자세히", "").strip()
