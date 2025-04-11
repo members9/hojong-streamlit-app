@@ -15,6 +15,9 @@ from zoneinfo import ZoneInfo
 SIMILARITY_THRESHOLD = 0.30
 MAX_HISTORY_LEN = 5
 
+# ✅ 사용자 질문 전체 히스토리 저장 리스트 (무한 저장)
+user_query_history = []
+
 # ✅ 상태 초기화
 if "conversation_history" not in st.session_state:
     st.session_state.conversation_history = [{
@@ -52,15 +55,18 @@ if "user_query_history" not in st.session_state:
 if "embedding_query_text" not in st.session_state:
     st.session_state.embedding_query_text = None
 
+# ✅ GPT 후속 질문 판단 캐시 저장소 (전역)
+followup_cache = {}
+
 # ✅ 후속 질문 여부 판단
 def is_followup_question(prev, current):
     key = (prev.strip(), current.strip())  # 전처리된 질문 쌍을 캐시 키로 사용
 
     if key in followup_cache:
-        print(f"⚠️ [CACHE HIT] Cache에 후속 질문 여부 판단 완료: {key}")
+        st.writer(f"⚠️ [CACHE HIT] Cache에 후속 질문 여부 판단 완료: {key}")
         return followup_cache[key]
 
-    print(f"🧠 [CACHE MISS] ChatGPT에 후속 질문 여부 판단 중: {key}")
+    st.writer(f"🧠 [CACHE MISS] ChatGPT에 후속 질문 여부 판단 중: {key}")
     messages = [
         {"role": "system", "content": "다음 사용자 질문이 이전 질문에 대한 후속 질문인지 아닌지를 판단해 주세요. 후속이면 YES, 아니면 NO로만 답해 주세요."},
         {"role": "user", "content": f"이전 질문: {prev}\n현재 질문: {current}"}
@@ -75,7 +81,7 @@ def is_followup_question(prev, current):
         followup_cache[key] = result  # ✅ 캐시 저장
         return result
     except Exception as e:
-        print(f"[❌ GPT 오류] 후속 질문 판단 실패: {e}")
+        st.writer(f"[❌ GPT 오류] 후속 질문 판단 실패: {e}")
         return True  # 오류 시 기본은 후속 질문으로 간주
 
 # ✅ 결과가 충분한지 판단
@@ -295,6 +301,24 @@ if submitted and user_input.strip():
         st.rerun()
 
     else:
+        
+            # ✅ 후속 질문 판단: 이전 질문이 있을 때만 수행
+        if user_query_history:
+            previous_input = user_query_history[-1]
+            if not is_followup_question(previous_input, user_input):
+                st.writer("🔁 [INFO] 독립된 질문입니다. 기준 임베딩 갱신.")
+                embedding_query_text = user_input
+            else:
+                st.writer("➡️ [INFO] 후속 질문입니다. 기준 임베딩 유지.")
+        else:
+            st.writer("🌱 [INFO] 최초 질문입니다. 기준 임베딩 설정.")
+            embedding_query_text = user_input
+
+        # 사용자 입력을 대화 이력과 히스토리에 각각 추가
+        #conversation_history.append({"role": "user", "content": user_input})
+        user_query_history.append(user_input)  # ✅ 무한 저장 리스트에 추가
+        
+        
         best_mode = is_best_recommendation_query(user_input)
         exclude = None if best_mode else st.session_state.excluded_keys
         results = recommend_services(user_input, exclude_keys=exclude, use_random=not best_mode)
