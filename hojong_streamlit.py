@@ -104,17 +104,17 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     ranked = [(score, metadata[idx]) for score, idx in zip(D[0], indices[0])]
     
     # 📌 STEP 1: 유사도 기준 정렬된 원본 상위 30개 출력
-    print(f"\n📌 [STEP 1] 유사도 기준 정렬된 원본 상위 30개:")
+    st.write(f"\n📌 [STEP 1] 유사도 기준 정렬된 원본 상위 30개:")
     for i, (score, s) in enumerate(ranked[:30]):
-        print(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
+        st.write(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
 
     # ✅ 4. 제외할 키 (기업ID + 서비스유형 + 서비스명) 정의
     if exclude_keys:
-        print(f"\n🚫 [STEP 2] 제외 대상 키 수: {len(exclude_keys)}")
+        st.write(f"\n🚫 [STEP 2] 제외 대상 키 수: {len(exclude_keys)}")
         for i, key in enumerate(list(exclude_keys)[:10]):
-            print(f" - 제외 {i+1}: 기업ID={key[0]} / {key[1]} / {key[2]}")
+            st.write(f" - 제외 {i+1}: 기업ID={key[0]} / {key[1]} / {key[2]}")
     else:
-        print("\n🚫 [STEP 2] 제외 대상 없음")
+        st.write("\n🚫 [STEP 2] 제외 대상 없음")
 
     seen_keys = set()
     filtered = []
@@ -128,9 +128,9 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     filtered.sort(key=lambda x: x[0], reverse=True)
     
     # ✅ 상위 30개까지 출력 (디버깅 또는 로그 확인용)
-    print(f"\n✅ [STEP 3] 필터링 후 상위 30개:")
+    st.write(f"\n✅ [STEP 3] 필터링 후 상위 30개:")
     for i, (score, s) in enumerate(filtered[:30]):
-        print(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
+        st.write(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
 
     if use_random:
         top_10 = filtered[:10]
