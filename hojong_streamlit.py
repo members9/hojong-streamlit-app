@@ -63,10 +63,10 @@ def is_followup_question(prev, current):
     key = (prev.strip(), current.strip())  # 전처리된 질문 쌍을 캐시 키로 사용
 
     if key in followup_cache:
-        st.writer(f"⚠️ [CACHE HIT] Cache에 후속 질문 여부 판단 완료: {key}")
+        st.write(f"⚠️ [CACHE HIT] Cache에 후속 질문 여부 판단 완료: {key}")
         return followup_cache[key]
 
-    st.writer(f"🧠 [CACHE MISS] ChatGPT에 후속 질문 여부 판단 중: {key}")
+    st.write(f"🧠 [CACHE MISS] ChatGPT에 후속 질문 여부 판단 중: {key}")
     messages = [
         {"role": "system", "content": "다음 사용자 질문이 이전 질문에 대한 후속 질문인지 아닌지를 판단해 주세요. 후속이면 YES, 아니면 NO로만 답해 주세요."},
         {"role": "user", "content": f"이전 질문: {prev}\n현재 질문: {current}"}
@@ -81,12 +81,12 @@ def is_followup_question(prev, current):
         followup_cache[key] = result  # ✅ 캐시 저장
         return result
     except Exception as e:
-        st.writer(f"[❌ GPT 오류] 후속 질문 판단 실패: {e}")
+        st.write(f"[❌ GPT 오류] 후속 질문 판단 실패: {e}")
         return True  # 오류 시 기본은 후속 질문으로 간주
 
 # ✅ 결과가 충분한지 판단
 def is_related_results_enough(results):
-    st.writer("⚠️ [INFO] 추천 결과의 연관성이 낮아 GPT 호출을 생략합니다.")
+    st.write("⚠️ [INFO] 추천 결과의 연관성이 낮아 GPT 호출을 생략합니다.")
     return results and len(results) >= 3
 
 # ✅ GPT 응답에서 실제 언급된 키만 추출
@@ -306,12 +306,12 @@ if submitted and user_input.strip():
         if user_query_history:
             previous_input = user_query_history[-1]
             if not is_followup_question(previous_input, user_input):
-                st.writer("🔁 [INFO] 독립된 질문입니다. 기준 임베딩 갱신.")
+                st.write("🔁 [INFO] 독립된 질문입니다. 기준 임베딩 갱신.")
                 embedding_query_text = user_input
             else:
-                st.writer("➡️ [INFO] 후속 질문입니다. 기준 임베딩 유지.")
+                st.write("➡️ [INFO] 후속 질문입니다. 기준 임베딩 유지.")
         else:
-            st.writer("🌱 [INFO] 최초 질문입니다. 기준 임베딩 설정.")
+            st.write("🌱 [INFO] 최초 질문입니다. 기준 임베딩 설정.")
             embedding_query_text = user_input
 
         # 사용자 입력을 대화 이력과 히스토리에 각각 추가
