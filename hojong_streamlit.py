@@ -25,41 +25,25 @@ st.markdown("""
         .chatbot-msg-box {
             text-align: left;
         }
-        .message-box {
-            background-color: #F2F2FF;
-            color: #000000;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            word-break: break-word;
+        .user-msg {
+            display: inline-block; 
+            text-align: left; 
+            background-color: #FFEB3B; 
+            color: #000000; 
+            padding: 10px 14px; 
+            border-radius: 12px 0px 12px 12px; 
+            margin: 0 0 30px 0; 
+            max-width: 66%;'>
         }
-        .chat-row {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .input-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: flex-end;
-            margin-top: 12px;
-        }
-        .input-row textarea {
-            flex-grow: 1;
-            min-width: 250px;
-            background-color: #1c1c1c;
-            color: #fff;
-            border-radius: 6px;
-            padding: 10px;
-            border: 1px solid #444;
-        }
-        .stButton button {
-            background-color: #444;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: none;
+        .chatbot-msg {
+            display: inline-block; 
+            text-align: left; 
+            background-color: #000000; 
+            color: #FFFFFF; 
+            padding: 10px 14px; 
+            border-radius: 12px 0px 12px 12px; 
+            margin: 0 0 30px 0; 
+            max-width: 66%;'>
         }
         @media screen and (max-width: 768px) {
             .input-row {
@@ -188,7 +172,7 @@ for msg in st.session_state.chat_messages:
     if msg["role"] == "user":
         st.markdown(f"""
         <div class="user-msg-box">
-            <div style='display: inline-block; text-align: left; background-color: #FFEB3B; color: #000000; padding: 10px 14px; border-radius: 12px 0px 12px 12px; margin: 0 0 30px 0; max-width: 66%;'>
+            <div class="user-msg">
                 {msg["content"].replace(chr(10), "<br>")}
             </div>
         </div>
@@ -196,14 +180,14 @@ for msg in st.session_state.chat_messages:
     else:
         st.markdown(f"""
         <div class="chatbot-msg-box">
-            <div style='display: inline-block; text-align: left; background-color: #DDDDDD; color: #000000; padding: 10px 14px; border-radius: 0px 12px 12px 12px; margin: 0 0 30px 0; max-width: 66%;'>
+            <div class="chatbot-msg"> 
                 {msg["content"].replace(chr(10), "<br>")}
             </div>
         </div>
         """, unsafe_allow_html=True)
 
 with st.form("chat_form", clear_on_submit=True):
-    st.markdown("<div class='input-row'>", unsafe_allow_html=True)
+    st.markdown("<div>", unsafe_allow_html=True)
     user_input = st.text_area("", height=100, label_visibility="collapsed")
     submitted = st.form_submit_button("물어보기")
     st.markdown("</div>", unsafe_allow_html=True)
