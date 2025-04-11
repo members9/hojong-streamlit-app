@@ -58,7 +58,7 @@ st.markdown("""
             font-size: 11px;
             color: #666;
             margin-top: 2px;
-            width: 66%;
+            width: 100%;
         }    
         .chatbot-msg-box {
             text-align: left !important;
@@ -78,7 +78,7 @@ st.markdown("""
             font-size: 11px;
             color: #666;
             margin-top: 2px;
-            width: 66%;
+            width: 100%;
         }   
         /* ✅ 기타 */
         .responsive-title {
