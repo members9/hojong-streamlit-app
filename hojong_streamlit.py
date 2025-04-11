@@ -43,9 +43,6 @@ st.markdown("""
         .user-msg-box {
             text-align: right !important;
         }
-        .chatbot-msg-box {
-            text-align: left !important;
-        }
         .user-msg {
             display: inline-block !important;
             text-align: left !important; 
@@ -55,6 +52,16 @@ st.markdown("""
             border-radius: 12px 0px 12px 12px; 
             margin: 0 0 30px 0 !important; 
             max-width: 66% !important;
+        }
+        .user-msg-time {
+            text-align: left !important;
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+            width: 60px;
+        }    
+        .chatbot-msg-box {
+            text-align: left !important;
         }
         .chatbot-msg {
             display: inline-block !important; 
@@ -66,6 +73,13 @@ st.markdown("""
             margin: 0 0 30px 0 !important; 
             max-width: 66% !important;
         }
+        .chatbot-msg-time {
+            text-align: right !important; 
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+            width: 60px;
+        }   
         /* ✅ 기타 */
         .responsive-title {
             font-size: clamp(40px, 5vw, 60px) !important;
@@ -229,7 +243,7 @@ for msg in st.session_state.chat_messages:
         <div class="user-msg-box">
             <div class="user-msg">
                 {msg["content"].replace(chr(10), "<br>")}
-                <div class="msg-time">{now_time}</div>
+                <div class="user-msg-time">{now_time}</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -238,7 +252,7 @@ for msg in st.session_state.chat_messages:
         <div class="chatbot-msg-box">
             <div class="chatbot-msg"> 
                 {msg["content"].replace(chr(10), "<br>")}
-                <div class="msg-time">{now_time}</div>
+                <div class="chatbot-msg-time">{now_time}</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
