@@ -22,8 +22,7 @@ st.markdown("""
 
         /* ✅ 입력창 스타일 */
         .input-row textarea, .stTextArea textarea {
-            background-color: #f0f0f0 !important;
-            color: #000000 !important;
+            color: #FFFFFF !important;
             border-radius: 6px;
             padding: 10px;
             border: 1px solid #666;
