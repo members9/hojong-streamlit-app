@@ -40,53 +40,53 @@ st.markdown("""
 
         /* ✅ 사용자/챗봇 말풍선 */
         .user-msg-box {
-            text-align: right;
+            text-align: right !important;
         }
         .chatbot-msg-box {
-            text-align: left;
+            text-align: left !important;
         }
         .user-msg {
-            display: inline-block; 
-            text-align: left; 
-            background-color: #FFEB3B; 
-            color: #0c0c0c; 
-            padding: 10px 14px; 
+            display: inline-block !important;
+            text-align: left !important; 
+            background-color: #FFEB3B !important; 
+            color: #0c0c0c !important;
+            padding: 10px 14px !important; 
             border-radius: 12px 0px 12px 12px; 
-            margin: 0 0 30px 0; 
-            max-width: 66%;
+            margin: 0 0 30px 0 !important; 
+            max-width: 66% !important;
         }
         .chatbot-msg {
-            display: inline-block; 
-            text-align: left; 
-            background-color: #bacee0; 
-            color: #0c0c0c; 
-            padding: 10px 14px; 
-            border-radius: 12px 0px 12px 12px; 
-            margin: 0 0 30px 0; 
-            max-width: 66%;
+            display: inline-block !important; 
+            text-align: left !important !important; 
+            background-color: #bacee0 !important; 
+            color: #0c0c0c !important !important;
+            padding: 10px 14px !important; 
+            border-radius: 12px 0px 12px 12px !important; 
+            margin: 0 0 30px 0 !important; 
+            max-width: 66% !important;
         }
         /* ✅ 기타 */
         .responsive-title {
-            font-size: clamp(40px, 5vw, 60px);
-            font-weight: 700;
-            color: #0c0c0c;  /* 진한 레드 */
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            width: 100%;
-            padding-bottom: 2px;
+            font-size: clamp(40px, 5vw, 60px) !important;
+            font-weight: 700 !important;
+            color: #0c0c0c !important;  
+            text-align: center !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            width: 100% !important;
+            padding-bottom: 2px !important;
         }
         .user-guide {
-            font-size: 12px; 
-            margin-top: 4px; 
-            color: #0c0c0c; 
-            text-align: left;
+            font-size: 12px !important;
+            margin-top: 4px !important; 
+            color: #0c0c0c !important; 
+            text-align: left !important;
         }
         
         @media screen and (max-width: 768px) {
             .input-row {
-                flex-direction: column;
-                align-items: stretch;
+                flex-direction: column !important;
+                align-items: stretch !important;
             }
         }
     </style>
