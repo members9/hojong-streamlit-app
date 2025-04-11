@@ -14,27 +14,28 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
         
-        html, body, .stApp, .block-container, section.main {
+        html, body, .stApp {
             background-color: #000000 !important;
             color: #FFFFFF !important;
             font-family: 'Noto Sans KR', sans-serif !important;
         }
 
-        /* ✅ 입력창 스타일 */
-        form textarea {
-            color: #FFFFFF !important;
-            border-radius: 6px;
-            padding: 10px;
-            border: 1px solid #666;
+        /* ✅ 입력창 */
+        .stTextArea textarea {
+            background-color: #f0f0f0 !important;
+            color: #000000 !important;
+            border-radius: 6px !important;
+            padding: 10px !important;
+            border: 2px solid #666 !important;
         }
 
-        /* ✅ 물어보기 버튼 스타일 */
-        form button {
+        /* ✅ 버튼 */
+        .stButton > button {
             background-color: #000000 !important;
             color: #FFFFFF !important;
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: 1px solid #666;
+            padding: 10px 16px !important;
+            border-radius: 6px !important;
+            border: 2px solid #FFFFFF !important;
         }
 
         /* ✅ 사용자/챗봇 말풍선 */
