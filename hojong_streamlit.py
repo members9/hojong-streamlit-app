@@ -53,13 +53,34 @@ if "embedding_query_text" not in st.session_state:
     st.session_state.embedding_query_text = None
 
 # ✅ 후속 질문 여부 판단
-def is_followup_question(query, last_query):
-    if not last_query:
-        return False
-    return query.strip().startswith(("그럼", "다른", "추가로", "또", "혹시"))
+def is_followup_question(prev, current):
+    key = (prev.strip(), current.strip())  # 전처리된 질문 쌍을 캐시 키로 사용
+
+    if key in followup_cache:
+        print(f"⚠️ [CACHE HIT] Cache에 후속 질문 여부 판단 완료: {key}")
+        return followup_cache[key]
+
+    print(f"🧠 [CACHE MISS] ChatGPT에 후속 질문 여부 판단 중: {key}")
+    messages = [
+        {"role": "system", "content": "다음 사용자 질문이 이전 질문에 대한 후속 질문인지 아닌지를 판단해 주세요. 후속이면 YES, 아니면 NO로만 답해 주세요."},
+        {"role": "user", "content": f"이전 질문: {prev}\n현재 질문: {current}"}
+    ]
+    try:
+        reply = openai.ChatCompletion.create(
+            model="gpt-4o",
+            messages=messages
+        )
+        answer = reply['choices'][0]['message']['content'].strip().lower()
+        result = "yes" in answer  # 'yes' 포함 여부로 판단
+        followup_cache[key] = result  # ✅ 캐시 저장
+        return result
+    except Exception as e:
+        print(f"[❌ GPT 오류] 후속 질문 판단 실패: {e}")
+        return True  # 오류 시 기본은 후속 질문으로 간주
 
 # ✅ 결과가 충분한지 판단
 def is_related_results_enough(results):
+    st.writer("⚠️ [INFO] 추천 결과의 연관성이 낮아 GPT 호출을 생략합니다.")
     return results and len(results) >= 3
 
 # ✅ GPT 응답에서 실제 언급된 키만 추출
