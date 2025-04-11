@@ -212,7 +212,7 @@ def make_prompt(query, context, is_best):
 # ✅ UI 출력 영역
 st.markdown("""
     <div class="responsive-title">혁신바우처 서비스 파인더</div>
-    <p class="responsive-subtitle"🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
+    <p class="responsive-subtitle">🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
 
 for msg in st.session_state.chat_messages:
