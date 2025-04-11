@@ -231,7 +231,7 @@ with st.form("chat_form", clear_on_submit=True):
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("""
-    <div user-guide>
+    <div class="user-guide">
         ℹ️ 사용법 안내:<br>
         •&nbsp;<b>"자세히 기업명"</b>을 입력하면 해당 기업의 상세 정보를 확인할 수 있어요.<br>
         •&nbsp;<b>"강력 추천"</b> 을 포함하여 질문하면 앞서 제시된 내용들을 포함한 전체 추천을 받아볼 수 있어요.<br>
