@@ -1,13 +1,6 @@
 # ✅ Streamlit 기반 최종 통합 버전 (UI + 로직 통합)
 
 import streamlit as st
-import faiss
-import pickle
-import numpy as np
-import random
-import itertools
-from collections import deque
-from openai import OpenAI
 
 # ✅ 스타일 및 반응형 CSS 추가
 st.markdown("""
@@ -74,6 +67,16 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
+
+
+import faiss
+import pickle
+import numpy as np
+import random
+import itertools
+from collections import deque
+from openai import OpenAI
+
 
 # ✅ 상태 초기화
 if "conversation_history" not in st.session_state:
