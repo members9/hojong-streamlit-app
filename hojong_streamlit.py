@@ -58,7 +58,7 @@ st.markdown("""
         .chatbot-msg {
             display: inline-block; 
             text-align: left; 
-            background-color: #FFFFFF; 
+            background-color: #bacee0; 
             color: #000000; 
             padding: 10px 14px; 
             border-radius: 12px 0px 12px 12px; 
