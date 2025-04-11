@@ -23,12 +23,11 @@ st.markdown("""
         }
 
         /* ✅ 물어보기 버튼 스타일 */
-        button[kind="primary"] {
+        button[title="물어보기"] {
             background-color: #000000 !important;
-            color: #FFFFFF !important;
+            color: white !important;
+            border: 1px solid #ccc !important;
             border-radius: 6px !important;
-            border: 1px solid #666 !important;
-            padding: 8px 16px !important;
         }
 
         /* ✅ 사용자/챗봇 말풍선 */
@@ -66,6 +65,17 @@ st.markdown("""
             }
         }
     </style>
+    <script>
+        // 버튼에 title 강제 지정
+        window.addEventListener('load', function () {
+            const buttons = parent.document.querySelectorAll('button');
+            for (const btn of buttons) {
+                if (btn.innerText === "물어보기") {
+                    btn.title = "물어보기";
+                }
+            }
+        });
+    </script>
 """, unsafe_allow_html=True)
 
 
