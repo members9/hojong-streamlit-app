@@ -8,6 +8,7 @@ import random
 import itertools
 from collections import deque
 from openai import OpenAI
+import html
 
 # ✅ 스타일 및 반응형 CSS 추가
 st.markdown("""
@@ -209,11 +210,13 @@ st.markdown("""
 chat_html = '<div class="chat-container">'
 
 for msg in st.session_state.chat_messages:
+    escaped_content = html.escape(msg["content"]).replace(chr(10), "<br>")
+    
     if msg["role"] == "user":
         chat_html += f"""
         <div class="user-msg-box">
             <div class="user-msg">
-                {msg["content"].replace(chr(10), "<br>")}
+                {escaped_content}
             </div>
         </div>
         """
@@ -221,14 +224,12 @@ for msg in st.session_state.chat_messages:
         chat_html += f"""
         <div class="chatbot-msg-box">
             <div class="chatbot-msg">
-                {msg["content"].replace(chr(10), "<br>")}
+                {escaped_content}
             </div>
         </div>
         """
 
 chat_html += '</div>'
-
-# ✅ 반드시 한 번만 출력해야 CSS가 감싸짐
 st.markdown(chat_html, unsafe_allow_html=True)
 
 with st.form("chat_form", clear_on_submit=True):
