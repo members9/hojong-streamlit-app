@@ -239,29 +239,26 @@ st.markdown("""
     <p class="responsive-subtitle">🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
 
-
-chat_html = '<div class="chat-container">'
+now_time = datetime.now().strftime("%p %I:%M").replace("AM", "오전").replace("PM", "오후")
 for msg in st.session_state.chat_messages:
-    content = msg["content"].replace("\n", "<br>")
-    timestamp = msg.get("timestamp", datetime.now().strftime("%p %I:%M"))
-
     if msg["role"] == "user":
-        chat_html += f"""
+        st.markdown(f"""
         <div class="user-msg-box">
-            <div class="user-msg">{content}</div>
-            <div class="user-msg-time timestamp">{timestamp}</div>
+            <div class="user-msg">
+                {msg["content"].replace(chr(10), "<br>")}
+            </div>
+            <div class='user-msg-time timestamp'>{msg['timestamp']}</div>
         </div>
-        """
+        """, unsafe_allow_html=True)
     else:
-        chat_html += f"""
+        st.markdown(f"""
         <div class="chatbot-msg-box">
-            <div class="chatbot-msg">{content}</div>
-            <div class="chatbot-msg-time timestamp">{timestamp}</div>
+            <div class="chatbot-msg"> 
+                {msg["content"].replace(chr(10), "<br>")}               
+            </div>
+            <div class='chatbot-msg-time timestamp'>{msg['timestamp']}</div>
         </div>
-        """
-
-chat_html += "</div>"
-st.markdown(chat_html, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
 with st.form("chat_form", clear_on_submit=True):
     st.markdown("<div class='input-row'>", unsafe_allow_html=True)
