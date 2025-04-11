@@ -76,6 +76,15 @@ st.markdown("""
             width: 100% !important;
             padding-bottom: 2px !important;
         }
+        .responsive-subtitle {
+            font-size: clamp(14px, 5vw, 12px) !important;
+            color: #FF0000 !important;  
+            text-align: center !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            width: 100% !important;
+            padding-bottom: 2px !important;
+        }
         .user-guide {
             font-size: 12px !important;
             margin-top: 4px !important; 
@@ -203,7 +212,7 @@ def make_prompt(query, context, is_best):
 # ✅ UI 출력 영역
 st.markdown("""
     <div class="responsive-title">혁신바우처 서비스 파인더</div>
-    <p style='text-align: center; font-size:14px;'>🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
+    <p class="responsive-subtitle"🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
 
 for msg in st.session_state.chat_messages:
