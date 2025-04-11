@@ -49,7 +49,7 @@ st.markdown("""
             display: inline-block; 
             text-align: left; 
             background-color: #FFEB3B; 
-            color: #000000; 
+            color: #0c0c0c; 
             padding: 10px 14px; 
             border-radius: 12px 0px 12px 12px; 
             margin: 0 0 30px 0; 
@@ -59,7 +59,7 @@ st.markdown("""
             display: inline-block; 
             text-align: left; 
             background-color: #bacee0; 
-            color: #000000; 
+            color: #0c0c0c; 
             padding: 10px 14px; 
             border-radius: 12px 0px 12px 12px; 
             margin: 0 0 30px 0; 
@@ -69,7 +69,7 @@ st.markdown("""
         .responsive-title {
             font-size: clamp(40px, 5vw, 60px);
             font-weight: 700;
-            color: #000000;  /* 진한 레드 */
+            color: #0c0c0c;  /* 진한 레드 */
             text-align: center;
             white-space: nowrap;
             overflow: hidden;
@@ -77,7 +77,7 @@ st.markdown("""
             padding-bottom: 2px;
         }
         .user-guide {
-            font-size: 13px; 
+            font-size: 12px; 
             margin-top: 4px; 
             color: #0c0c0c; 
             text-align: left;
