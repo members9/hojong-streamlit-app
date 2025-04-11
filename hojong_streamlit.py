@@ -114,7 +114,7 @@ def ask_gpt(messages):
     return response.choices[0].message.content
 
 def is_best_recommendation_query(query):
-    keywords = ["가장", "최고", "제일", "1등", "1위", "진짜 추천", "강력 추천", "정말 추천", "최선"]
+    keywords = ["추천", "강추", "소개해", "안내해", "제시해"]
     return any(k in query for k in keywords)
 
 def recommend_services(query, top_k=5, exclude_company_ids=None):
@@ -212,6 +212,18 @@ with st.form("chat_form", clear_on_submit=True):
     user_input = st.text_area("", height=100, label_visibility="collapsed", key="input_box")
     submitted = st.form_submit_button("물어보기")
     st.markdown("</div>", unsafe_allow_html=True)
+    
+st.markdown("""
+    <div style='font-size: 12px; margin-top: 8px; color: #CCCCCC; text-align: left;'>
+        ℹ️ 사용법 안내:<br>
+        - <b>"자세히 기업명"</b>을 입력하면 해당 기업의 상세 정보를 확인할 수 있어요.<br>
+        - <b>"추천"</b> 으로 질문하면 종합 추천을 받아볼 수 있어요.<br>
+        - 최근 추천받은 기업은 자동으로 중복 제외돼요.<br>
+        - 복합적인 조건들을 이용한 질문으로 편리하게 사용하세요.<br>
+          예) "우리 회사는 국내 유명 관광지역을 소개하고 숙박을 연결해주는 서비스를 하고 있어. 회사 홈페이지를 디자인 중심으로 개편하고 싶고, 숙박지를 예약하고 결제하는 쇼핑몰 기능이 반드시 필요해. 이 2가지를 만족시킬 수 있는 조합을 만들어줘. 단, 예산은 합쳐서 5,000만원까지이고, 기간은 3.5개월안에는 마쳐야 해. 많은 소통을 위해 가급적 수도권 지역에 있는 회사였으면 좋겠고, 매출도 30억 이상되며 인원도 많아서 안정적인 지원도 받았으면 하고. 이런 회사를 좀 추천 해줘."
+
+    </div>
+""", unsafe_allow_html=True)    
 
 if submitted and user_input.strip():
     st.session_state.conversation_history.append({"role": "user", "content": user_input})
