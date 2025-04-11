@@ -67,12 +67,9 @@ st.markdown("""
         }
         /* ✅ 기타 */
         .responsive-title {
-            font-size: clamp(20px, 6vw, 42px);
+            font-size: clamp(18px, 5vw, 40px);  /* 화면 좁아질수록 작아짐 */
             text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: 10px;
+            white-space: nowrap;  /* 줄바꿈 방지 */
         }
         .user-guide {
             font-size: 13px; 
