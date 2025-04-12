@@ -560,11 +560,6 @@ if submitted and user_input.strip():
     # 시간대 설정
     current_time = get_kst_time()
     
-    
-    # ✅ fallback 상황인지 우선 체크
-    if st.session_state.debug_mode:
-        st.write(f"pending_fallback 상태: {st.session_state.pending_fallback}")
-    
     # ✅ fallback 상황인지 먼저 체크하고, 사용자 입력을 아직 저장하지 않음
     if st.session_state.pending_fallback:
         debug_info("✅ fallback 상태 감지됨 : " + str(st.session_state.fallback_attempt), "success")
@@ -810,7 +805,7 @@ if submitted and user_input.strip():
         # 대화 이력에 사용자 입력 추가
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
         
-        debug_info("\n🤖 호종이가 질문을 분석 중입니다...", True)
+        debug_info("\n🤖 호종이가 질문을 분석 중입니다...", pin=True)
         # 질문 관련성 확인
         if not is_relevant_question(user_input):
             reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
@@ -825,20 +820,19 @@ if submitted and user_input.strip():
         if st.session_state.user_query_history:
             previous_input = st.session_state.user_query_history[-1]
             if not is_followup_question(previous_input, user_input):
-                debug_info("➡️ [INFO] 독립된 질문입니다. 기준 임베딩 갱신.")
+                debug_info("🤖 호종이가 신규 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=True)
                 st.session_state.embedding_query_text = user_input
             else:
                 # 후속 질문이면 이전 임베딩 유지
-                debug_info("➡️ [INFO] 후속 질문입니다. 기준 임베딩 유지.")
-        else:
+                debug_info("🤖 호종이가 후속 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=True)
             # 최초 질문인 경우
-            debug_info("➡️ [INFO] 최초 질문입니다. 기준 임베딩 설정.")
+            debug_info("🤖 호종이가 최초 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=True)
             st.session_state.embedding_query_text = user_input
         
         # 질문 히스토리에 추가
         st.session_state.user_query_history.append(user_input)
         
-        debug_info("🤖 호종이가 관련 서비스를 찾는 중입니다...", True)
+        # debug_info("🤖 호종이가 관련 서비스를 찾는 중입니다...", pin=True)
         # 추천 모드 설정 및 서비스 추천
         best_mode = is_best_recommendation_query(user_input)
         exclude = None if best_mode else st.session_state.excluded_keys
@@ -859,7 +853,7 @@ if submitted and user_input.strip():
             })
             st.rerun()
         
-        debug_info("🤖 호종이가 추천 내용을 정리 중입니다...", True)
+        debug_info("🤖 호종이가 추천 내용을 정리 중입니다...", pin=True)
         # 추천 결과 기반 응답 생성
         unique_last_results = [
             s for s in last_results
