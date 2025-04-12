@@ -155,6 +155,10 @@ st.markdown("""
                 flex-direction: column !important;
                 align-items: stretch !important;
             }
+            .user-msg, .chatbot-msg {
+                font-size: 12px !important;
+                line-height: 1.4 !important;
+            }
         }
         
         .main .block-container {
