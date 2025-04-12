@@ -1,4 +1,15 @@
 import streamlit as st
+import faiss
+import pickle
+import numpy as np
+import random
+from collections import deque
+import itertools
+from datetime import datetime
+from zoneinfo import ZoneInfo  # Python 3.9 이상
+from openai import OpenAI
+from sentence_transformers import SentenceTransformer
+
 
 # ✅ 진입 암호 입력 로직 (4자리 숫자 예: 1234)
 if "authenticated" not in st.session_state:
@@ -14,21 +25,9 @@ if not st.session_state.authenticated:
         st.error("❌ 비밀번호가 틀렸습니다.")
     st.stop()  # ❗ 중요: 인증되지 않으면 아래 실행 중단
 
+# ✅ 나머지 앱 실행
+st.set_page_config(layout="wide")
 
-
-
-
-
-import faiss
-import pickle
-import numpy as np
-import random
-from collections import deque
-import itertools
-from datetime import datetime
-from zoneinfo import ZoneInfo  # Python 3.9 이상
-from openai import OpenAI
-from sentence_transformers import SentenceTransformer
 
 # ✅ 스타일 및 반응형 CSS 추가
 st.markdown("""
