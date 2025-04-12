@@ -556,6 +556,7 @@ if submitted and user_input.strip():
     
     # ✅ fallback 상황인지 우선 체크
     if st.session_state.pending_fallback:
+        debug_info("✅ fallback 재검색을 실행합니다1", "success")
         if user_input.strip() == "네":
             # 파라미터 조정
             st.session_state.fallback_attempt += 1
@@ -570,7 +571,7 @@ if submitted and user_input.strip():
                 "timestamp": current_time
             })
             
-            debug_info("✅ fallback 재검색을 실행합니다", "success")
+            debug_info("✅ fallback 재검색을 실행합니다2", "success")
             
             # 이전 질문으로 기준 임베딩 복원
             if st.session_state.user_query_history:
