@@ -512,35 +512,24 @@ st.markdown("""
 
 # 채팅 메시지 표시
 for msg in st.session_state.chat_messages:
-    if st.session_state.get("is_processing", False):
-        if msg["role"] == "user":
-            st.markdown(f"""
-            <div class="user-msg-box">
-                <div class="user-msg">
-                    {msg["content"].replace(chr(10), "<br>")}
-                    <div class="user-msg-time">{msg['timestamp']}</div>
-                </div>
+    if msg["role"] == "user":
+        st.markdown(f"""
+        <div class="user-msg-box">
+            <div class="user-msg">
+                {msg["content"].replace(chr(10), "<br>")}
+                <div class="user-msg-time">{msg['timestamp']}</div>
             </div>
-            """, unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        if msg["role"] == "user":
-            st.markdown(f"""
-            <div class="user-msg-box">
-                <div class="user-msg">
-                    {msg["content"].replace(chr(10), "<br>")}
-                    <div class="user-msg-time">{msg['timestamp']}</div>
-                </div>
+        st.markdown(f"""
+        <div class="chatbot-msg-box">
+            <div class="chatbot-msg"> 
+                {msg["content"].replace(chr(10), "<br>")}
+                <div class="chatbot-msg-time">{msg['timestamp']}</div>
             </div>
-            """, unsafe_allow_html=True)
-        else:
-            st.markdown(f"""
-            <div class="chatbot-msg-box">
-                <div class="chatbot-msg"> 
-                    {msg["content"].replace(chr(10), "<br>")}
-                    <div class="chatbot-msg-time">{msg['timestamp']}</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
 
 if st.session_state.get("is_processing", False):
     if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
@@ -575,7 +564,7 @@ if st.session_state.get("is_processing", False):
     user_input = st.session_state.pending_input
     del st.session_state.pending_input
     submitted = True
-    time.sleep(1)
+    #time.sleep(1)
 
 # 메시지 처리 로직
 if submitted and user_input.strip():
