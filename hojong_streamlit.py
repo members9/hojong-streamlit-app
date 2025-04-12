@@ -10,6 +10,7 @@ import itertools
 from datetime import datetime
 from zoneinfo import ZoneInfo  # Python 3.9 이상
 from sentence_transformers import SentenceTransformer
+import time
 
 # ✅ 진입 암호 입력 로직 (4자리 숫자 예: 7299)
 if "authenticated" not in st.session_state:
@@ -574,6 +575,7 @@ if st.session_state.get("is_processing", False):
     user_input = st.session_state.pending_input
     del st.session_state.pending_input
     submitted = True
+    time.sleep(1)
 
 # 메시지 처리 로직
 if submitted and user_input.strip():
@@ -704,7 +706,7 @@ if submitted and user_input.strip():
 
         else:
             # fallback 취소
-            reply = "⛔ 재검색이 취소되었습니다. 다른 질문을 입력해 주시면 다시 찾아보겠습니다."
+            reply = "⛔ 검색이 취소되었습니다. 다른 질문을 입력해 주시면 다시 찾아보겠습니다."
             # st.session_state.chat_messages.append({
             #     "role": "user",
             #     "content": user_input,
