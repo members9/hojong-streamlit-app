@@ -567,7 +567,7 @@ if submitted and user_input.strip():
     
     # ✅ fallback 상황인지 먼저 체크하고, 사용자 입력을 아직 저장하지 않음
     if st.session_state.pending_fallback:
-        debug_info("✅ fallback 상태 감지됨", "success")
+        debug_info("✅ fallback 상태 감지됨 : " + str(st.session_state.fallback_attempt), "success")
         
         if user_input.strip().lower() == "네" and st.session_state.fallback_attempt < FALLBACK_ATTEMPT_NUM:
             # 파라미터 조정
@@ -661,7 +661,7 @@ if submitted and user_input.strip():
                     "content": gpt_reply, 
                     "timestamp": current_time
                 })
-                
+                # fallback 상태 초기화
                 st.session_state.pending_fallback = False
                 st.session_state.fallback_attempt = 0
                 st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD
