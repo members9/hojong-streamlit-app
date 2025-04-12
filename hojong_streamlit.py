@@ -299,7 +299,7 @@ def load_index_and_metadata():
     xb = index.reconstruct_n(0, index.ntotal)
     xb = normalize(xb)
     d = xb.shape[1]
-    index_cosine = faiss.IndexFlatIP(d)
+    index_cosine = faiss.IndexFlatIP(d) 
     index_cosine.add(xb)
     
     return index, metadata, index_cosine
