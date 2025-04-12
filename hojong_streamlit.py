@@ -281,6 +281,8 @@ if "A_SIMILARITY_THRESHOLD" not in st.session_state:
     st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD  # 기본값 사용
 if "TOP_N" not in st.session_state:
     st.session_state.TOP_N = MAX_HISTORY_LEN
+if "is_processing" not in st.session_state:
+    st.session_state.is_processing = False    
 
 
 # ✅ 유틸리티 함수들
@@ -528,12 +530,13 @@ for msg in st.session_state.chat_messages:
         </div>
         """, unsafe_allow_html=True)
 
-if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
-    st.markdown(f"""
-        <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
-            "{st.session_state.debug_pinned_message}"
-        </div>
-    """, unsafe_allow_html=True)
+if st.session_state.get("is_processing", False):
+    if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
+        st.markdown(f"""
+            <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
+                "{st.session_state.debug_pinned_message}"
+            </div>
+        """, unsafe_allow_html=True)
 
 # 입력 폼
 with st.form("chat_form", clear_on_submit=True):
@@ -559,6 +562,17 @@ st.markdown("""
 if submitted and user_input.strip():
     # 시간대 설정
     current_time = get_kst_time()
+    
+    # 사용자 입력 저장만 함 (GPT 호출은 다음 루프에서)
+    st.session_state.pending_input = user_input
+    st.session_state.is_processing = True  # 분석 중 상태 True 설정
+    st.rerun()
+    
+    # ✅ 분석 대기 중인 입력 처리
+    if "pending_input" in st.session_state:
+        user_input = st.session_state.pending_input
+        del st.session_state.pending_input
+        st.session_state.is_processing = False  # 분석 완료 시 메시지 제거
     
     # ✅ fallback 상황인지 먼저 체크하고, 사용자 입력을 아직 저장하지 않음
     if st.session_state.pending_fallback:
@@ -709,6 +723,7 @@ if submitted and user_input.strip():
     # 초기화 명령 처리
     elif user_input.strip().lower() == "초기화":
     
+        st.session_state.is_processing = False
         st.session_state.pending_fallback = False
         st.session_state.fallback_attempt = 0
         st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD  # 기본값 사용
