@@ -28,7 +28,6 @@ if not st.session_state.authenticated:
 # ✅ 나머지 앱 실행
 st.set_page_config(layout="wide")
 
-
 # ✅ 스타일 및 반응형 CSS 추가
 st.markdown("""
     <style>
