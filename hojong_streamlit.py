@@ -382,7 +382,7 @@ def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, 
         return False
     top_scores = [score for score, _ in ranked_results[:top_n]]
     avg_score = sum(top_scores) / len(top_scores)
-    debug_info(f"📊 상위 {top_n}개 평균 유사도: {avg_score:.4f}", pin=True)
+    debug_info(f"🤖 호종이가 분석한 결과 상위 {top_n}개 평균 유사도는 {avg_score:.4f} 입니다.", pin=True)
     
     return avg_score >= threshold
 
