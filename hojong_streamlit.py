@@ -1,6 +1,5 @@
 
 import streamlit as st
-import streamlit.components.v1 as components
 import faiss
 import pickle
 import numpy as np
@@ -514,14 +513,21 @@ with st.form("chat_form", clear_on_submit=True):
     st.markdown("</div>", unsafe_allow_html=True)
     
     if submitted:
-        components.html("""
-            <script>
-            const textarea = window.parent.document.querySelector('textarea');
-            if (textarea) {
-                textarea.focus();
-            }
-            </script>
-        """, height=0)
+        st.session_state.request_focus = True
+        st.rerun()
+
+# rerun 이후 포커스 실행
+if st.session_state.get("request_focus", False):
+    import streamlit.components.v1 as components
+    components.html("""
+        <script>
+        const textarea = window.parent.document.querySelector('textarea');
+        if (textarea) {
+            textarea.focus();
+        }
+        </script>
+    """, height=0)
+    st.session_state.request_focus = False
 
 # 사용 안내 표시
 st.markdown("""
