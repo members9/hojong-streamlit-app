@@ -585,6 +585,7 @@ if submitted and user_input.strip():
         # 사용자 입력 저장만 함 (GPT 호출은 다음 루프에서)
         st.session_state.pending_input = user_input
         st.session_state.is_processing = True  # 분석 중 상태 True 설정
+        st.session_state.debug_pinned_message = "🤖 호종이가 질문을 분석 중입니다..."
         st.rerun()
     
     st.write("!2222222222222222222222")
@@ -834,7 +835,7 @@ if submitted and user_input.strip():
     
         # 대화 이력에 사용자 입력 추가
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
-        debug_info("\n🤖 호종이가 질문을 분석 중입니다...", pin=True)
+        debug_info("🤖 호종이가 질문을 분석 중입니다...", pin=True)
         
         # 질문 관련성 확인
         if not is_relevant_question(user_input):
