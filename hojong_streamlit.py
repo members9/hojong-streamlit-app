@@ -530,3 +530,172 @@ if submitted and user_input.strip():
             "timestamp": current_time
         })
         st.rerun()
+    
+    # '자세히' 명령 처리
+    elif user_input.startswith("자세히"):
+        keyword = user_input.replace("자세히", "").strip()
+        all_stored_results = list(itertools.chain.from_iterable(st.session_state.all_results))
+        
+        if not all_stored_results:
+            reply = "ℹ️ 저장된 추천 내역이 없습니다."
+        else:
+            matches = [s for s in all_stored_results if keyword in s["기업명"]]
+            if not matches:
+                reply = "ℹ️ 해당 키워드를 포함한 기업명이 없습니다."
+            elif len(matches) > 1:
+                reply = "ℹ️ 여러 개의 기업명이 일치합니다. 더 구체적으로 입력해 주세요.\n" + "\n".join([f"- {s['기업명']}" for s in matches])
+            else:
+                s = matches[0]
+                service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
+                company_link = f"https://www.tourvoucher.or.kr/user/entrprsManage/provdEntrprs/BD_selectProvdEntrprs.do?entrprsId={s['기업ID']}"
+                
+                # 상세 정보 형식화
+                details = []
+                for k, v in s.items():
+                    # 기업 3개년 평균 매출: 숫자를 정수, 콤마 구분 후 "원" 추가
+                    if k == "기업 3개년 평균 매출":
+                        try:
+                            num = float(v)
+                            v = format(round(num), ",") + "원"
+                        except Exception:
+                            pass
+                    # 기업 인력현황: 정수로 표기 후 "명" 추가
+                    elif k == "기업 인력현황":
+                        try:
+                            num = float(v)
+                            v = f"{int(num)}명"
+                        except Exception:
+                            pass
+                    # 기업 핵심역량: _x000D_ 제거
+                    elif k == "기업 핵심역량":
+                        try:
+                            v = v.replace("_x000D_", "")
+                        except Exception:
+                            pass
+                    details.append(f"•&nbsp;{k}: {v}")
+                
+                # 링크 버튼 형식으로 변경
+                links = [
+                    f'<a href="{service_link}" target="_blank" class="link-button">🔗 서비스 상세 보기</a>',
+                    f'<a href="{company_link}" target="_blank" class="link-button">🏢 기업 정보 보기</a>'
+                ]
+                
+                reply = "📄 서비스 상세정보\n" + "\n".join(details) + "\n\n" + "\n".join(links)
+        
+        # 상세 정보 응답 메시지 추가
+        st.session_state.chat_messages.append({
+            "role": "assistant", 
+            "content": reply, 
+            "timestamp": current_time
+        })
+        st.rerun()
+    
+    # 일반 질문 처리
+    else:
+        # 대화 이력에 사용자 입력 추가
+        st.session_state.conversation_history.append({"role": "user", "content": user_input})
+        
+        debug_info("\n🤖 호종이가 질문을 분석 중입니다...")
+        # 질문 관련성 확인
+        if not is_relevant_question(user_input):
+            reply = "ℹ️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
+            st.session_state.chat_messages.append({
+                "role": "assistant", 
+                "content": reply, 
+                "timestamp": current_time
+            })
+            st.rerun()
+        
+        # 후속 질문 판단
+        if st.session_state.user_query_history:
+            previous_input = st.session_state.user_query_history[-1]
+            if not is_followup_question(previous_input, user_input):
+                debug_info("🔁 [INFO] 독립된 질문입니다. 기준 임베딩 갱신.")
+                st.session_state.embedding_query_text = user_input
+            else:
+                # 후속 질문이면 이전 임베딩 유지
+                debug_info("➡️ [INFO] 후속 질문입니다. 기준 임베딩 유지.")
+        else:
+            # 최초 질문인 경우
+            debug_info("🌱 [INFO] 최초 질문입니다. 기준 임베딩 설정.")
+            st.session_state.embedding_query_text = user_input
+        
+        # 질문 히스토리에 추가
+        st.session_state.user_query_history.append(user_input)
+        
+        debug_info("🤖 호종이가 관련 서비스를 찾는 중입니다...")
+        # 추천 모드 설정 및 서비스 추천
+        best_mode = is_best_recommendation_query(user_input)
+        exclude = None if best_mode else st.session_state.excluded_keys
+        last_results = recommend_services(
+            st.session_state.embedding_query_text, 
+            exclude_keys=exclude, 
+            use_random=not best_mode
+        )
+        
+        # 추천 결과가 없을 경우
+        if not last_results:
+            reply = "🧭 관련된 추천 결과가 충분하지 않습니다.\n\n관광기업이나 서비스와 관련된 질문을 조금 더 구체적으로 해 주시면 감사하겠습니다!"
+            st.session_state.chat_messages.append({
+                "role": "assistant", 
+                "content": reply, 
+                "timestamp": current_time
+            })
+            st.rerun()
+        
+        debug_info("🤖 호종이가 추천 내용을 정리 중입니다...")
+        # 추천 결과 기반 응답 생성
+        unique_last_results = [
+            s for s in last_results
+            if (s["기업ID"], s.get("서비스유형"), s.get("서비스명")) not in st.session_state.excluded_keys
+        ]
+        context = make_context(unique_last_results)
+        gpt_prompt = make_prompt(user_input, context, is_best=best_mode)
+        
+        # GPT에 프롬프트 전달
+        st.session_state.conversation_history.append({"role": "user", "content": gpt_prompt})
+        
+        try:
+            gpt_reply = ask_gpt(list(st.session_state.conversation_history))
+        except Exception as e:
+            gpt_reply = f"⚠️ 응답 생성 중 오류가 발생했습니다. 다시 시도해주세요: {str(e)}"
+            
+        # 응답을 저장하고 대화 이력에 추가
+        st.session_state.conversation_history.append({"role": "assistant", "content": gpt_reply})
+        
+        # 이번 추천에서 언급된 서비스들 제외 대상으로 등록
+        mentioned_keys = {
+            (s["기업ID"], s.get("서비스유형"), s.get("서비스명"))
+            for s in last_results
+            if (
+                str(s["기업ID"]) in gpt_reply and
+                s["서비스명"] in gpt_reply
+            )
+        }
+        
+        debug_info(f"[❗DEBUG] GPT 응답에서 언급된 키: {mentioned_keys}")
+        for s in last_results:
+            기업ID = s.get('기업ID')
+            기업명 = s.get('기업명')
+            서비스명 = s.get('서비스명')
+            debug_info(f"🔍 비교 중: {기업ID} / {기업명} / {서비스명}")
+            debug_info(f"    → 기업ID 비교: {기업ID} in GPT? {'YES' if str(기업ID) in gpt_reply else 'NO'}")
+            debug_info(f"    → 기업명 비교: {기업명} in GPT? {'YES' if 기업명 in gpt_reply else 'NO'}")
+            debug_info(f"    → 서비스명 비교: {서비스명} in GPT? {'YES' if 서비스명 in gpt_reply else 'NO'}")
+        debug_info(f"\n🔍 excluded_keys 키 수: {len(st.session_state.excluded_keys)}")
+        
+        # 제외 대상 업데이트
+        st.session_state.excluded_keys.update(mentioned_keys)
+        
+        # 추천 결과 저장
+        st.session_state.last_results = last_results
+        st.session_state.all_results.append(last_results)
+        
+        # 챗봇 응답 메시지 추가
+        st.session_state.chat_messages.append({
+            "role": "assistant", 
+            "content": gpt_reply, 
+            "timestamp": current_time
+        })
+        
+        st.rerun()
