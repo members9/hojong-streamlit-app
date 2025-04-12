@@ -95,7 +95,7 @@ st.markdown("""
             background-color: #bacee0 !important; 
             color: #0c0c0c !important !important;
             padding: 10px 14px !important; 
-            border-radius: 12px 0px 12px 12px !important; 
+            border-radius: 0px 12px 12px 12px !important; 
             margin: 0 0 30px 0 !important; 
             max-width: 66% !important;
             word-wrap: break-word !important;
