@@ -320,7 +320,13 @@ company_lookup = create_company_lookup()
 
 # ✅ 함수 정의
 def get_embedding(text, model="text-embedding-3-small"):
+    
+    st.write("2222222222222 text = " + text)
+    
     response = client.embeddings.create(input=[text], model=model)
+    
+    st.write("33333333333333333333" + text)
+    
     return response.data[0].embedding
 
 
@@ -367,6 +373,9 @@ def is_best_recommendation_query(query):
     return any(k in query for k in keywords)
 
 def is_relevant_question(query, threshold=Q_SIMILARITY_THRESHOLD):
+    
+    st.write("1111111111111111111111111111111111111")
+    
     query_vec = get_embedding(query)
     query_vec = np.array(query_vec).astype('float32').reshape(1, -1)
     query_vec = normalize(query_vec)
