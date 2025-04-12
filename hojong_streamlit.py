@@ -534,7 +534,11 @@ if st.session_state.get("is_processing", False):
     
     st.write("!3333333333333333333333")
     
-    if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
+    #if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
+    if st.session_state.debug_mode:
+            
+        st.write("!aaaaaaaaaaaaaaaaaaaaaaaa")
+        
         st.markdown(f"""
             <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
                 "{st.session_state.debug_pinned_message}"
