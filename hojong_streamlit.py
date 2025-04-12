@@ -803,6 +803,8 @@ if submitted and user_input.strip():
     # 일반 질문 처리
     else:
     
+        debug_info(f"✅ user_input : " + user_input)
+    
         # 대화 이력에 사용자 입력 추가
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
         # debug_info("\n🤖 호종이가 질문을 분석 중입니다...", pin=True)
