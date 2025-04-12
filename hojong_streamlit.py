@@ -806,6 +806,7 @@ if submitted and user_input.strip():
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
         
         debug_info("\n🤖 호종이가 질문을 분석 중입니다...", pin=True)
+        
         # 질문 관련성 확인
         if not is_relevant_question(user_input):
             reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
