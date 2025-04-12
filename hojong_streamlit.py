@@ -178,7 +178,7 @@ st.markdown("""
 # ✅ 설정 변수 (13_service_recommender.py와 일치하도록 유지)
 USE_OPENAI_EMBEDDING = True  # 🔁 여기서 스위칭 가능 (True: OpenAI, False: 로컬 모델)
 Q_SIMILARITY_THRESHOLD = 0.30
-A_SIMILARITY_THRESHOLD = 0.40
+A_SIMILARITY_THRESHOLD = 0.30
 MAX_HISTORY_LEN = 5  # 질문과 답변 히스로리 저장 컨텍스트 개수
 
 # ✅ 세션 상태에 디버그 모드 변수 추가
