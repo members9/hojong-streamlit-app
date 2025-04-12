@@ -186,7 +186,23 @@ if "embedding_query_text" not in st.session_state:
     st.session_state.embedding_query_text = None
 
 
+def normalize(vecs):
+    norms = np.linalg.norm(vecs, axis=1, keepdims=True)
+    return vecs / norms
 
+# FAISS 인덱스와 메타데이터 로드
+index = faiss.read_index("service_index.faiss")
+with open("service_metadata.pkl", "rb") as f:
+    metadata = pickle.load(f)
+
+# 저장된 임베딩 벡터를 재구성하고 정규화
+xb = index.reconstruct_n(0, index.ntotal)
+xb = normalize(xb)
+d = xb.shape[1]
+index_cosine = faiss.IndexFlatIP(d)
+index_cosine.add(xb)
+
+"""
 index, metadata, index_cosine = load_index_and_metadata()
 
 # ✅ 유틸리티 함수들
@@ -209,6 +225,7 @@ def load_index_and_metadata():
     index_cosine.add(xb)
     
     return index, metadata, index_cosine
+"""
 
 def get_embedding(text, model="text-embedding-3-small"):
     if text in st.session_state.embedding_cache:
