@@ -580,8 +580,8 @@ if submitted and user_input.strip():
             debug_info(f"✅ 파라미터 조정됨: 임계값={st.session_state.A_SIMILARITY_THRESHOLD}, TOP_N={st.session_state.TOP_N}", "success")
             
             # 이전 질문으로 기준 임베딩 복원
-            if st.session_state.user_query_history:
-                st.session_state.embedding_query_text += (","+st.session_state.user_query_history[-1])
+            #if st.session_state.user_query_history:
+            #    st.session_state.embedding_query_text += ("," + st.session_state.user_query_history[-1])
             
             debug_info(f"✅ embedding_query_text : " + str(st.session_state.embedding_query_text))
             # pause_here("🧪 001 last_results : " + str(st.session_state.embedding_query_text))
