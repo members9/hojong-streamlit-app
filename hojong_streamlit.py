@@ -10,7 +10,7 @@ from collections import deque
 import itertools
 from datetime import datetime
 from zoneinfo import ZoneInfo  # Python 3.9 이상
-import openai
+from openai import OpenAI
 from sentence_transformers import SentenceTransformer
 
 # ✅ 스타일 및 반응형 CSS 추가
@@ -232,7 +232,8 @@ def is_followup_question(prev, current):
         {"role": "user", "content": f"이전 질문: {prev}\n현재 질문: {current}"}
     ]
     try:
-        reply = openai.ChatCompletion.create(
+        client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+        response = client.chat.completions.create(
             model="gpt-4o",
             messages=messages
         )
@@ -309,8 +310,9 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     return results
 
 def ask_gpt(messages):
-    response = openai.ChatCompletion.create(model="gpt-4o", messages=messages)
-    return response['choices'][0]['message']['content']
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    response = client.chat.completions.create(model="gpt-4o", messages=messages)
+    return response.choices[0].message.content
 
 def make_context(results):
     """추천 결과 목록을 목록 형식으로 출력하도록 구성 (기업의 상세정보 포함)"""
