@@ -585,8 +585,7 @@ if submitted and user_input.strip():
             
             # 이전 질문으로 기준 임베딩 복원
             if st.session_state.user_query_history:
-                st.session_state.embedding_query_text += (st.session_state.user_query_history[-1] + ",")
-                # st.session_state.embedding_query_text = "홈페이지 디자인 전문 업체 추천"
+                st.session_state.embedding_query_text += (","+st.session_state.user_query_history[-1])
             
             debug_info(f"✅ embedding_query_text : " + str(st.session_state.embedding_query_text))
             # pause_here("🧪 001 last_results : " + str(st.session_state.embedding_query_text))
@@ -610,13 +609,12 @@ if submitted and user_input.strip():
                 # 여전히 결과가 없음 - 다시 fallback 상태로
                 st.session_state.pending_fallback = True
                 reply = "⚠️ 여전히 관련 서비스를 찾기 어렵습니다. 더 넓은 범위에서 검색할까요? '네'라고 답해주세요."
-                pause_here("🧪 004-1 last_results is null")
-                
                 st.session_state.chat_messages.append({
                     "role": "assistant", 
                     "content": reply, 
                     "timestamp": current_time
                 })
+                pause_here("🧪 004-1 last_results is null")
                 st.rerun()
             else:
                 
@@ -630,11 +628,11 @@ if submitted and user_input.strip():
                 st.session_state.conversation_history.append({"role": "user", "content": gpt_prompt})
                 try:
                     gpt_reply = ask_gpt(list(st.session_state.conversation_history))
-                    pause_here("🧪 005-1 gpt_reply : " + gpt_reply)
+                    # pause_here("🧪 005-1 gpt_reply : " + gpt_reply)
                     
                 except Exception as e:
                     gpt_reply = f"⚠️ 응답 생성 중 오류가 발생했습니다. 다시 시도해주세요: {str(e)}"
-                    pause_here("🧪 005-2 gpt_reply is error! ")
+                    # pause_here("🧪 005-2 gpt_reply is error! ")
                     
                 # 응답 저장
                 st.session_state.conversation_history.append({"role": "assistant", "content": gpt_reply})
