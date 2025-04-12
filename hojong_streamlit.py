@@ -317,45 +317,13 @@ def create_company_lookup():
 index, metadata, index_cosine = load_index_and_metadata()
 company_lookup = create_company_lookup()
 
-
-# ✅ 함수 정의
 def get_embedding(text, model="text-embedding-3-small"):
-    # ⛔ 유효성 검사
-    if not text or not isinstance(text, str) or not text.strip():
-        msg = f"❌ [get_embedding] 입력값이 비어있거나 잘못됨: '{text}'"
-        debug_info(msg, level="error")
-        raise ValueError(msg)
-    
-    # ✅ 캐시 확인
-    if text in st.session_state.embedding_cache:
-        debug_info(f"✅ [get_embedding] 캐시 hit: '{text}'", level="info")
-        return st.session_state.embedding_cache[text]
-
-    debug_info(f"🔄 [get_embedding] 임베딩 생성 요청 시작 → '{text}'", level="info")
-    
-    try:
-        response = client.embeddings.create(input=[text], model=model)
-        embedding = response.data[0].embedding
-        debug_info(f"✅ [get_embedding] 임베딩 생성 완료. 길이: {len(embedding)}", level="success")
-    except Exception as e:
-        debug_info(f"❌ [get_embedding] OpenAI 임베딩 오류 발생: {str(e)}", level="error", pin=True)
-        raise e
-
-    # ✅ 캐시에 저장 후 반환
-    st.session_state.embedding_cache[text] = embedding
-    return embedding
-
-
-def get_embedding2(text, model="text-embedding-3-small"):
     if text in st.session_state.embedding_cache:
         return st.session_state.embedding_cache[text]
 
     if USE_OPENAI_EMBEDDING:
         response = client.embeddings.create(input=[text], model=model)
         embedding = response.data[0].embedding  # 수정된 부분: 딕셔너리 접근이 아닌 객체 속성 접근
-        
-        #response = openai.Embedding.create(input=[text], model=model)
-        #embedding = response['data'][0]['embedding']
     else:
         embedding = local_model.encode([text])[0].tolist()
 
@@ -388,14 +356,8 @@ def is_best_recommendation_query(query):
     keywords = ["강력 추천", "강추"]
     return any(k in query for k in keywords)
 
-def is_relevant_question(query, threshold=Q_SIMILARITY_THRESHOLD):
-    
-    st.write("is_relevant_question 111111111111111111")
-    
+def is_relevant_question(query, threshold=Q_SIMILARITY_THRESHOLD): 
     query_vec = get_embedding(query)
-    
-    st.write("is_relevant_question 22222222222222222")
-    
     query_vec = np.array(query_vec).astype('float32').reshape(1, -1)
     query_vec = normalize(query_vec)
     D, _ = index_cosine.search(query_vec, 1)
@@ -840,8 +802,6 @@ if submitted and user_input.strip():
     # 일반 질문 처리
     else:
     
-        debug_info(f"✅ user_input 11111 : " + user_input)
-    
         # 대화 이력에 사용자 입력 추가
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
         debug_info("\n🤖 호종이가 질문을 분석 중입니다...", pin=True)
@@ -855,8 +815,6 @@ if submitted and user_input.strip():
                 "timestamp": current_time
             })
             st.rerun()
-            
-        debug_info(f"✅ user_input 22222 : " + user_input)
         
         # 후속 질문 판단
         if st.session_state.user_query_history:
