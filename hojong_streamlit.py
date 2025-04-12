@@ -828,7 +828,7 @@ if submitted and user_input.strip():
     # 일반 질문 처리
     else:
     
-        debug_info(f"✅ user_input : " + user_input)
+        debug_info(f"✅ user_input 11111 : " + user_input)
     
         # 대화 이력에 사용자 입력 추가
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
@@ -843,6 +843,8 @@ if submitted and user_input.strip():
                 "timestamp": current_time
             })
             st.rerun()
+            
+        debug_info(f"✅ user_input 22222 : " + user_input)
         
         # 후속 질문 판단
         if st.session_state.user_query_history:
