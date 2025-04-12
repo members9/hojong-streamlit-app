@@ -159,6 +159,9 @@ st.markdown("""
                 font-size: 12px !important;
                 line-height: 1.3 !important;
             }
+            .user-msg-time, chatbot-msg-time {
+                font-size: 9x;
+            }   
             .user-guide {
                 font-size: 11px !important;
                 line-height: 1.3 !important;
@@ -173,7 +176,8 @@ st.markdown("""
 
 # ✅ 설정 변수 (13_service_recommender.py와 일치하도록 유지)
 USE_OPENAI_EMBEDDING = True  # 🔁 여기서 스위칭 가능 (True: OpenAI, False: 로컬 모델)
-SIMILARITY_THRESHOLD = 0.30
+Q_SIMILARITY_THRESHOLD = 0.30
+A_SIMILARITY_THRESHOLD = 0.40
 MAX_HISTORY_LEN = 5  # 질문과 답변 히스로리 저장 컨텍스트 개수
 
 # ✅ 세션 상태에 디버그 모드 변수 추가
@@ -332,7 +336,7 @@ def is_best_recommendation_query(query):
     keywords = ["강력 추천", "강추"]
     return any(k in query for k in keywords)
 
-def is_relevant_question(query, threshold=SIMILARITY_THRESHOLD):
+def is_relevant_question(query, threshold=Q_SIMILARITY_THRESHOLD):
     query_vec = get_embedding(query)
     query_vec = np.array(query_vec).astype('float32').reshape(1, -1)
     query_vec = normalize(query_vec)
@@ -340,7 +344,7 @@ def is_relevant_question(query, threshold=SIMILARITY_THRESHOLD):
     max_similarity = D[0][0]
     return max_similarity >= threshold
 
-def is_related_results_enough(ranked_results, threshold=0.35, top_n=3):
+def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, top_n=3):
     """
     벡터 유사도 기반 추천 결과 중 상위 N개의 평균 유사도가 threshold 이상인지 확인.
     관련도가 낮으면 False 반환 → GPT 호출 방지 가능.
@@ -370,6 +374,14 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     # ⛔ 유사도 낮을 경우 GPT 호출도 생략할 수 있도록 빈 리스트 반환
     if not is_related_results_enough(ranked):
         debug_info("⚠️ [INFO] 추천 결과의 연관성이 낮아 GPT 호출을 생략합니다.", "warning")
+        # 강제 출력
+        if "debug_pinned_message" in st.session_state and st.session_state.debug_mode:
+            st.markdown(f"""
+                <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
+                    {st.session_state.debug_pinned_message}
+                </div>
+            """, unsafe_allow_html=True)
+
         return []
     
     # 📌 STEP 1: 유사도 기준 정렬된 원본 상위 30개 출력
@@ -473,12 +485,12 @@ st.markdown("""
     <p class="responsive-subtitle">🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
 
-if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
-    st.markdown(f"""
-        <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
-            {st.session_state.debug_pinned_message}
-        </div>
-    """, unsafe_allow_html=True)
+# if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
+#     st.markdown(f"""
+#         <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
+#             {st.session_state.debug_pinned_message}
+#         </div>
+#     """, unsafe_allow_html=True)
 
 # 채팅 메시지 표시
 for msg in st.session_state.chat_messages:
