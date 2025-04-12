@@ -555,23 +555,29 @@ if submitted and user_input.strip():
     
     
     # ✅ fallback 상황인지 우선 체크
+    if st.session_state.debug_mode:
+        st.write(f"pending_fallback 상태: {st.session_state.pending_fallback}")
+    
+    # ✅ fallback 상황인지 먼저 체크하고, 사용자 입력을 아직 저장하지 않음
     if st.session_state.pending_fallback:
-        debug_info("✅ fallback 재검색을 실행합니다1", "success")
-        if user_input.strip() == "네":
+        debug_info("✅ fallback 상태 감지됨", "success")
+        
+        if user_input.strip().lower() == "네":
             # 파라미터 조정
             st.session_state.fallback_attempt += 1
             st.session_state.A_SIMILARITY_THRESHOLD = max(0.1, st.session_state.A_SIMILARITY_THRESHOLD - 0.03)
             st.session_state.TOP_N = max(2, st.session_state.TOP_N - 1)
             st.session_state.pending_fallback = False
-
-            # 사용자 입력 저장
+            
+            # 이제 사용자 입력 저장
             st.session_state.chat_messages.append({
                 "role": "user",
                 "content": user_input,
                 "timestamp": current_time
             })
             
-            debug_info("✅ fallback 재검색을 실행합니다2", "success")
+            debug_info(f"✅ 파라미터 조정됨: 임계값={st.session_state.A_SIMILARITY_THRESHOLD}, TOP_N={st.session_state.TOP_N}", "success")
+            
             
             # 이전 질문으로 기준 임베딩 복원
             if st.session_state.user_query_history:
