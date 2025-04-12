@@ -323,7 +323,8 @@ def get_embedding(text, model="text-embedding-3-small"):
 
     if USE_OPENAI_EMBEDDING:
         response = client.embeddings.create(input=[text], model=model)
-        embedding = response.data[0].embedding  # 수정된 부분: 딕셔너리 접근이 아닌 객체 속성 접근
+        #embedding = response.data[0].embedding  # 수정된 부분: 딕셔너리 접근이 아닌 객체 속성 접근
+        embedding = response['data'][0]['embedding']
     else:
         embedding = local_model.encode([text])[0].tolist()
 
