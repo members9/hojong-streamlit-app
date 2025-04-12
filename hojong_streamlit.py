@@ -130,6 +130,14 @@ st.markdown("""
             width: 100% !important;
             padding-bottom: 2px !important;
         }
+        .info-msg {
+            background-color: #fff3cd !important; 
+            font-size: 11px !important;
+            border-left: 6px solid #ffeeba !important;
+            border-radius: 6px 6px 6px 6px !important; 
+            padding: 10px !important;
+            margin-bottom: 10px !important;
+        }    
         .user-guide {
             font-size: 14px !important;
             margin-top: 4px !important; 
@@ -536,7 +544,7 @@ for msg in st.session_state.chat_messages:
 # if st.session_state.get("is_processing", False):
 if "debug_pinned_message" in st.session_state:
     st.markdown(f"""
-        <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
+        <div class="info-msg">
             "{st.session_state.debug_pinned_message}"
         </div>
     """, unsafe_allow_html=True)
