@@ -17,7 +17,7 @@ if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
-    st.markdown("## 🔐 접근 권한이 필요합니다")
+    st.markdown("## 🔐 접근 권한")
     password_input = st.text_input("4자리 숫자 비밀번호를 입력하세요:", type="password")
     if password_input and password_input.strip() == "7299":
         st.session_state.authenticated = True
