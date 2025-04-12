@@ -614,7 +614,7 @@ if submitted and user_input.strip():
                 # 여전히 결과가 없음 - 다시 fallback 상태로
                 st.session_state.pending_fallback = True
                 reply = "⚠️ 여전히 관련 서비스를 찾기 어렵습니다. 더 넓은 범위에서 검색할까요? '네'라고 답해주세요."
-                # pause_here("🧪 004-1 last_results is null")
+                pause_here("🧪 004-1 last_results is null")
                 
                 st.session_state.chat_messages.append({
                     "role": "assistant", 
