@@ -320,16 +320,28 @@ company_lookup = create_company_lookup()
 
 # ✅ 함수 정의
 def get_embedding(text, model="text-embedding-3-small"):
-    if not isinstance(text, str):
-        text = str(text) if text is not None else ""
-        
-    st.write("2222222222222 text = " + text)
-
+    # ⛔ 유효성 검사
+    if not text or not isinstance(text, str) or not text.strip():
+        msg = f"❌ [get_embedding] 입력값이 비어있거나 잘못됨: '{text}'"
+        debug_info(msg, level="error")
+        raise ValueError(msg)
+    
+    # ✅ 캐시 확인
     if text in st.session_state.embedding_cache:
+        debug_info(f"✅ [get_embedding] 캐시 hit: '{text}'", level="info")
         return st.session_state.embedding_cache[text]
 
-    response = client.embeddings.create(input=[text], model=model)
-    embedding = response.data[0].embedding
+    debug_info(f"🔄 [get_embedding] 임베딩 생성 요청 시작 → '{text}'", level="info")
+    
+    try:
+        response = client.embeddings.create(input=[text], model=model)
+        embedding = response.data[0].embedding
+        debug_info(f"✅ [get_embedding] 임베딩 생성 완료. 길이: {len(embedding)}", level="success")
+    except Exception as e:
+        debug_info(f"❌ [get_embedding] OpenAI 임베딩 오류 발생: {str(e)}", level="error", pin=True)
+        raise e
+
+    # ✅ 캐시에 저장 후 반환
     st.session_state.embedding_cache[text] = embedding
     return embedding
 
