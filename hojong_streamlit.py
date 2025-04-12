@@ -578,7 +578,6 @@ if submitted and user_input.strip():
             st.session_state.fallback_attempt += 1
             st.session_state.A_SIMILARITY_THRESHOLD = max(0.1, st.session_state.A_SIMILARITY_THRESHOLD - 0.03)
             st.session_state.TOP_N = max(2, st.session_state.TOP_N - 1)
-            st.session_state.pending_fallback = False
             
             # 이제 사용자 입력 저장
             st.session_state.chat_messages.append({
@@ -591,8 +590,8 @@ if submitted and user_input.strip():
             
             # 이전 질문으로 기준 임베딩 복원
             if st.session_state.user_query_history:
-                # st.session_state.embedding_query_text = st.session_state.user_query_history[-1]
-                st.session_state.embedding_query_text = "홈페이지 디자인 전문 업체 추천"
+                st.session_state.embedding_query_text = st.session_state.user_query_history[-1]
+                # st.session_state.embedding_query_text = "홈페이지 디자인 전문 업체 추천"
             
             # pause_here("🧪 001 last_results : " + str(st.session_state.embedding_query_text))
             
@@ -608,15 +607,14 @@ if submitted and user_input.strip():
                 use_random=not best_mode
             )
             
-            pause_here("🧪 003 last_results : " + str(last_results))
+            # pause_here("🧪 003 last_results : " + str(last_results))
             
             # 결과 처리
             if not last_results:
                 # 여전히 결과가 없음 - 다시 fallback 상태로
                 st.session_state.pending_fallback = True
                 reply = "⚠️ 여전히 관련 서비스를 찾기 어렵습니다. 더 넓은 범위에서 검색할까요? '네'라고 답해주세요."
-                
-                pause_here("🧪 004-1 last_results is null")
+                # pause_here("🧪 004-1 last_results is null")
                 
                 st.session_state.chat_messages.append({
                     "role": "assistant", 
@@ -626,7 +624,7 @@ if submitted and user_input.strip():
                 st.rerun()
             else:
                 
-                pause_here("🧪 004-2 last_results is not null")
+                # pause_here("🧪 004-2 last_results is not null")
                 
                 # 결과 찾음 - 처리 진행
                 context = make_context(last_results)
@@ -668,6 +666,9 @@ if submitted and user_input.strip():
                     "content": gpt_reply, 
                     "timestamp": current_time
                 })
+                
+                st.session_state.pending_fallback = False
+                
                 st.rerun()  # 화면 업데이트
 
         else:
