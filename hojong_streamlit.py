@@ -498,13 +498,11 @@ for msg in st.session_state.chat_messages:
         </div>
         """, unsafe_allow_html=True)
 
-
-if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
-    st.markdown(f"""
-        <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
-            {st.session_state.debug_pinned_message}
-        </div>
-    """, unsafe_allow_html=True)
+st.markdown(f"""
+    <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
+        "{st.session_state.debug_pinned_message}"
+    </div>
+""", unsafe_allow_html=True)
 
 # 입력 폼
 with st.form("chat_form", clear_on_submit=True):
