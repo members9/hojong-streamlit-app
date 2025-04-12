@@ -586,9 +586,6 @@ if submitted and user_input.strip():
             
             debug_info(f"✅ 파라미터 조정됨: 임계값={st.session_state.A_SIMILARITY_THRESHOLD}, TOP_N={st.session_state.TOP_N}", "success")
             
-            pause_here("🧪 1111111111111111111111111111")
-            
-            
             # 이전 질문으로 기준 임베딩 복원
             if st.session_state.user_query_history:
                 st.session_state.embedding_query_text = st.session_state.user_query_history[-1]
@@ -601,6 +598,8 @@ if submitted and user_input.strip():
                 exclude_keys=exclude,
                 use_random=not best_mode
             )
+            
+            pause_here("🧪 222 last_results : " + last_results)
             
             # 결과 처리
             if not last_results:
