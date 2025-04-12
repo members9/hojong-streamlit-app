@@ -571,13 +571,18 @@ if submitted and user_input.strip():
         all_stored_results = list(itertools.chain.from_iterable(st.session_state.all_results))
         
         if not all_stored_results:
-            reply = "ℹ️ 저장된 추천 내역이 없습니다."
+            reply = "⚠️ 저장된 추천 내역이 없습니다."
         else:
-            matches = [s for s in all_stored_results if keyword in s["기업명"]]
+            keywords = keyword.split()
+            matches = [
+                s for s in all_stored_results
+                if all(any(k in s.get(field, "") for field in ["기업명", "서비스명"]) for k in keywords)
+            ]
+            
             if not matches:
-                reply = "ℹ️ 해당 키워드를 포함한 기업명이 없습니다."
+                reply = "⚠️ 해당 키워드를 포함한 기업명이 없습니다."
             elif len(matches) > 1:
-                reply = "ℹ️ 여러 개의 기업명이 일치합니다. 더 구체적으로 입력해 주세요.\n" + "\n".join([f"- {s['기업명']}" for s in matches])
+                reply = "⚠️ 여러 개의 항목이 일치합니다. 더 구체적으로 입력해 주세요.\n" + "\n".join([f"- {s['기업명']} / {s['서비스명']}" for s in matches])
             else:
                 s = matches[0]
                 service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
@@ -632,7 +637,7 @@ if submitted and user_input.strip():
         debug_info("\n🤖 호종이가 질문을 분석 중입니다...")
         # 질문 관련성 확인
         if not is_relevant_question(user_input):
-            reply = "ℹ️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
+            reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
             st.session_state.chat_messages.append({
                 "role": "assistant", 
                 "content": reply, 
@@ -644,14 +649,14 @@ if submitted and user_input.strip():
         if st.session_state.user_query_history:
             previous_input = st.session_state.user_query_history[-1]
             if not is_followup_question(previous_input, user_input):
-                debug_info("🔁 [INFO] 독립된 질문입니다. 기준 임베딩 갱신.")
+                debug_info("➡️ [INFO] 독립된 질문입니다. 기준 임베딩 갱신.")
                 st.session_state.embedding_query_text = user_input
             else:
                 # 후속 질문이면 이전 임베딩 유지
                 debug_info("➡️ [INFO] 후속 질문입니다. 기준 임베딩 유지.")
         else:
             # 최초 질문인 경우
-            debug_info("🌱 [INFO] 최초 질문입니다. 기준 임베딩 설정.")
+            debug_info("➡️ [INFO] 최초 질문입니다. 기준 임베딩 설정.")
             st.session_state.embedding_query_text = user_input
         
         # 질문 히스토리에 추가
@@ -669,7 +674,7 @@ if submitted and user_input.strip():
         
         # 추천 결과가 없을 경우
         if not last_results:
-            reply = "🧭 관련된 추천 결과가 충분하지 않습니다.\n\n관광기업이나 서비스와 관련된 질문을 조금 더 구체적으로 해 주시면 감사하겠습니다!"
+            reply = "⚠️ 추천 결과가 충분하지 않아 관련된 업체나 서비스를 제공드리기가 어렵습니다. n관광기업이나 서비스와 관련된 질문을 조금 더 구체적으로 해 주시면 감사하겠습니다!"
             st.session_state.chat_messages.append({
                 "role": "assistant", 
                 "content": reply, 
