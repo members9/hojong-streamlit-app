@@ -370,8 +370,8 @@ def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, 
     """
     threshold = threshold or st.session_state.A_SIMILARITY_THRESHOLD
     top_n = top_n or st.session_state.TOP_N
-    debug_info(f"📊 threshold : " + threshold)
-    debug_info(f"📊 top_n : " + top_n)
+    debug_info(f"📊 threshold : " + str(threshold))
+    debug_info(f"📊 top_n : " + str(top_n))
     if not ranked_results or len(ranked_results) < top_n:
         debug_info(f"📊 관련도가 낮으면 False 반환 → GPT 호출 방지 가능.")
         return False
