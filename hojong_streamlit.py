@@ -363,18 +363,6 @@ def is_relevant_question(query, threshold=Q_SIMILARITY_THRESHOLD):
     max_similarity = D[0][0]
     return max_similarity >= threshold
 
-def is_related_results_enough_old(ranked_results, threshold=A_SIMILARITY_THRESHOLD, top_n=MAX_HISTORY_LEN):
-    """
-    벡터 유사도 기반 추천 결과 중 상위 N개의 평균 유사도가 threshold 이상인지 확인.
-    관련도가 낮으면 False 반환 → GPT 호출 방지 가능.
-    """
-    if not ranked_results or len(ranked_results) < top_n:
-        return False
-    top_scores = [score for score, _ in ranked_results[:top_n]]
-    avg_score = sum(top_scores) / len(top_scores)
-    debug_info(f"📊 상위 {top_n}개 평균 유사도: {avg_score:.4f}", pin=True)
-    return avg_score >= threshold
-
 def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, top_n=MAX_HISTORY_LEN):
     """
     벡터 유사도 기반 추천 결과 중 상위 N개의 평균 유사도가 threshold 이상인지 확인.
@@ -382,7 +370,10 @@ def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, 
     """
     threshold = threshold or st.session_state.A_SIMILARITY_THRESHOLD
     top_n = top_n or st.session_state.TOP_N
+    debug_info(f"📊 threshold : " + threshold)
+    debug_info(f"📊 top_n : " + top_n)
     if not ranked_results or len(ranked_results) < top_n:
+        debug_info(f"📊 관련도가 낮으면 False 반환 → GPT 호출 방지 가능.")
         return False
     top_scores = [score for score, _ in ranked_results[:top_n]]
     avg_score = sum(top_scores) / len(top_scores)
@@ -404,16 +395,19 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
 
     # 3. 유사도 높은 순서로 (score, service) 목록 생성
     ranked = [(score, metadata[idx]) for score, idx in zip(D[0], indices[0])]
+    
+    # 📌 STEP 1: 유사도 기준 정렬된 원본 상위 30개 출력
+    debug_info(f"\n📌 [STEP 1] 유사도 기준 정렬된 원본 상위 30개:")
+    for i, (score, s) in enumerate(ranked[:30]):
+        debug_info(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
+    
     # ⛔ 유사도 낮을 경우 GPT 호출도 생략할 수 있도록 빈 리스트 반환
     if not is_related_results_enough(ranked):
         debug_info("⚠️ 추천 결과의 연관성이 낮아 fallback 루프로 진입합니다.", "warning")
         st.session_state.pending_fallback = True
         return []
     
-    # 📌 STEP 1: 유사도 기준 정렬된 원본 상위 30개 출력
-    debug_info(f"\n📌 [STEP 1] 유사도 기준 정렬된 원본 상위 30개:")
-    for i, (score, s) in enumerate(ranked[:30]):
-        debug_info(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
+
         
     # ✅ 4. 제외할 키 (기업ID + 서비스유형 + 서비스명) 정의
     if exclude_keys:
@@ -590,7 +584,7 @@ if submitted and user_input.strip():
             
             # 이전 질문으로 기준 임베딩 복원
             if st.session_state.user_query_history:
-                st.session_state.embedding_query_text += (st.session_state.user_query_history[-1] + " ")
+                st.session_state.embedding_query_text += (st.session_state.user_query_history[-1] + ",")
                 # st.session_state.embedding_query_text = "홈페이지 디자인 전문 업체 추천"
             
             debug_info(f"✅ embedding_query_text : " + str(st.session_state.embedding_query_text))
