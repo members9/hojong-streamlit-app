@@ -498,17 +498,16 @@ for msg in st.session_state.chat_messages:
         </div>
         """, unsafe_allow_html=True)
 
-st.markdown(f"""
-    <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
-        "{st.session_state.debug_pinned_message}"
-    </div>
-""", unsafe_allow_html=True)
-
 # 입력 폼
 with st.form("chat_form", clear_on_submit=True):
     st.markdown("<div class='input-row'>", unsafe_allow_html=True)
     user_input = st.text_area("", height=100, label_visibility="collapsed")
     submitted = st.form_submit_button("물어보기")
+    st.markdown(f"""
+        <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
+            "{st.session_state.debug_pinned_message}"
+        </div>
+    """, unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
 # 사용 안내 표시
