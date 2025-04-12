@@ -805,7 +805,7 @@ if submitted and user_input.strip():
     
         # 대화 이력에 사용자 입력 추가
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
-        debug_info("\n🤖 호종이가 질문을 분석 중입니다...", pin=True)
+        # debug_info("\n🤖 호종이가 질문을 분석 중입니다...", pin=True)
         
         # 질문 관련성 확인
         if not is_relevant_question(user_input):
@@ -821,13 +821,13 @@ if submitted and user_input.strip():
         if st.session_state.user_query_history:
             previous_input = st.session_state.user_query_history[-1]
             if not is_followup_question(previous_input, user_input):
-                debug_info("🤖 호종이가 신규 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=True)
+                # debug_info("🤖 호종이가 신규 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=True)
                 st.session_state.embedding_query_text = user_input
-            else:
+            # else:ㄴ
                 # 후속 질문이면 이전 임베딩 유지
-                debug_info("🤖 호종이가 후속 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=True)
+                # debug_info("🤖 호종이가 후속 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=True)
             # 최초 질문인 경우
-            debug_info("🤖 호종이가 최초 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=True)
+            # debug_info("🤖 호종이가 최초 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=True)
             st.session_state.embedding_query_text = user_input
         
         # 질문 히스토리에 추가
