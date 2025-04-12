@@ -354,13 +354,6 @@ def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, 
     top_scores = [score for score, _ in ranked_results[:top_n]]
     avg_score = sum(top_scores) / len(top_scores)
     debug_info(f"📊 상위 {top_n}개 평균 유사도: {avg_score:.4f}", pin=True)
-    if st.session_state.debug_mode:
-        st.markdown(f"""
-            <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
-                {st.session_state.debug_pinned_message}
-            </div>
-        """, unsafe_allow_html=True)
-    
     return avg_score >= threshold
 
 def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
@@ -484,13 +477,6 @@ st.markdown("""
     <p class="responsive-subtitle">🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
 
-# if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
-#     st.markdown(f"""
-#         <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
-#             {st.session_state.debug_pinned_message}
-#         </div>
-#     """, unsafe_allow_html=True)
-
 # 채팅 메시지 표시
 for msg in st.session_state.chat_messages:
     if msg["role"] == "user":
@@ -511,6 +497,14 @@ for msg in st.session_state.chat_messages:
             </div>
         </div>
         """, unsafe_allow_html=True)
+
+
+if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
+    st.markdown(f"""
+        <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
+            {st.session_state.debug_pinned_message}
+        </div>
+    """, unsafe_allow_html=True)
 
 # 입력 폼
 with st.form("chat_form", clear_on_submit=True):
