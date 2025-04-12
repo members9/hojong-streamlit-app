@@ -524,4 +524,9 @@ if submitted and user_input.strip():
         st.session_state.user_query_history = []
         
         # 초기화 응답 메시지 추가
-        st.session_
+        st.session_state.chat_messages.append({
+            "role": "assistant", 
+            "content": "🤖 호종이는 잠시 레드썬하고 다시 돌아왔습니다.", 
+            "timestamp": current_time
+        })
+        st.rerun()
