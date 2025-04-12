@@ -181,7 +181,7 @@ USE_OPENAI_EMBEDDING = True  # 🔁 여기서 스위칭 가능 (True: OpenAI, Fa
 Q_SIMILARITY_THRESHOLD = 0.30
 A_SIMILARITY_THRESHOLD = 0.70
 MAX_HISTORY_LEN = 5  # 질문과 답변 히스로리 저장 컨텍스트 개수
-FALLBACK_ATTEMPT_NUM = 3
+FALLBACK_ATTEMPT_NUM = 2
 
 # ✅ 세션 상태에 디버그 모드 변수 추가
 if "debug_mode" not in st.session_state:
