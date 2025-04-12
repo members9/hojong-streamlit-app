@@ -568,7 +568,7 @@ if submitted and user_input.strip():
     if st.session_state.pending_fallback:
         debug_info("✅ fallback 상태 감지됨", "success")
         
-        if user_input.strip().lower() == "네":
+        if user_input.strip().lower() == "네" and st.session_state.fallback_attempt < 2:
             # 파라미터 조정
             st.session_state.fallback_attempt += 1
             st.session_state.A_SIMILARITY_THRESHOLD = max(0.1, st.session_state.A_SIMILARITY_THRESHOLD - 0.03)
@@ -662,6 +662,9 @@ if submitted and user_input.strip():
                 })
                 
                 st.session_state.pending_fallback = False
+                st.session_state.fallback_attempt = 0
+                st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD
+                st.session_state.TOP_N = MAX_HISTORY_LEN
                 
                 st.rerun()  # 화면 업데이트
 
