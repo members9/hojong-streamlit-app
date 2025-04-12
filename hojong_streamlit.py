@@ -511,14 +511,20 @@ st.markdown("""
 
 # 채팅 메시지 표시
 for msg in st.session_state.chat_messages:
+    
+    st.write("1111111111")
+    
     if st.session_state.get("is_processing", False):
         pending_input = st.session_state.get("pending_input", "")
         formatted_input = pending_input.replace(chr(10), "<br>")
+        
+        st.write(">>>>>>>>>> formatted_input = " + str(formatted_input))
+        
         st.markdown(f"""
             <div class="user-msg-box">
                 <div class="user-msg">
                     {formatted_input}
-                    <div class="user-msg-time">분석 중...</div>
+                    <div class="user-msg-time">{msg['timestamp']}</div>
                 </div>
             </div>
         """, unsafe_allow_html=True)
