@@ -532,9 +532,6 @@ for msg in st.session_state.chat_messages:
 
 if st.session_state.get("is_processing", False):
     if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
-        
-        st.write("4444444444")
-        
         st.markdown(f"""
             <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
                 "{st.session_state.debug_pinned_message}"
@@ -564,13 +561,8 @@ st.markdown("""
 
 if st.session_state.get("is_processing", False):
     user_input = st.session_state.pending_input
-    
-    st.write(">>>>> user_input = " + str(user_input))
-    
     del st.session_state.pending_input
-    st.session_state.is_processing = False  # 분석 완료 시 메시지 제거
     submitted = True
-
 
 # 메시지 처리 로직
 if submitted and user_input.strip():
@@ -589,6 +581,8 @@ if submitted and user_input.strip():
         st.session_state.is_processing = True  # 분석 중 상태 True 설정
         debug_info("🤖 호종이가 질문을 분석 중입니다...", pin=True)
         st.rerun()
+    else:
+        st.session_state.is_processing = False  # 분석 완료 시 메시지 제거
     
     st.write("3333333333")
     
