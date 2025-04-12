@@ -155,13 +155,13 @@ MAX_HISTORY_LEN = 5  # 질문과 답변 히스로리 저장 컨텍스트 개수
 if "debug_mode" not in st.session_state:
     st.session_state.debug_mode = False
 
-# 사이드바에 디버그 모드 토글 추가
-with st.sidebar:
-    st.title("개발자 설정")
-    debug_toggle = st.checkbox("디버그 모드", value=st.session_state.debug_mode)
-    if debug_toggle != st.session_state.debug_mode:
-        st.session_state.debug_mode = debug_toggle
-        st.rerun()
+# # 사이드바에 디버그 모드 토글 추가
+# with st.sidebar:
+#     st.title("개발자 설정")
+#     debug_toggle = st.checkbox("디버그 모드", value=st.session_state.debug_mode)
+#     if debug_toggle != st.session_state.debug_mode:
+#         st.session_state.debug_mode = debug_toggle
+#         st.rerun()
 
 # 디버그 정보 표시 함수
 def debug_info(message, level="info"):
