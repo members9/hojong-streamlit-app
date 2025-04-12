@@ -618,6 +618,7 @@ if submitted and user_input.strip():
             st.session_state.A_SIMILARITY_THRESHOLD = max(0.1, st.session_state.A_SIMILARITY_THRESHOLD - 0.03)
             st.session_state.TOP_N = max(2, st.session_state.TOP_N - 1)
             st.session_state.pending_fallback = False
+            st.session_state.do_fallback_search = True  # 이 줄 추가
 
             # ✅ 이전 질문으로 기준 임베딩 복원
             if st.session_state.user_query_history:
