@@ -183,7 +183,7 @@ MAX_HISTORY_LEN = 5  # 질문과 답변 히스로리 저장 컨텍스트 개수
 
 # ✅ 세션 상태에 디버그 모드 변수 추가
 if "debug_mode" not in st.session_state:
-    st.session_state.debug_mode = False
+    st.session_state.debug_mode = True
 
 # # 사이드바에 디버그 모드 토글 추가
 # with st.sidebar:
@@ -212,12 +212,16 @@ def debug_info(message, level="info", pin=False):
 
 
 def pause_here(message="⏸️ 디버깅 지점입니다. 계속하려면 버튼을 누르세요."):
-    st.warning(message)
-    if st.button("👉 계속 실행하기"):
-        st.session_state._resume_debug = True
-        st.rerun()
-    else:
-        st.stop()
+    if "pause_continue" not in st.session_state:
+        st.session_state.pause_continue = False
+
+    if not st.session_state.pause_continue:
+        st.warning(message)
+        if st.button("👉 계속 실행하기", key=f"btn_{len(st.session_state.chat_messages)}"):
+            st.session_state.pause_continue = True
+            st.rerun()
+        else:
+            st.stop()
 
 # ✅ 로컬 모델 초기화 (필요 시)
 if not USE_OPENAI_EMBEDDING:
@@ -599,7 +603,7 @@ if submitted and user_input.strip():
                 use_random=not best_mode
             )
             
-            pause_here("🧪 222 last_results : " + last_results)
+            pause_here("🧪 222 last_results : " + str(last_results))
             
             # 결과 처리
             if not last_results:
