@@ -565,7 +565,7 @@ if st.session_state.get("is_processing", False):
     del st.session_state.pending_input
     submitted = True
     # 의도적인 딜레이 (벡터에서만 검색해서 너무 빠르니 찾아보는거 같지 않아서)
-    if st.session_state.pending_fallback
+    if st.session_state.pending_fallback:
         time.sleep(1)
 
 # 메시지 처리 로직
