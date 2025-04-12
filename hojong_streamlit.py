@@ -268,6 +268,8 @@ if "A_SIMILARITY_THRESHOLD" not in st.session_state:
     st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD  # 기본값 사용
 if "TOP_N" not in st.session_state:
     st.session_state.TOP_N = MAX_HISTORY_LEN
+if "do_fallback_search" not in st.session_state:
+    st.session_state.do_fallback_search = False
 
 
 # ✅ 유틸리티 함수들
@@ -552,6 +554,62 @@ st.markdown("""
 if submitted and user_input.strip():
     # 시간대 설정
     current_time = get_kst_time()
+    
+    
+    
+    # ✅ fallback 검색 수행 체크 (이 블록 추가)
+    if st.session_state.do_fallback_search:
+        st.session_state.do_fallback_search = False  # 상태 초기화
+        
+        debug_info("✅ fallback 재검색을 실행합니다", "success")
+        
+        # 여기서 직접 검색 로직 실행
+        best_mode = is_best_recommendation_query(st.session_state.embedding_query_text)
+        exclude = None if best_mode else st.session_state.excluded_keys
+        last_results = recommend_services(
+            st.session_state.embedding_query_text,
+            exclude_keys=exclude,
+            use_random=not best_mode
+        )
+        
+        # 결과 처리
+        if not last_results:
+            # 다시 fallback 필요
+            st.session_state.pending_fallback = True
+            reply = "⚠️ 여전히 관련 서비스를 찾기 어렵습니다. 더 넓은 범위에서 검색할까요? '네'라고 답해주세요."
+            st.session_state.chat_messages.append({
+                "role": "assistant", 
+                "content": reply, 
+                "timestamp": current_time
+            })
+            st.rerun()
+        
+        # 검색 성공 - 결과 처리
+        debug_info("🎉 fallback 재검색이 성공했습니다!", "success")
+        context = make_context(last_results)
+        gpt_prompt = make_prompt(st.session_state.embedding_query_text, context, is_best=best_mode)
+        
+        # GPT에 프롬프트 전달
+        st.session_state.conversation_history.append({"role": "user", "content": gpt_prompt})
+        
+        try:
+            gpt_reply = ask_gpt(list(st.session_state.conversation_history))
+        except Exception as e:
+            gpt_reply = f"⚠️ 응답 생성 중 오류가 발생했습니다. 다시 시도해주세요: {str(e)}"
+            
+        # 응답 처리
+        st.session_state.conversation_history.append({"role": "assistant", "content": gpt_reply})
+        st.session_state.last_results = last_results
+        st.session_state.all_results.append(last_results)
+        st.session_state.chat_messages.append({
+            "role": "assistant", 
+            "content": gpt_reply, 
+            "timestamp": current_time
+        })
+        
+        st.rerun()
+    
+    
     
     # ✅ fallback 상황인지 우선 체크
     if st.session_state.pending_fallback:
