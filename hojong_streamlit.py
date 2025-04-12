@@ -354,6 +354,13 @@ def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, 
     top_scores = [score for score, _ in ranked_results[:top_n]]
     avg_score = sum(top_scores) / len(top_scores)
     debug_info(f"📊 상위 {top_n}개 평균 유사도: {avg_score:.4f}", pin=True)
+    if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
+        st.markdown(f"""
+            <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
+                {st.session_state.debug_pinned_message}
+            </div>
+        """, unsafe_allow_html=True)
+    
     return avg_score >= threshold
 
 def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
@@ -374,14 +381,6 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     # ⛔ 유사도 낮을 경우 GPT 호출도 생략할 수 있도록 빈 리스트 반환
     if not is_related_results_enough(ranked):
         debug_info("⚠️ [INFO] 추천 결과의 연관성이 낮아 GPT 호출을 생략합니다.", "warning")
-        # 강제 출력
-        if "debug_pinned_message" in st.session_state and st.session_state.debug_mode:
-            st.markdown(f"""
-                <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
-                    {st.session_state.debug_pinned_message}
-                </div>
-            """, unsafe_allow_html=True)
-
         return []
     
     # 📌 STEP 1: 유사도 기준 정렬된 원본 상위 30개 출력
