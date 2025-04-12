@@ -178,9 +178,9 @@ st.markdown("""
 # ✅ 설정 변수 (13_service_recommender.py와 일치하도록 유지)
 USE_OPENAI_EMBEDDING = True  # 🔁 여기서 스위칭 가능 (True: OpenAI, False: 로컬 모델)
 Q_SIMILARITY_THRESHOLD = 0.30
-A_SIMILARITY_THRESHOLD = 0.60
+A_SIMILARITY_THRESHOLD = 0.70
 MAX_HISTORY_LEN = 5  # 질문과 답변 히스로리 저장 컨텍스트 개수
-FALLBACK_ATTEMPT_NUM = 2
+FALLBACK_ATTEMPT_NUM = 3
 
 # ✅ 세션 상태에 디버그 모드 변수 추가
 if "debug_mode" not in st.session_state:
@@ -609,7 +609,12 @@ if submitted and user_input.strip():
             if not last_results:
                 # 여전히 결과가 없음 - 다시 fallback 상태로
                 st.session_state.pending_fallback = True
-                reply = "⚠️ 여전히 관련 서비스를 찾기 어렵습니다. 더 넓은 범위에서 검색할까요? '네'라고 답해주세요."
+                if st.session_state.fallback_attempt == 1:
+                    reply = "⚠️ 조금 더 포괄적인 범위로 다시 찾아보겠습니다. 진행을 원하시면 '네' 라고 답해주세요."
+                elif st.session_state.fallback_attempt == 2:
+                    reply = "⚠️ 여전히 서비스를 찾기 어렵습니다. 마지막으로 더 찾아보겠습니다. 진행을 원하시면 '네' 라고 답해주세요."
+                else:
+                    reply = "⚠️ 정보 제공이 불가능하여 죄송합니다. 다른 질문을 입력해 주시면 다시 찾아보겠습니다."        
                 st.session_state.chat_messages.append({
                     "role": "assistant", 
                     "content": reply, 
@@ -835,7 +840,7 @@ if submitted and user_input.strip():
         # 추천 결과가 없을 경우
         if not last_results:
             st.session_state.pending_fallback = True
-            reply = "⚠️ 추천 결과가 충분하지 않아 관련된 업체나 서비스를 제공드리기가 어렵습니다. 조금 더 포괄적인 범위로 다시 찾아보겠습니다. 진행을 원하시면 '네' 라고 답해주세요."
+            reply = "⚠️ 추천 결과가 충분하지 않아 관련된 업체나 서비스를 제공드리기가 고민스럽습니다. 한 번 더 진행을 원하시면 '네' 라고 답해주세요."
             st.session_state.chat_messages.append({
                 "role": "assistant", 
                 "content": reply, 
