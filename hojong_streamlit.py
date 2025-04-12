@@ -207,6 +207,19 @@ def load_index_and_metadata():
     
     return index, metadata, index_cosine
 
+# 기업 ID를 키로, 기업명을 값으로 하는 딕셔너리 생성
+@st.cache_resource
+def create_company_lookup():
+    company_dict = {}
+    for item in metadata:
+        if "기업ID" in item and "기업명" in item:
+            company_dict[str(item["기업ID"])] = item["기업명"]
+    return company_dict
+
+# load_index_and_metadata 함수 호출 후에 추가
+index, metadata, index_cosine = load_index_and_metadata()
+company_lookup = create_company_lookup()
+
 # ⚠️ 이 호출은 함수 정의 후에 배치
 index, metadata, index_cosine = load_index_and_metadata()
 
@@ -297,15 +310,12 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
         
     # ✅ 4. 제외할 키 (기업ID + 서비스유형 + 서비스명) 정의
     if exclude_keys:
-        # 해당 기업ID를 가진 서비스 찾기
-        company_name = "알 수 없음"
-        for item in metadata:
-            if str(item["기업ID"]) == str(key[0]):
-                company_name = item["기업명"]
-                break
-        st.write(f" - 제외 {i+1}: 기업ID={key[0]} / 기업명={company_name} / {key[1]} / {key[2]}")
+        st.write(f"\n\n🚫 [STEP 2] 제외 대상 키 수: {len(exclude_keys)}")
+        for i, key in enumerate(list(exclude_keys)[:10]):
+            company_name = company_lookup.get(str(key[0]), "알 수 없음")
+            st.write(f" - 제외 {i+1}: 기업ID={key[0]} / 기업명={company_name} / {key[1]} / {key[2]}")
     else:
-        st.write("\n🚫 [STEP 2] 제외 대상 없음")
+        st.write("\n\n🚫 [STEP 2] 제외 대상 없음")
 
     # 4. 중복 제거 및 제외 대상 필터링
     seen_keys = set()
