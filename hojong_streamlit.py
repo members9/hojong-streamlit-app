@@ -802,7 +802,7 @@ if submitted and user_input.strip():
             if not matches:
                 reply = "⚠️ 해당 키워드를 포함한 기업명이 없습니다."
             elif len(matches) > 1:
-                reply = "⚠️ 여러 개의 유사 항목이 일치합니다. 더 구체적으로 입력해 주세요.\n" + "\n".join([f"- {s['기업명']}   {s['서비스명']}" for s in matches])
+                reply = "⚠️ 여러 개의 유사 항목이 일치합니다. 더 구체적으로 입력해 주세요.\n" + "\n".join([f"- {s['기업명']} : {s['서비스명']}" for s in matches])
             else:
                 s = matches[0]
                 service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
