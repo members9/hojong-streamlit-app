@@ -180,7 +180,7 @@ st.markdown("""
 # ✅ 설정 변수 (13_service_recommender.py와 일치하도록 유지)
 USE_OPENAI_EMBEDDING = True  # 🔁 여기서 스위칭 가능 (True: OpenAI, False: 로컬 모델)
 Q_SIMILARITY_THRESHOLD = 0.30
-A_SIMILARITY_THRESHOLD = 0.70
+A_SIMILARITY_THRESHOLD = 0.45
 MAX_HISTORY_LEN = 5  # 질문과 답변 히스로리 저장 컨텍스트 개수
 FALLBACK_ATTEMPT_NUM = 2
 
@@ -595,7 +595,7 @@ if submitted and user_input.strip():
             st.session_state.A_SIMILARITY_THRESHOLD = max(0.1, st.session_state.A_SIMILARITY_THRESHOLD - 0.03)
             st.session_state.TOP_N = max(2, st.session_state.TOP_N - 1)
             
-            # 이제 사용자 입력 저장 --> ***** 여기서 rerun() 떄리는 처리 해야 한다 *****
+            # 이제 사용자 입력 저장
             # st.session_state.chat_messages.append({
             #     "role": "user",
             #     "content": user_input,
