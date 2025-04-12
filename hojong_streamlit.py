@@ -603,11 +603,11 @@ if submitted and user_input.strip():
             st.session_state.TOP_N = max(2, st.session_state.TOP_N - 1)
             
             # 이제 사용자 입력 저장 --> ***** 여기서 rerun() 떄리는 처리 해야 한다 *****
-            st.session_state.chat_messages.append({
-                "role": "user",
-                "content": user_input,
-                "timestamp": current_time
-            })
+            # st.session_state.chat_messages.append({
+            #     "role": "user",
+            #     "content": user_input,
+            #     "timestamp": current_time
+            # })
             
             debug_info(f"✅ 파라미터 조정됨: 임계값={st.session_state.A_SIMILARITY_THRESHOLD}, TOP_N={st.session_state.TOP_N}", "success")
             
@@ -705,11 +705,11 @@ if submitted and user_input.strip():
         else:
             # fallback 취소
             reply = "⛔ 재검색이 취소되었습니다. 다른 질문을 입력해 주시면 다시 찾아보겠습니다."
-            st.session_state.chat_messages.append({
-                "role": "user",
-                "content": user_input,
-                "timestamp": current_time
-            })
+            # st.session_state.chat_messages.append({
+            #     "role": "user",
+            #     "content": user_input,
+            #     "timestamp": current_time
+            # })
             st.session_state.chat_messages.append({
                 "role": "assistant",
                 "content": reply,
