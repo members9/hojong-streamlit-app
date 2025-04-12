@@ -320,14 +320,18 @@ company_lookup = create_company_lookup()
 
 # ✅ 함수 정의
 def get_embedding(text, model="text-embedding-3-small"):
-    
+    if not isinstance(text, str):
+        text = str(text) if text is not None else ""
+        
     st.write("2222222222222 text = " + text)
-    
+
+    if text in st.session_state.embedding_cache:
+        return st.session_state.embedding_cache[text]
+
     response = client.embeddings.create(input=[text], model=model)
-    
-    st.write("33333333333333333333" + text)
-    
-    return response.data[0].embedding
+    embedding = response.data[0].embedding
+    st.session_state.embedding_cache[text] = embedding
+    return embedding
 
 
 def get_embedding2(text, model="text-embedding-3-small"):
