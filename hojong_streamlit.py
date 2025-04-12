@@ -563,13 +563,14 @@ if submitted and user_input.strip():
     # 시간대 설정
     current_time = get_kst_time()
     
-    # 사용자 입력 저장만 함 (GPT 호출은 다음 루프에서)
-    st.session_state.pending_input = user_input
-    st.session_state.is_processing = True  # 분석 중 상태 True 설정
-    st.rerun()
+    if not st.session_state.is_processing:
+        # 사용자 입력 저장만 함 (GPT 호출은 다음 루프에서)
+        st.session_state.pending_input = user_input
+        st.session_state.is_processing = True  # 분석 중 상태 True 설정
+        st.rerun()
     
     # ✅ 분석 대기 중인 입력 처리
-    if "pending_input" in st.session_state:
+    if st.session_state.is_processing:
         user_input = st.session_state.pending_input
         del st.session_state.pending_input
         st.session_state.is_processing = False  # 분석 완료 시 메시지 제거
