@@ -239,7 +239,7 @@ def is_followup_question(prev, current):
             model="gpt-4o",
             messages=messages
         )
-        answer = reply['choices'][0]['message']['content'].strip().lower()
+        answer = response.choices[0].message.content.strip().lower() 
         result = "yes" in answer  # 'yes' 포함 여부로 판단
         st.session_state.followup_cache[key] = result  # ✅ 캐시 저장
         return result
@@ -297,9 +297,13 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
         
     # ✅ 4. 제외할 키 (기업ID + 서비스유형 + 서비스명) 정의
     if exclude_keys:
-        st.write(f"\n🚫 [STEP 2] 제외 대상 키 수: {len(exclude_keys)}")
-        for i, key in enumerate(list(exclude_keys)[:10]):
-            st.write(f" - 제외 {i+1}: 기업ID={key[0]} / {key[1]} / {key[2]}")
+        # 해당 기업ID를 가진 서비스 찾기
+        company_name = "알 수 없음"
+        for item in metadata:
+            if str(item["기업ID"]) == str(key[0]):
+                company_name = item["기업명"]
+                break
+        st.write(f" - 제외 {i+1}: 기업ID={key[0]} / 기업명={company_name} / {key[1]} / {key[2]}")
     else:
         st.write("\n🚫 [STEP 2] 제외 대상 없음")
 
