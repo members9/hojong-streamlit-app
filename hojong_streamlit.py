@@ -531,25 +531,12 @@ for msg in st.session_state.chat_messages:
         """, unsafe_allow_html=True)
 
 if st.session_state.get("is_processing", False):
-    
-    st.write("!3333333333333333333333")
-    
-    #if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
-    if st.session_state.debug_mode:
-            
-        st.write("!aaaaaaaaaaaaaaaaaaaaaaaa")
-        
+    if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
         st.markdown(f"""
             <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
                 "{st.session_state.debug_pinned_message}"
             </div>
         """, unsafe_allow_html=True)
-    
-    user_input = st.session_state.pending_input
-    del st.session_state.pending_input
-    st.session_state.is_processing = False  # 분석 완료 시 메시지 제거
-    
-    st.write("4444444444444444444 user_input + " + str(user_input))
 
 # 입력 폼
 with st.form("chat_form", clear_on_submit=True):
@@ -571,6 +558,14 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
+
+if st.session_state.get("is_processing", False):
+    user_input = st.session_state.pending_input
+    del st.session_state.pending_input
+    st.session_state.is_processing = False  # 분석 완료 시 메시지 제거
+    submitted = True
+
+
 # 메시지 처리 로직
 if submitted and user_input.strip():
     # 시간대 설정
@@ -585,7 +580,7 @@ if submitted and user_input.strip():
         # 사용자 입력 저장만 함 (GPT 호출은 다음 루프에서)
         st.session_state.pending_input = user_input
         st.session_state.is_processing = True  # 분석 중 상태 True 설정
-        st.session_state.debug_pinned_message = "🤖 호종이가 질문을 분석 중입니다..."
+        debug_info("🤖 호종이가 질문을 분석 중입니다...", pin=True)
         st.rerun()
     
     st.write("!2222222222222222222222")
@@ -835,7 +830,6 @@ if submitted and user_input.strip():
     
         # 대화 이력에 사용자 입력 추가
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
-        debug_info("🤖 호종이가 질문을 분석 중입니다...", pin=True)
         
         # 질문 관련성 확인
         if not is_relevant_question(user_input):
