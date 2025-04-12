@@ -198,10 +198,9 @@ if "debug_mode" not in st.session_state:
 
 # 디버그 정보 표시 함수
 def debug_info(message, level="info", pin=False):
-    """디버그 모드일 때만 표시 + 핀 메시지는 입력창 위에 고정"""
-    if st.session_state.debug_mode:
-        if pin:
-            st.session_state.debug_pinned_message = message  # ✅ 고정 메시지로 등록
+        
+    """디버그 모드일 때만 표시, 핀 메시지는 입력창 위에 고정"""
+    if st.session_state.debug_mode:        
         if level == "info":
             st.info(message)
         elif level == "warning":
@@ -212,6 +211,9 @@ def debug_info(message, level="info", pin=False):
             st.success(message)
         else:
             st.write(message)
+    else:
+        if pin:
+            st.session_state.debug_pinned_message = message  # ✅ 고정 메시지로 등록
 
 def pause_here(message="⏸️ 디버깅 지점입니다. 계속하려면 버튼을 누르세요."):
     if "pause_continue" not in st.session_state:
@@ -382,6 +384,7 @@ def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, 
     top_scores = [score for score, _ in ranked_results[:top_n]]
     avg_score = sum(top_scores) / len(top_scores)
     debug_info(f"📊 상위 {top_n}개 평균 유사도: {avg_score:.4f}", pin=True)
+    
     return avg_score >= threshold
 
 def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
@@ -531,13 +534,13 @@ for msg in st.session_state.chat_messages:
         </div>
         """, unsafe_allow_html=True)
 
-if st.session_state.get("is_processing", False):
-    if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
-        st.markdown(f"""
-            <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
-                "{st.session_state.debug_pinned_message}"
-            </div>
-        """, unsafe_allow_html=True)
+# if st.session_state.get("is_processing", False):
+if "debug_pinned_message" in st.session_state:
+    st.markdown(f"""
+        <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
+            "{st.session_state.debug_pinned_message}"
+        </div>
+    """, unsafe_allow_html=True)
 
 # 입력 폼
 with st.form("chat_form", clear_on_submit=True):
@@ -583,7 +586,8 @@ if submitted and user_input.strip():
         debug_info("🤖 호종이가 질문을 분석 중입니다...", pin=True)
         st.rerun()
     else:
-        st.session_state.is_processing = False  # 분석 완료 시 메시지 제거
+        debug_info("🤖 호종이가 질문을 분석 중입니다...", pin=True)
+        st.session_state.is_processing = False  
     
     # ✅ fallback 상황인지 먼저 체크하고, 사용자 입력을 아직 저장하지 않음
     if st.session_state.pending_fallback:
@@ -880,7 +884,7 @@ if submitted and user_input.strip():
             })
             st.rerun()
         
-        # debug_info("🤖 호종이가 추천 내용을 정리 중입니다...", pin=True)
+        debug_info("🤖 호종이가 추천 내용을 정리 중입니다...", pin=True)
         # 추천 결과 기반 응답 생성
         unique_last_results = [
             s for s in last_results
