@@ -395,7 +395,7 @@ def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, 
         return False
     top_scores = [score for score, _ in ranked_results[:top_n]]
     avg_score = sum(top_scores) / len(top_scores)
-    debug_info(f"🤖 호종이의 분석 결과 상위 {top_n}개 평균 유사도는 {avg_score:.4f} 입니다.", pin=True)
+    debug_info(f"🤖 분석 결과 상위 {top_n}개 평균 유사도는 {avg_score:.4f} 입니다.", pin=True)
     
     return avg_score >= threshold
 
@@ -595,10 +595,10 @@ if submitted and user_input.strip():
         
         st.session_state.pending_input = user_input
         st.session_state.is_processing = True  # 분석 중 상태 True 설정
-        debug_info("🤖 호종이가 질문을 분석 중입니다...", pin=True)
+        debug_info("🤖 잠시만 기다려 주세요. 최적의 답변을 준비 중입니다...", pin=True)
         st.rerun()
     else:
-        debug_info("🤖 호종이가 질문을 분석 중입니다...", pin=True)
+        debug_info("🤖 잠시만 기다려 주세요. 최적의 답변을 준비 중입니다...", pin=True)
         st.session_state.is_processing = False  
     
     # ✅ fallback 상황인지 먼저 체크하고, 사용자 입력을 아직 저장하지 않음
@@ -766,14 +766,14 @@ if submitted and user_input.strip():
         st.session_state.conversation_history.clear()
         st.session_state.conversation_history.append({
             "role": "system", 
-            "content": "당신은 관광기업 상담 전문가 호종이입니다."
+            "content": "당신은 관광기업 상담 전문가 AI입니다."
         })
 
         # 초기화 응답 메시지 추가
         st.session_state.chat_messages = []
         st.session_state.chat_messages.append({
             "role": "assistant", 
-            "content": "🤖 호종이는 잠시 레드썬하고 다시 돌아왔습니다.", 
+            "content": "🤖 잠시 머리 좀 비우고 다시 돌아왔습니다.", 
             "timestamp": current_time
         })
         st.rerun()
@@ -862,20 +862,20 @@ if submitted and user_input.strip():
         if st.session_state.user_query_history:
             previous_input = st.session_state.user_query_history[-1]
             if not is_followup_question(previous_input, user_input):
-                debug_info("🤖 호종이가 신규 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
+                debug_info("🤖 신규 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
                 st.session_state.embedding_query_text = user_input
             else:
                 # 후속 질문이면 이전 임베딩 유지
-                debug_info("🤖 호종이가 후속 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
+                debug_info("🤖 후속 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
         else:    
             # 최초 질문인 경우
-            debug_info("🤖 호종이가 최초 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
+            debug_info("🤖 최초 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
             st.session_state.embedding_query_text = user_input
         
         # 질문 히스토리에 추가
         st.session_state.user_query_history.append(user_input)
         
-        debug_info("🤖 호종이가 관련 서비스를 찾는 중입니다...", pin=False)
+        debug_info("🤖 관련 서비스를 찾는 중입니다...", pin=False)
         # 추천 모드 설정 및 서비스 추천
         best_mode = is_best_recommendation_query(user_input)
         exclude = None if best_mode else st.session_state.excluded_keys
@@ -896,7 +896,7 @@ if submitted and user_input.strip():
             })
             st.rerun()
         
-        debug_info("🤖 호종이가 추천 내용을 정리 중입니다...", pin=False)
+        debug_info("🤖 추천 내용을 정리 중입니다...", pin=False)
         # 추천 결과 기반 응답 생성
         unique_last_results = [
             s for s in last_results
