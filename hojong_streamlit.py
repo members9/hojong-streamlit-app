@@ -671,6 +671,7 @@ if submitted and user_input.strip():
                 st.session_state.fallback_attempt = 0
                 st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD
                 st.session_state.TOP_N = MAX_HISTORY_LEN
+                st.session_state.user_query_history = []
                 
                 st.rerun()  # 화면 업데이트
 
@@ -692,6 +693,7 @@ if submitted and user_input.strip():
             st.session_state.fallback_attempt = 0
             st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD
             st.session_state.TOP_N = MAX_HISTORY_LEN
+            st.session_state.user_query_history = []
             st.rerun()
 
     
@@ -711,17 +713,26 @@ if submitted and user_input.strip():
     
     # 초기화 명령 처리
     elif user_input.strip().lower() == "초기화":
+    
+        st.session_state.pending_fallback = False
+        st.session_state.fallback_attempt = 0
+        st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD  # 기본값 사용
+        st.session_state.TOP_N = MAX_HISTORY_LEN
+        st.session_state.embedding_cache = {}
+        st.session_state.followup_cache = {}        
         st.session_state.embedding_query_text = None
         st.session_state.excluded_keys.clear()
         st.session_state.all_results.clear()
+        st.session_state.last_results = []
+        st.session_state.user_query_history = []
         st.session_state.conversation_history.clear()
         st.session_state.conversation_history.append({
             "role": "system", 
             "content": "당신은 관광기업 상담 전문가 호종이입니다."
         })
-        st.session_state.user_query_history = []
-        
+
         # 초기화 응답 메시지 추가
+        st.session_state.chat_messages = []
         st.session_state.chat_messages.append({
             "role": "assistant", 
             "content": "🤖 호종이는 잠시 레드썬하고 다시 돌아왔습니다.", 
@@ -799,7 +810,7 @@ if submitted and user_input.strip():
         # 대화 이력에 사용자 입력 추가
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
         
-        debug_info("\n🤖 호종이가 질문을 분석 중입니다...")
+        debug_info("\n🤖 호종이가 질문을 분석 중입니다...", True)
         # 질문 관련성 확인
         if not is_relevant_question(user_input):
             reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
@@ -827,7 +838,7 @@ if submitted and user_input.strip():
         # 질문 히스토리에 추가
         st.session_state.user_query_history.append(user_input)
         
-        debug_info("🤖 호종이가 관련 서비스를 찾는 중입니다...")
+        debug_info("🤖 호종이가 관련 서비스를 찾는 중입니다...", True)
         # 추천 모드 설정 및 서비스 추천
         best_mode = is_best_recommendation_query(user_input)
         exclude = None if best_mode else st.session_state.excluded_keys
@@ -848,7 +859,7 @@ if submitted and user_input.strip():
             })
             st.rerun()
         
-        debug_info("🤖 호종이가 추천 내용을 정리 중입니다...")
+        debug_info("🤖 호종이가 추천 내용을 정리 중입니다...", True)
         # 추천 결과 기반 응답 생성
         unique_last_results = [
             s for s in last_results
