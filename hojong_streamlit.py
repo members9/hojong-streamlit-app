@@ -1,5 +1,6 @@
 
 import streamlit as st
+import streamlit.components.v1 as components
 import faiss
 import pickle
 import numpy as np
@@ -511,6 +512,16 @@ with st.form("chat_form", clear_on_submit=True):
     user_input = st.text_area("", height=100, label_visibility="collapsed")
     submitted = st.form_submit_button("물어보기")
     st.markdown("</div>", unsafe_allow_html=True)
+    
+    if submitted:
+        components.html("""
+            <script>
+            const textarea = window.parent.document.querySelector('textarea');
+            if (textarea) {
+                textarea.focus();
+            }
+            </script>
+        """, height=0)
 
 # 사용 안내 표시
 st.markdown("""
