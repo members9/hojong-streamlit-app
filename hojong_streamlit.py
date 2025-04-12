@@ -210,7 +210,6 @@ def debug_info(message, level="info", pin=False):
         else:
             st.write(message)
 
-
 def pause_here(message="⏸️ 디버깅 지점입니다. 계속하려면 버튼을 누르세요."):
     if "pause_continue" not in st.session_state:
         st.session_state.pause_continue = False
@@ -222,7 +221,7 @@ def pause_here(message="⏸️ 디버깅 지점입니다. 계속하려면 버튼
             st.rerun()
         else:
             st.stop()
-
+            
 # ✅ 로컬 모델 초기화 (필요 시)
 if not USE_OPENAI_EMBEDDING:
     local_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
@@ -594,8 +593,13 @@ if submitted and user_input.strip():
             if st.session_state.user_query_history:
                 st.session_state.embedding_query_text = st.session_state.user_query_history[-1]
             
+            pause_here("🧪 001 last_results : " + str(st.session_state.embedding_query_text))
+            
             # 검색 로직 직접 실행
             best_mode = is_best_recommendation_query(st.session_state.embedding_query_text)
+            
+            pause_here("🧪 002 best_mode : " + str(best_mode))
+            
             exclude = None if best_mode else st.session_state.excluded_keys
             last_results = recommend_services(
                 st.session_state.embedding_query_text,
@@ -603,13 +607,16 @@ if submitted and user_input.strip():
                 use_random=not best_mode
             )
             
-            pause_here("🧪 222 last_results : " + str(last_results))
+            pause_here("🧪 003 last_results : " + str(last_results))
             
             # 결과 처리
             if not last_results:
                 # 여전히 결과가 없음 - 다시 fallback 상태로
                 st.session_state.pending_fallback = True
                 reply = "⚠️ 여전히 관련 서비스를 찾기 어렵습니다. 더 넓은 범위에서 검색할까요? '네'라고 답해주세요."
+                
+                pause_here("🧪 004-1 last_results is null")
+                
                 st.session_state.chat_messages.append({
                     "role": "assistant", 
                     "content": reply, 
@@ -617,6 +624,9 @@ if submitted and user_input.strip():
                 })
                 st.rerun()
             else:
+                
+                pause_here("🧪 004-2 last_results is not null")
+                
                 # 결과 찾음 - 처리 진행
                 context = make_context(last_results)
                 gpt_prompt = make_prompt(st.session_state.embedding_query_text, context, is_best=best_mode)
@@ -625,8 +635,11 @@ if submitted and user_input.strip():
                 st.session_state.conversation_history.append({"role": "user", "content": gpt_prompt})
                 try:
                     gpt_reply = ask_gpt(list(st.session_state.conversation_history))
+                    pause_here("🧪 005-1 gpt_reply : " + gpt_reply)
+                    
                 except Exception as e:
                     gpt_reply = f"⚠️ 응답 생성 중 오류가 발생했습니다. 다시 시도해주세요: {str(e)}"
+                    pause_here("🧪 005-2 gpt_reply is error! ")
                     
                 # 응답 저장
                 st.session_state.conversation_history.append({"role": "assistant", "content": gpt_reply})
