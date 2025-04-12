@@ -614,7 +614,7 @@ if submitted and user_input.strip():
                     "content": reply, 
                     "timestamp": current_time
                 })
-                pause_here("🧪 004-1 last_results is null")
+                # pause_here("🧪 004-1 last_results is null")/
                 st.rerun()
             else:
                 
