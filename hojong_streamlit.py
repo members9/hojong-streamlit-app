@@ -179,7 +179,7 @@ st.markdown("""
 # ✅ 설정 변수 (13_service_recommender.py와 일치하도록 유지)
 USE_OPENAI_EMBEDDING = True  # 🔁 여기서 스위칭 가능 (True: OpenAI, False: 로컬 모델)
 Q_SIMILARITY_THRESHOLD = 0.30
-A_SIMILARITY_THRESHOLD = 0.45
+A_SIMILARITY_THRESHOLD = 0.70
 MAX_HISTORY_LEN = 5  # 질문과 답변 히스로리 저장 컨텍스트 개수
 FALLBACK_ATTEMPT_NUM = 3
 
@@ -511,9 +511,6 @@ st.markdown("""
 
 # 채팅 메시지 표시
 for msg in st.session_state.chat_messages:
-    
-    st.write("1111111111")
-    
     if st.session_state.get("is_processing", False):
         if msg["role"] == "user":
             st.markdown(f"""
@@ -585,8 +582,9 @@ if submitted and user_input.strip():
     current_time = get_kst_time()
     
     if not st.session_state.get("is_processing", False):
-        # 사용자 메시지 아예 여기서 저장해버림
+        # 사용자 메시지 아예 여기서 저장해버림 (그래야 버튼 누르고 바로 보여줄 수 있음.)
         st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": current_time})
+        
         st.session_state.pending_input = user_input
         st.session_state.is_processing = True  # 분석 중 상태 True 설정
         debug_info("🤖 호종이가 질문을 분석 중입니다...", pin=True)
@@ -604,7 +602,7 @@ if submitted and user_input.strip():
             st.session_state.A_SIMILARITY_THRESHOLD = max(0.1, st.session_state.A_SIMILARITY_THRESHOLD - 0.03)
             st.session_state.TOP_N = max(2, st.session_state.TOP_N - 1)
             
-            # 이제 사용자 입력 저장
+            # 이제 사용자 입력 저장 --> ***** 여기서 rerun() 떄리는 처리 해야 한다 *****
             st.session_state.chat_messages.append({
                 "role": "user",
                 "content": user_input,
@@ -650,7 +648,7 @@ if submitted and user_input.strip():
                     "timestamp": current_time
                 })
                 # pause_here("🧪 004-1 last_results is null")/
-                st.rerun()
+                # st.rerun()
             else:
                 
                 # pause_here("🧪 004-2 last_results is not null") 
@@ -702,7 +700,7 @@ if submitted and user_input.strip():
                 st.session_state.TOP_N = MAX_HISTORY_LEN
                 st.session_state.user_query_history = []
                 
-                st.rerun()  # 화면 업데이트
+                # st.rerun()  # 화면 업데이트
 
         else:
             # fallback 취소
@@ -723,9 +721,10 @@ if submitted and user_input.strip():
             st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD
             st.session_state.TOP_N = MAX_HISTORY_LEN
             st.session_state.user_query_history = []
-            st.rerun()
+            # st.rerun()
+        
+        st.rerun() 
 
-    
     # 사용자 메시지 저장
     # st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": current_time})
     
