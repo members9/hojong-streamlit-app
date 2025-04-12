@@ -189,11 +189,11 @@ if "debug_mode" not in st.session_state:
 #         st.rerun()
 
 # 디버그 정보 표시 함수
-def debug_info(message, level="info"):
-    """디버그 모드일 때만 정보 표시
-    level: "info", "warning", "error", "success" 중 하나
-    """
+def debug_info(message, level="info", pin=False):
+    """디버그 모드일 때만 표시 + 핀 메시지는 입력창 위에 고정"""
     if st.session_state.debug_mode:
+        if pin:
+            st.session_state.debug_pinned_message = message  # ✅ 고정 메시지로 등록
         if level == "info":
             st.info(message)
         elif level == "warning":
@@ -349,7 +349,7 @@ def is_related_results_enough(ranked_results, threshold=0.35, top_n=3):
         return False
     top_scores = [score for score, _ in ranked_results[:top_n]]
     avg_score = sum(top_scores) / len(top_scores)
-    debug_info(f"📊 상위 {top_n}개 평균 유사도: {avg_score:.4f}")
+    debug_info(f"📊 상위 {top_n}개 평균 유사도: {avg_score:.4f}", pin=True)
     return avg_score >= threshold
 
 def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
@@ -472,6 +472,13 @@ st.markdown("""
     <div class="responsive-title">혁신바우처 서비스 파인더</div>
     <p class="responsive-subtitle">🤖 호종이에게 관광기업 서비스에 대해 물어보세요.</p>
 """, unsafe_allow_html=True)
+
+if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
+    st.markdown(f"""
+        <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
+            {st.session_state.debug_pinned_message}
+        </div>
+    """, unsafe_allow_html=True)
 
 # 채팅 메시지 표시
 for msg in st.session_state.chat_messages:
