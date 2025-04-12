@@ -178,8 +178,9 @@ st.markdown("""
 # ✅ 설정 변수 (13_service_recommender.py와 일치하도록 유지)
 USE_OPENAI_EMBEDDING = True  # 🔁 여기서 스위칭 가능 (True: OpenAI, False: 로컬 모델)
 Q_SIMILARITY_THRESHOLD = 0.30
-A_SIMILARITY_THRESHOLD = 0.50
+A_SIMILARITY_THRESHOLD = 0.60
 MAX_HISTORY_LEN = 5  # 질문과 답변 히스로리 저장 컨텍스트 개수
+FALLBACK_ATTEMPT_NUM = 2
 
 # ✅ 세션 상태에 디버그 모드 변수 추가
 if "debug_mode" not in st.session_state:
@@ -568,7 +569,7 @@ if submitted and user_input.strip():
     if st.session_state.pending_fallback:
         debug_info("✅ fallback 상태 감지됨", "success")
         
-        if user_input.strip().lower() == "네" and st.session_state.fallback_attempt < 2:
+        if user_input.strip().lower() == "네" and st.session_state.fallback_attempt < FALLBACK_ATTEMPT_NUM:
             # 파라미터 조정
             st.session_state.fallback_attempt += 1
             st.session_state.A_SIMILARITY_THRESHOLD = max(0.1, st.session_state.A_SIMILARITY_THRESHOLD - 0.03)
@@ -834,7 +835,7 @@ if submitted and user_input.strip():
         # 추천 결과가 없을 경우
         if not last_results:
             st.session_state.pending_fallback = True
-            reply = "⚠️ 추천 결과가 충분하지 않아 관련된 업체나 서비스를 제공드리기가 어렵습니다. 조금 더 포괄적인 범위로 다시 찾아보겠습니다. 진행을 원하시면 네 라고 답해주세요."
+            reply = "⚠️ 추천 결과가 충분하지 않아 관련된 업체나 서비스를 제공드리기가 어렵습니다. 조금 더 포괄적인 범위로 다시 찾아보겠습니다. 진행을 원하시면 '네' 라고 답해주세요."
             st.session_state.chat_messages.append({
                 "role": "assistant", 
                 "content": reply, 
