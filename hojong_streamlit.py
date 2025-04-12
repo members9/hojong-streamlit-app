@@ -402,6 +402,7 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
         debug_info(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
     
     # ⛔ 유사도 낮을 경우 GPT 호출도 생략할 수 있도록 빈 리스트 반환
+    debug_info(f"✅ 파라미터 조정되었는지 확인: 임계값={st.session_state.A_SIMILARITY_THRESHOLD}, TOP_N={st.session_state.TOP_N}", "success")
     if not is_related_results_enough(ranked, st.session_state.A_SIMILARITY_THRESHOLD, st.session_state.TOP_N):
         debug_info("⚠️ 추천 결과의 연관성이 낮아 fallback 루프로 진입합니다.", "warning")
         st.session_state.pending_fallback = True
