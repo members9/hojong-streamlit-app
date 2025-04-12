@@ -137,6 +137,7 @@ st.markdown("""
             border-radius: 6px 6px 6px 6px !important; 
             padding: 10px !important;
             margin-bottom: 10px !important;
+            text-align: center !important;
         }    
         .user-guide {
             font-size: 14px !important;
@@ -169,6 +170,7 @@ st.markdown("""
             .user-msg, .chatbot-msg {
                 font-size: 12px !important;
                 line-height: 1.3 !important;
+                margin: 0 0 15px 0 !important; 
             }
             .user-msg-time, chatbot-msg-time {
                 font-size: 9x;
@@ -199,7 +201,7 @@ FALLBACK_ATTEMPT_NUM = 2
 
 # ✅ 세션 상태에 디버그 모드 변수 추가
 if "debug_mode" not in st.session_state:
-    st.session_state.debug_mode = True
+    st.session_state.debug_mode = False
 
 # # 사이드바에 디버그 모드 토글 추가
 # with st.sidebar:
