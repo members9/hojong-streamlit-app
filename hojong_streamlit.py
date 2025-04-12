@@ -556,11 +556,14 @@ if submitted and user_input.strip():
     # ✅ fallback 상황인지 우선 체크
     if st.session_state.pending_fallback:
         if user_input.strip() == "네":
-            # fallback 재시도
             st.session_state.fallback_attempt += 1
             st.session_state.A_SIMILARITY_THRESHOLD = max(0.1, st.session_state.A_SIMILARITY_THRESHOLD - 0.03)
             st.session_state.TOP_N = max(2, st.session_state.TOP_N - 1)
             st.session_state.pending_fallback = False
+
+            # ✅ 이전 질문으로 기준 임베딩 복원
+            if st.session_state.user_query_history:
+                st.session_state.embedding_query_text = st.session_state.user_query_history[-1]
 
             st.session_state.chat_messages.append({
                 "role": "user",
