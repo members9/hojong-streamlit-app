@@ -354,7 +354,7 @@ def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, 
     top_scores = [score for score, _ in ranked_results[:top_n]]
     avg_score = sum(top_scores) / len(top_scores)
     debug_info(f"📊 상위 {top_n}개 평균 유사도: {avg_score:.4f}", pin=True)
-    if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
+    if st.session_state.debug_mode:
         st.markdown(f"""
             <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
                 {st.session_state.debug_pinned_message}
