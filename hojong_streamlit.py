@@ -55,6 +55,9 @@ st.markdown("""
             border-radius: 12px 0px 12px 12px; 
             margin: 0 0 30px 0 !important; 
             max-width: 66% !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-all !important;
         }
         .user-msg-time {
             text-align: left !important;
@@ -75,6 +78,9 @@ st.markdown("""
             border-radius: 12px 0px 12px 12px !important; 
             margin: 0 0 30px 0 !important; 
             max-width: 66% !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-all !important;
         }
         .chatbot-msg-time {
             text-align: right !important; 
@@ -112,6 +118,21 @@ st.markdown("""
             line-height: 1.4 !important;
         }
         
+        /* 링크 스타일 */
+        .link-button {
+            display: inline-block;
+            background-color: #f8f9fa;
+            color: #0366d6;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            white-space: normal;
+            word-break: break-all;
+            max-width: 100%;
+        }
+        
         @media screen and (max-width: 768px) {
             .input-row {
                 flex-direction: column !important;
@@ -129,6 +150,35 @@ st.markdown("""
 USE_OPENAI_EMBEDDING = True  # 🔁 여기서 스위칭 가능 (True: OpenAI, False: 로컬 모델)
 SIMILARITY_THRESHOLD = 0.30
 MAX_HISTORY_LEN = 5  # 질문과 답변 히스로리 저장 컨텍스트 개수
+
+# ✅ 세션 상태에 디버그 모드 변수 추가
+if "debug_mode" not in st.session_state:
+    st.session_state.debug_mode = False
+
+# 사이드바에 디버그 모드 토글 추가
+with st.sidebar:
+    st.title("개발자 설정")
+    debug_toggle = st.checkbox("디버그 모드", value=st.session_state.debug_mode)
+    if debug_toggle != st.session_state.debug_mode:
+        st.session_state.debug_mode = debug_toggle
+        st.rerun()
+
+# 디버그 정보 표시 함수
+def debug_info(message, level="info"):
+    """디버그 모드일 때만 정보 표시
+    level: "info", "warning", "error", "success" 중 하나
+    """
+    if st.session_state.debug_mode:
+        if level == "info":
+            st.info(message)
+        elif level == "warning":
+            st.warning(message)
+        elif level == "error":
+            st.error(message)
+        elif level == "success":
+            st.success(message)
+        else:
+            st.write(message)
 
 # ✅ OpenAI API 키 설정
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -216,12 +266,9 @@ def create_company_lookup():
             company_dict[str(item["기업ID"])] = item["기업명"]
     return company_dict
 
-# load_index_and_metadata 함수 호출 후에 추가
-index, metadata, index_cosine = load_index_and_metadata()
-company_lookup = create_company_lookup()
-
 # ⚠️ 이 호출은 함수 정의 후에 배치
 index, metadata, index_cosine = load_index_and_metadata()
+company_lookup = create_company_lookup()
 
 
 def get_embedding(text, model="text-embedding-3-small"):
@@ -280,7 +327,7 @@ def is_related_results_enough(ranked_results, threshold=0.35, top_n=3):
         return False
     top_scores = [score for score, _ in ranked_results[:top_n]]
     avg_score = sum(top_scores) / len(top_scores)
-    st.info(f"📊 상위 {top_n}개 평균 유사도: {avg_score:.4f}")
+    debug_info(f"📊 상위 {top_n}개 평균 유사도: {avg_score:.4f}")
     return avg_score >= threshold
 
 def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
@@ -300,22 +347,22 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     ranked = [(score, metadata[idx]) for score, idx in zip(D[0], indices[0])]
     # ⛔ 유사도 낮을 경우 GPT 호출도 생략할 수 있도록 빈 리스트 반환
     if not is_related_results_enough(ranked):
-        st.info("⚠️ [INFO] 추천 결과의 연관성이 낮아 GPT 호출을 생략합니다.")
+        debug_info("⚠️ [INFO] 추천 결과의 연관성이 낮아 GPT 호출을 생략합니다.", "warning")
         return []
     
     # 📌 STEP 1: 유사도 기준 정렬된 원본 상위 30개 출력
-    st.write(f"\n📌 [STEP 1] 유사도 기준 정렬된 원본 상위 30개:")
+    debug_info(f"\n📌 [STEP 1] 유사도 기준 정렬된 원본 상위 30개:")
     for i, (score, s) in enumerate(ranked[:30]):
-        st.write(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
+        debug_info(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
         
     # ✅ 4. 제외할 키 (기업ID + 서비스유형 + 서비스명) 정의
     if exclude_keys:
-        st.write(f"\n\n🚫 [STEP 2] 제외 대상 키 수: {len(exclude_keys)}")
+        debug_info(f"\n\n🚫 [STEP 2] 제외 대상 키 수: {len(exclude_keys)}")
         for i, key in enumerate(list(exclude_keys)[:10]):
             company_name = company_lookup.get(str(key[0]), "알 수 없음")
-            st.write(f" - 제외 {i+1}: 기업ID={key[0]} / 기업명={company_name} / {key[1]} / {key[2]}")
+            debug_info(f" - 제외 {i+1}: 기업ID={key[0]} / 기업명={company_name} / {key[1]} / {key[2]}")
     else:
-        st.write("\n\n🚫 [STEP 2] 제외 대상 없음")
+        debug_info("\n\n🚫 [STEP 2] 제외 대상 없음")
 
     # 4. 중복 제거 및 제외 대상 필터링
     seen_keys = set()
@@ -331,9 +378,9 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     filtered.sort(key=lambda x: x[0], reverse=True)
     
     # ✅ 상위 30개까지 출력 (디버깅 또는 로그 확인용)
-    st.write(f"\n✅ [STEP 3] 필터링 후 상위 30개:")
+    debug_info(f"\n✅ [STEP 3] 필터링 후 상위 30개:")
     for i, (score, s) in enumerate(filtered[:30]):
-        st.write(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
+        debug_info(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
 
     # 6. 상위 10개 중 랜덤 선택 or top_k개 선택
     if use_random:
@@ -438,6 +485,8 @@ st.markdown("""
         ℹ️ 사용법 안내:<br>
         •&nbsp;<b>"자세히 기업명"</b>을 입력하면 해당 기업의 상세 정보를 확인할 수 있어요.<br>
         •&nbsp;<b>"강력 추천"</b> 을 포함하여 질문하면 앞서 제시된 내용들을 포함한 전체 추천을 받아볼 수 있어요.<br>
+        •&nbsp;<b>"초기화"</b>를 입력하면 대화 내용과 추천 기록을 모두 지울 수 있어요.<br>
+        •&nbsp;<b>"debug"</b>를 입력하면 디버그 모드를 토글할 수 있어요.<br>
         •&nbsp;복합적인 조건들을 이용한 질문으로 편리하게 사용해 보세요.<br>
         예를들어 "우리 회사는 외국인에게 국내 유명 관광지역을 소개하고 숙박을 연결해주는 서비스를 하고 있어. 회사 홈페이지를 디자인 중심으로 개편하고 싶고, 참 다국어는 필수고, 숙박지를 예약하고 결제하는 쇼핑몰 기능이 반드시 필요해. 또한 인스타그램으로 홍보도 잘 하는 것도 필수고. 이런걸 만족시킬 수 있는 조합을 만들어줘. 단, 예산은 합쳐서 5,000만원까지이고, 기간은 3.5개월안에는 마쳐야 해. 많은 소통을 위해 가급적 수도권 지역에 있는 회사였으면 좋겠고, 매출도 30억 이상되며 인원도 많아서 안정적인 지원도 받았으면 하고. 이런 회사들로 찾아봐줘. 또 어떻게 이들을 조합하면 되는지, 왜 추천했는지도 상세히 알려줘."
     </div>
@@ -451,8 +500,19 @@ if submitted and user_input.strip():
     # 사용자 메시지 저장
     st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": current_time})
     
+    # 디버그 모드 토글 명령 처리
+    if user_input.lower() == "debug":
+        st.session_state.debug_mode = not st.session_state.debug_mode
+        mode_status = "활성화" if st.session_state.debug_mode else "비활성화"
+        st.session_state.chat_messages.append({
+            "role": "assistant", 
+            "content": f"🛠️ 디버그 모드가 {mode_status}되었습니다.", 
+            "timestamp": current_time
+        })
+        st.rerun()
+    
     # 초기화 명령 처리
-    if user_input.lower() == "초기화":
+    elif user_input.lower() == "초기화":
         st.session_state.embedding_query_text = None
         st.session_state.excluded_keys.clear()
         st.session_state.all_results.clear()
@@ -464,176 +524,4 @@ if submitted and user_input.strip():
         st.session_state.user_query_history = []
         
         # 초기화 응답 메시지 추가
-        st.session_state.chat_messages.append({
-            "role": "assistant", 
-            "content": "🤖 호종이는 잠시 레드썬하고 다시 돌아왔습니다.", 
-            "timestamp": current_time
-        })
-        st.rerun()
-    
-    # '자세히' 명령 처리
-    elif user_input.startswith("자세히"):
-        keyword = user_input.replace("자세히", "").strip()
-        all_stored_results = list(itertools.chain.from_iterable(st.session_state.all_results))
-        
-        if not all_stored_results:
-            reply = "ℹ️ 저장된 추천 내역이 없습니다."
-        else:
-            matches = [s for s in all_stored_results if keyword in s["기업명"]]
-            if not matches:
-                reply = "ℹ️ 해당 키워드를 포함한 기업명이 없습니다."
-            elif len(matches) > 1:
-                reply = "ℹ️ 여러 개의 기업명이 일치합니다. 더 구체적으로 입력해 주세요.\n" + "\n".join([f"- {s['기업명']}" for s in matches])
-            else:
-                s = matches[0]
-                service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
-                company_link = f"https://www.tourvoucher.or.kr/user/entrprsManage/provdEntrprs/BD_selectProvdEntrprs.do?entrprsId={s['기업ID']}"
-                
-                # 상세 정보 형식화
-                details = []
-                for k, v in s.items():
-                    # 기업 3개년 평균 매출: 숫자를 정수, 콤마 구분 후 "원" 추가
-                    if k == "기업 3개년 평균 매출":
-                        try:
-                            num = float(v)
-                            v = format(round(num), ",") + "원"
-                        except Exception:
-                            pass
-                    # 기업 인력현황: 정수로 표기 후 "명" 추가
-                    elif k == "기업 인력현황":
-                        try:
-                            num = float(v)
-                            v = f"{int(num)}명"
-                        except Exception:
-                            pass
-                    # 기업 핵심역량: _x000D_ 제거
-                    elif k == "기업 핵심역량":
-                        try:
-                            v = v.replace("_x000D_", "")
-                        except Exception:
-                            pass
-                    details.append(f"•{k}: {v}")
-                
-                links = [
-                    f"🔗 서비스 링크: {service_link}",
-                    f"🏢 기업 링크: {company_link}"
-                ]
-                reply = "📄 서비스 상세정보\n" + "\n".join(details) + "\n\n" + "\n".join(links)
-        
-        # 상세 정보 응답 메시지 추가
-        st.session_state.chat_messages.append({
-            "role": "assistant", 
-            "content": reply, 
-            "timestamp": current_time
-        })
-        st.rerun()
-    
-    # 일반 질문 처리
-    else:
-        # 대화 이력에 사용자 입력 추가
-        st.session_state.conversation_history.append({"role": "user", "content": user_input})
-        
-        st.info("\n🤖 호종이가 질문을 분석 중입니다...")
-        # 질문 관련성 확인
-        if not is_relevant_question(user_input):
-            reply = "ℹ️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
-            st.session_state.chat_messages.append({
-                "role": "assistant", 
-                "content": reply, 
-                "timestamp": current_time
-            })
-            st.rerun()
-        
-        # 후속 질문 판단
-        if st.session_state.user_query_history:
-            previous_input = st.session_state.user_query_history[-1]
-            if not is_followup_question(previous_input, user_input):
-                st.write("🔁 [INFO] 독립된 질문입니다. 기준 임베딩 갱신.")
-                st.session_state.embedding_query_text = user_input
-            else:
-                # 후속 질문이면 이전 임베딩 유지
-                st.write("➡️ [INFO] 후속 질문입니다. 기준 임베딩 유지.")
-        else:
-            # 최초 질문인 경우
-            st.write("🌱 [INFO] 최초 질문입니다. 기준 임베딩 설정.")
-            st.session_state.embedding_query_text = user_input
-        
-        # 질문 히스토리에 추가
-        st.session_state.user_query_history.append(user_input)
-        
-        st.info("🤖 호종이가 관련 서비스를 찾는 중입니다...")
-        # 추천 모드 설정 및 서비스 추천
-        best_mode = is_best_recommendation_query(user_input)
-        exclude = None if best_mode else st.session_state.excluded_keys
-        last_results = recommend_services(
-            st.session_state.embedding_query_text, 
-            exclude_keys=exclude, 
-            use_random=not best_mode
-        )
-        
-        # 추천 결과가 없을 경우
-        if not last_results:
-            reply = "🧭 관련된 추천 결과가 충분하지 않습니다.\n\n관광기업이나 서비스와 관련된 질문을 조금 더 구체적으로 해 주시면 감사하겠습니다!"
-            st.session_state.chat_messages.append({
-                "role": "assistant", 
-                "content": reply, 
-                "timestamp": current_time
-            })
-            st.rerun()
-        
-        st.info("🤖 호종이가 추천 내용을 정리 중입니다...")
-        # 추천 결과 기반 응답 생성
-        unique_last_results = [
-            s for s in last_results
-            if (s["기업ID"], s.get("서비스유형"), s.get("서비스명")) not in st.session_state.excluded_keys
-        ]
-        context = make_context(unique_last_results)
-        gpt_prompt = make_prompt(user_input, context, is_best=best_mode)
-        
-        # GPT에 프롬프트 전달
-        st.session_state.conversation_history.append({"role": "user", "content": gpt_prompt})
-        
-        try:
-            gpt_reply = ask_gpt(list(st.session_state.conversation_history))
-        except Exception as e:
-            gpt_reply = f"⚠️ 응답 생성 중 오류가 발생했습니다. 다시 시도해주세요: {str(e)}"
-            
-        # 응답을 저장하고 대화 이력에 추가
-        st.session_state.conversation_history.append({"role": "assistant", "content": gpt_reply})
-        
-        # 이번 추천에서 언급된 서비스들 제외 대상으로 등록
-        mentioned_keys = {
-            (s["기업ID"], s.get("서비스유형"), s.get("서비스명"))
-            for s in last_results
-            if (
-                str(s["기업ID"]) in gpt_reply and
-                s["서비스명"] in gpt_reply
-            )
-        }
-        
-        st.write(f"[❗DEBUG] GPT 응답에서 언급된 키: {mentioned_keys}")
-        for s in last_results:
-            기업ID = s.get('기업ID')
-            기업명 = s.get('기업명')
-            서비스명 = s.get('서비스명')
-            print(f"🔍 비교 중: {기업ID} / {기업명} / {서비스명}")
-            print(f"    → 기업ID 비교: {기업ID} in GPT? {'YES' if str(기업ID) in gpt_reply else 'NO'}")
-            print(f"    → 기업명 비교: {기업명} in GPT? {'YES' if 기업명 in gpt_reply else 'NO'}")
-            print(f"    → 서비스명 비교: {서비스명} in GPT? {'YES' if 서비스명 in gpt_reply else 'NO'}")
-        print(f"\n🔍 excluded_keys 키 수: {len(st.session_state.excluded_keys)}")
-        
-        # 제외 대상 업데이트
-        st.session_state.excluded_keys.update(mentioned_keys)
-        
-        # 추천 결과 저장
-        st.session_state.last_results = last_results
-        st.session_state.all_results.append(last_results)
-        
-        # 챗봇 응답 메시지 추가
-        st.session_state.chat_messages.append({
-            "role": "assistant", 
-            "content": gpt_reply, 
-            "timestamp": current_time
-        })
-        
-        st.rerun()
+        st.session_
