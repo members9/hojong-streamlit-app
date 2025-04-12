@@ -211,6 +211,14 @@ def debug_info(message, level="info", pin=False):
             st.write(message)
 
 
+def pause_here(message="⏸️ 디버깅 지점입니다. 계속하려면 버튼을 누르세요."):
+    st.warning(message)
+    if st.button("👉 계속 실행하기"):
+        st.session_state._resume_debug = True
+        st.rerun()
+    else:
+        st.stop()
+
 # ✅ 로컬 모델 초기화 (필요 시)
 if not USE_OPENAI_EMBEDDING:
     local_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
@@ -577,6 +585,8 @@ if submitted and user_input.strip():
             })
             
             debug_info(f"✅ 파라미터 조정됨: 임계값={st.session_state.A_SIMILARITY_THRESHOLD}, TOP_N={st.session_state.TOP_N}", "success")
+            
+            pause_here("🧪 1111111111111111111111111111")
             
             
             # 이전 질문으로 기준 임베딩 복원
