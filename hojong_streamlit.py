@@ -19,7 +19,7 @@ if not st.session_state.authenticated:
     password_input = st.text_input("4자리 숫자 비밀번호를 입력하세요:", type="password")
     if password_input and password_input.strip() == "7299":
         st.session_state.authenticated = True
-        st.experimental_rerun()
+        st.rerun()
     elif password_input:
         st.error("❌ 비밀번호가 틀렸습니다.")
     st.stop()
