@@ -178,7 +178,7 @@ st.markdown("""
 # ✅ 설정 변수 (13_service_recommender.py와 일치하도록 유지)
 USE_OPENAI_EMBEDDING = True  # 🔁 여기서 스위칭 가능 (True: OpenAI, False: 로컬 모델)
 Q_SIMILARITY_THRESHOLD = 0.30
-A_SIMILARITY_THRESHOLD = 0.30
+A_SIMILARITY_THRESHOLD = 0.45
 MAX_HISTORY_LEN = 5  # 질문과 답변 히스로리 저장 컨텍스트 개수
 
 # ✅ 세션 상태에 디버그 모드 변수 추가
@@ -260,6 +260,14 @@ if "user_query_history" not in st.session_state:
     st.session_state.user_query_history = []
 if "embedding_query_text" not in st.session_state:
     st.session_state.embedding_query_text = None
+if "pending_fallback" not in st.session_state:
+    st.session_state.pending_fallback = False
+if "fallback_attempt" not in st.session_state:
+    st.session_state.fallback_attempt = 0
+if "A_SIMILARITY_THRESHOLD" not in st.session_state:
+    st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD  # 기본값 사용
+if "TOP_N" not in st.session_state:
+    st.session_state.TOP_N = MAX_HISTORY_LEN
 
 
 # ✅ 유틸리티 함수들
@@ -344,11 +352,25 @@ def is_relevant_question(query, threshold=Q_SIMILARITY_THRESHOLD):
     max_similarity = D[0][0]
     return max_similarity >= threshold
 
+def is_related_results_enough_old(ranked_results, threshold=A_SIMILARITY_THRESHOLD, top_n=MAX_HISTORY_LEN):
+    """
+    벡터 유사도 기반 추천 결과 중 상위 N개의 평균 유사도가 threshold 이상인지 확인.
+    관련도가 낮으면 False 반환 → GPT 호출 방지 가능.
+    """
+    if not ranked_results or len(ranked_results) < top_n:
+        return False
+    top_scores = [score for score, _ in ranked_results[:top_n]]
+    avg_score = sum(top_scores) / len(top_scores)
+    debug_info(f"📊 상위 {top_n}개 평균 유사도: {avg_score:.4f}", pin=True)
+    return avg_score >= threshold
+
 def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, top_n=MAX_HISTORY_LEN):
     """
     벡터 유사도 기반 추천 결과 중 상위 N개의 평균 유사도가 threshold 이상인지 확인.
     관련도가 낮으면 False 반환 → GPT 호출 방지 가능.
     """
+    threshold = threshold or st.session_state.A_SIMILARITY_THRESHOLD
+    top_n = top_n or st.session_state.TOP_N
     if not ranked_results or len(ranked_results) < top_n:
         return False
     top_scores = [score for score, _ in ranked_results[:top_n]]
@@ -373,7 +395,8 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     ranked = [(score, metadata[idx]) for score, idx in zip(D[0], indices[0])]
     # ⛔ 유사도 낮을 경우 GPT 호출도 생략할 수 있도록 빈 리스트 반환
     if not is_related_results_enough(ranked):
-        debug_info("⚠️ [INFO] 추천 결과의 연관성이 낮아 GPT 호출을 생략합니다.", "warning")
+        debug_info("⚠️ 추천 결과의 연관성이 낮아 fallback 루프로 진입합니다.", "warning")
+        st.session_state.pending_fallback = True
         return []
     
     # 📌 STEP 1: 유사도 기준 정렬된 원본 상위 30개 출력
@@ -581,7 +604,7 @@ if submitted and user_input.strip():
             if not matches:
                 reply = "⚠️ 해당 키워드를 포함한 기업명이 없습니다."
             elif len(matches) > 1:
-                reply = "⚠️ 여러 개의 항목이 일치합니다. 더 구체적으로 입력해 주세요.\n" + "\n".join([f"- {s['기업명']} : {s['서비스명']}" for s in matches])
+                reply = "⚠️ 여러 개의 유사 항목이 일치합니다. 더 구체적으로 입력해 주세요.\n" + "\n".join([f"- {s['기업명']}   {s['서비스명']}" for s in matches])
             else:
                 s = matches[0]
                 service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
@@ -630,6 +653,27 @@ if submitted and user_input.strip():
     
     # 일반 질문 처리
     else:
+        
+        if st.session_state.pending_fallback:
+            if user_input.strip() == "네":
+                st.session_state.fallback_attempt += 1
+                st.session_state.A_SIMILARITY_THRESHOLD -= 0.03  # 점진적 완화
+                st.session_state.TOP_N = max(2, st.session_state.TOP_N - 1)
+                st.session_state.pending_fallback = False  # 재시도 상태 해제 후 다시 진입
+                st.rerun()
+            else:
+                reply = "⛔ 재검색이 취소되었습니다. 다른 질문을 입력해주세요."
+                st.session_state.chat_messages.append({
+                    "role": "assistant",
+                    "content": reply,
+                    "timestamp": get_kst_time()
+                })
+                st.session_state.pending_fallback = False
+                st.session_state.fallback_attempt = 0
+                st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD
+                st.session_state.TOP_N = MAX_HISTORY_LEN
+                st.rerun()
+    
         # 대화 이력에 사용자 입력 추가
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
         
@@ -673,7 +717,8 @@ if submitted and user_input.strip():
         
         # 추천 결과가 없을 경우
         if not last_results:
-            reply = "⚠️ 추천 결과가 충분하지 않아 관련된 업체나 서비스를 제공드리기가 어렵습니다. 관광기업이나 서비스와 관련된 질문을 조금 더 구체적으로 해 주시기 바랍니다."
+            st.session_state.pending_fallback = True
+            reply = "⚠️ 추천 결과가 충분하지 않아 관련된 업체나 서비스를 제공드리기가 어렵습니다. 조금 더 포괄적인 범위로 다시 찾아보겠습니다. 진행을 원하시면 네 라고 답해주세요."
             st.session_state.chat_messages.append({
                 "role": "assistant", 
                 "content": reply, 
