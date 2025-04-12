@@ -1,7 +1,24 @@
-# ✅ 최신 로직 + Streamlit UI/UX 통합 버전
-# CLI 환경의 최신 로직(13_service_recommender.py)을 Streamlit UI에 통합
-
 import streamlit as st
+
+# ✅ 진입 암호 입력 로직 (4자리 숫자 예: 1234)
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    st.markdown("## 🔐 접근 권한이 필요합니다")
+    password_input = st.text_input("4자리 숫자 비밀번호를 입력하세요:", type="password")
+    if password_input and password_input.strip() == "7299":  # 비밀번호는 여기서 설정
+        st.session_state.authenticated = True
+        st.experimental_rerun()
+    elif password_input:
+        st.error("❌ 비밀번호가 틀렸습니다.")
+    st.stop()  # ❗ 중요: 인증되지 않으면 아래 실행 중단
+
+
+
+
+
+
 import faiss
 import pickle
 import numpy as np
@@ -501,7 +518,7 @@ if submitted and user_input.strip():
     st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": current_time})
     
     # 디버그 모드 토글 명령 처리
-    if user_input.lower() == "debug":
+    if user_input.strip().lower() == "debug":
         st.session_state.debug_mode = not st.session_state.debug_mode
         mode_status = "활성화" if st.session_state.debug_mode else "비활성화"
         st.session_state.chat_messages.append({
@@ -512,7 +529,7 @@ if submitted and user_input.strip():
         st.rerun()
     
     # 초기화 명령 처리
-    elif user_input.lower() == "초기화":
+    elif user_input.strip().lower() == "초기화":
         st.session_state.embedding_query_text = None
         st.session_state.excluded_keys.clear()
         st.session_state.all_results.clear()
@@ -532,7 +549,7 @@ if submitted and user_input.strip():
         st.rerun()
     
     # '자세히' 명령 처리
-    elif user_input.startswith("자세히"):
+    elif user_input.strip().startswith("자세히"):
         keyword = user_input.replace("자세히", "").strip()
         all_stored_results = list(itertools.chain.from_iterable(st.session_state.all_results))
         
