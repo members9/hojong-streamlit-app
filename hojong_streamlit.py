@@ -618,7 +618,7 @@ if submitted and user_input.strip():
                 st.rerun()
             else:
                 
-                # pause_here("🧪 004-2 last_results is not null")
+                # pause_here("🧪 004-2 last_results is not null") 
                 
                 # 결과 찾음 - 처리 진행
                 context = make_context(last_results)
