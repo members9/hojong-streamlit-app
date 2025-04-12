@@ -553,6 +553,39 @@ if submitted and user_input.strip():
     # 시간대 설정
     current_time = get_kst_time()
     
+    # ✅ 🔽 [1] fallback 상태인지 확인하고, '네' 입력이면 재검색 수행
+    if "pending_fallback" in st.session_state and st.session_state.pending_fallback:
+        if user_input.strip() == "네":
+            st.session_state.fallback_attempt += 1
+            st.session_state.A_SIMILARITY_THRESHOLD = max(0.1, st.session_state.A_SIMILARITY_THRESHOLD - 0.03)  # 점진적 완화
+            st.session_state.TOP_N = max(2, st.session_state.TOP_N - 1)
+            st.session_state.pending_fallback = False
+            st.session_state.chat_messages.append({
+                "role": "user",
+                "content": user_input,
+                "timestamp": current_time
+            })
+            st.rerun()  # ✅ 재검색 진행
+        else:
+            reply = "⛔ 재검색이 취소되었습니다. 다른 질문을 입력해주세요."
+            st.session_state.chat_messages.append({
+                "role": "user",
+                "content": user_input,
+                "timestamp": current_time
+            })
+            st.session_state.chat_messages.append({
+                "role": "assistant",
+                "content": reply,
+                "timestamp": current_time
+            })
+            # 초기화
+            st.session_state.pending_fallback = False
+            st.session_state.fallback_attempt = 0
+            st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD
+            st.session_state.TOP_N = MAX_HISTORY_LEN
+            st.rerun()
+
+    
     # 사용자 메시지 저장
     st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": current_time})
     
@@ -653,26 +686,6 @@ if submitted and user_input.strip():
     
     # 일반 질문 처리
     else:
-        
-        if st.session_state.pending_fallback:
-            if user_input.strip() == "네":
-                st.session_state.fallback_attempt += 1
-                st.session_state.A_SIMILARITY_THRESHOLD -= 0.03  # 점진적 완화
-                st.session_state.TOP_N = max(2, st.session_state.TOP_N - 1)
-                st.session_state.pending_fallback = False  # 재시도 상태 해제 후 다시 진입
-                st.rerun()
-            else:
-                reply = "⛔ 재검색이 취소되었습니다. 다른 질문을 입력해주세요."
-                st.session_state.chat_messages.append({
-                    "role": "assistant",
-                    "content": reply,
-                    "timestamp": get_kst_time()
-                })
-                st.session_state.pending_fallback = False
-                st.session_state.fallback_attempt = 0
-                st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD
-                st.session_state.TOP_N = MAX_HISTORY_LEN
-                st.rerun()
     
         # 대화 이력에 사용자 입력 추가
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
