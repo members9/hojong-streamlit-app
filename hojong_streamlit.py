@@ -173,9 +173,14 @@ st.markdown("""
             .user-msg-time, chatbot-msg-time {
                 font-size: 9x;
             }   
-            .user-guide, info-msg{
+            .user-guide {
                 font-size: 11px !important;
                 line-height: 1.3 !important;
+            }
+            .info-msg {
+                font-size: 11px !important;
+                padding: 5px !important;
+                margin-bottom: 5px !important;
             }
         }
         
