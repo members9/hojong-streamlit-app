@@ -267,6 +267,7 @@ def is_related_results_enough(ranked_results, threshold=0.35, top_n=3):
         return False
     top_scores = [score for score, _ in ranked_results[:top_n]]
     avg_score = sum(top_scores) / len(top_scores)
+    st.info(f"📊 상위 {top_n}개 평균 유사도: {avg_score:.4f}")
     return avg_score >= threshold
 
 def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
@@ -286,7 +287,21 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     ranked = [(score, metadata[idx]) for score, idx in zip(D[0], indices[0])]
     # ⛔ 유사도 낮을 경우 GPT 호출도 생략할 수 있도록 빈 리스트 반환
     if not is_related_results_enough(ranked):
+        st.info("⚠️ [INFO] 추천 결과의 연관성이 낮아 GPT 호출을 생략합니다.")
         return []
+    
+    # 📌 STEP 1: 유사도 기준 정렬된 원본 상위 30개 출력
+    st.write(f"\n📌 [STEP 1] 유사도 기준 정렬된 원본 상위 30개:")
+    for i, (score, s) in enumerate(ranked[:30]):
+        st.write(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
+        
+    # ✅ 4. 제외할 키 (기업ID + 서비스유형 + 서비스명) 정의
+    if exclude_keys:
+        st.write(f"\n🚫 [STEP 2] 제외 대상 키 수: {len(exclude_keys)}")
+        for i, key in enumerate(list(exclude_keys)[:10]):
+            st.write(f" - 제외 {i+1}: 기업ID={key[0]} / {key[1]} / {key[2]}")
+    else:
+        st.write("\n🚫 [STEP 2] 제외 대상 없음")
 
     # 4. 중복 제거 및 제외 대상 필터링
     seen_keys = set()
@@ -300,6 +315,11 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
 
     # 5. 유사도 내림차순 정렬 (이미 정렬돼 있으나 안전 차원에서 재정렬)
     filtered.sort(key=lambda x: x[0], reverse=True)
+    
+    # ✅ 상위 30개까지 출력 (디버깅 또는 로그 확인용)
+    st.write(f"\n✅ [STEP 3] 필터링 후 상위 30개:")
+    for i, (score, s) in enumerate(filtered[:30]):
+        st.write(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
 
     # 6. 상위 10개 중 랜덤 선택 or top_k개 선택
     if use_random:
@@ -404,8 +424,8 @@ st.markdown("""
         ℹ️ 사용법 안내:<br>
         •&nbsp;<b>"자세히 기업명"</b>을 입력하면 해당 기업의 상세 정보를 확인할 수 있어요.<br>
         •&nbsp;<b>"강력 추천"</b> 을 포함하여 질문하면 앞서 제시된 내용들을 포함한 전체 추천을 받아볼 수 있어요.<br>
-        •&nbsp;<b>"초기화"</b>를 입력하면 대화 내용과 추천 기록을 모두 지울 수 있어요.<br>
-        •&nbsp;복합적인 조건들을 이용한 질문으로 편리하게 사용해 보세요.
+        •&nbsp;복합적인 조건들을 이용한 질문으로 편리하게 사용해 보세요.<br>
+        예를들어 "우리 회사는 외국인에게 국내 유명 관광지역을 소개하고 숙박을 연결해주는 서비스를 하고 있어. 회사 홈페이지를 디자인 중심으로 개편하고 싶고, 참 다국어는 필수고, 숙박지를 예약하고 결제하는 쇼핑몰 기능이 반드시 필요해. 또한 인스타그램으로 홍보도 잘 하는 것도 필수고. 이런걸 만족시킬 수 있는 조합을 만들어줘. 단, 예산은 합쳐서 5,000만원까지이고, 기간은 3.5개월안에는 마쳐야 해. 많은 소통을 위해 가급적 수도권 지역에 있는 회사였으면 좋겠고, 매출도 30억 이상되며 인원도 많아서 안정적인 지원도 받았으면 하고. 이런 회사들로 찾아봐줘. 또 어떻게 이들을 조합하면 되는지, 왜 추천했는지도 상세히 알려줘."
     </div>
 """, unsafe_allow_html=True)
 
@@ -478,7 +498,7 @@ if submitted and user_input.strip():
                             v = v.replace("_x000D_", "")
                         except Exception:
                             pass
-                    details.append(f"{k}: {v}")
+                    details.append(f"•{k}: {v}")
                 
                 links = [
                     f"🔗 서비스 링크: {service_link}",
@@ -499,6 +519,7 @@ if submitted and user_input.strip():
         # 대화 이력에 사용자 입력 추가
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
         
+        st.info("\n🤖 호종이가 질문을 분석 중입니다...")
         # 질문 관련성 확인
         if not is_relevant_question(user_input):
             reply = "ℹ️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
@@ -513,15 +534,20 @@ if submitted and user_input.strip():
         if st.session_state.user_query_history:
             previous_input = st.session_state.user_query_history[-1]
             if not is_followup_question(previous_input, user_input):
+                st.write("🔁 [INFO] 독립된 질문입니다. 기준 임베딩 갱신.")
                 st.session_state.embedding_query_text = user_input
-            # 후속 질문이면 이전 임베딩 유지
+            else:
+                # 후속 질문이면 이전 임베딩 유지
+                st.write("➡️ [INFO] 후속 질문입니다. 기준 임베딩 유지.")
         else:
             # 최초 질문인 경우
+            st.write("🌱 [INFO] 최초 질문입니다. 기준 임베딩 설정.")
             st.session_state.embedding_query_text = user_input
         
         # 질문 히스토리에 추가
         st.session_state.user_query_history.append(user_input)
         
+        st.info("🤖 호종이가 관련 서비스를 찾는 중입니다...")
         # 추천 모드 설정 및 서비스 추천
         best_mode = is_best_recommendation_query(user_input)
         exclude = None if best_mode else st.session_state.excluded_keys
@@ -541,6 +567,7 @@ if submitted and user_input.strip():
             })
             st.rerun()
         
+        st.info("🤖 호종이가 추천 내용을 정리 중입니다...")
         # 추천 결과 기반 응답 생성
         unique_last_results = [
             s for s in last_results
@@ -569,6 +596,17 @@ if submitted and user_input.strip():
                 s["서비스명"] in gpt_reply
             )
         }
+        
+        st.write(f"[❗DEBUG] GPT 응답에서 언급된 키: {mentioned_keys}")
+        for s in last_results:
+            기업ID = s.get('기업ID')
+            기업명 = s.get('기업명')
+            서비스명 = s.get('서비스명')
+            print(f"🔍 비교 중: {기업ID} / {기업명} / {서비스명}")
+            print(f"    → 기업ID 비교: {기업ID} in GPT? {'YES' if str(기업ID) in gpt_reply else 'NO'}")
+            print(f"    → 기업명 비교: {기업명} in GPT? {'YES' if 기업명 in gpt_reply else 'NO'}")
+            print(f"    → 서비스명 비교: {서비스명} in GPT? {'YES' if 서비스명 in gpt_reply else 'NO'}")
+        print(f"\n🔍 excluded_keys 키 수: {len(st.session_state.excluded_keys)}")
         
         # 제외 대상 업데이트
         st.session_state.excluded_keys.update(mentioned_keys)
