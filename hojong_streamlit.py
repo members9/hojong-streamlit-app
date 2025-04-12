@@ -515,19 +515,15 @@ for msg in st.session_state.chat_messages:
     st.write("1111111111")
     
     if st.session_state.get("is_processing", False):
-        pending_input = st.session_state.get("pending_input", "")
-        formatted_input = pending_input.replace(chr(10), "<br>")
-        
-        st.write(">>>>>>>>>> formatted_input = " + str(formatted_input))
-        
-        st.markdown(f"""
+        if msg["role"] == "user":
+            st.markdown(f"""
             <div class="user-msg-box">
                 <div class="user-msg">
-                    {formatted_input}
+                    {msg["content"].replace(chr(10), "<br>")}
                     <div class="user-msg-time">{msg['timestamp']}</div>
                 </div>
             </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
     else:
         if msg["role"] == "user":
             st.markdown(f"""
@@ -589,7 +585,8 @@ if submitted and user_input.strip():
     current_time = get_kst_time()
     
     if not st.session_state.get("is_processing", False):
-        # 사용자 입력 저장만 함 (GPT 호출은 다음 루프에서)
+        # 사용자 메시지 아예 여기서 저장해버림
+        st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": current_time})
         st.session_state.pending_input = user_input
         st.session_state.is_processing = True  # 분석 중 상태 True 설정
         debug_info("🤖 호종이가 질문을 분석 중입니다...", pin=True)
@@ -730,7 +727,7 @@ if submitted and user_input.strip():
 
     
     # 사용자 메시지 저장
-    st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": current_time})
+    # st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": current_time})
     
     # 디버그 모드 토글 명령 처리
     if user_input.strip().lower() == "디버그":
