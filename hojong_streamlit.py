@@ -377,6 +377,9 @@ def is_relevant_question(query, threshold=Q_SIMILARITY_THRESHOLD):
     st.write("1111111111111111111111111111111111111")
     
     query_vec = get_embedding(query)
+    
+    st.write("44444444444444444444444")
+    
     query_vec = np.array(query_vec).astype('float32').reshape(1, -1)
     query_vec = normalize(query_vec)
     D, _ = index_cosine.search(query_vec, 1)
