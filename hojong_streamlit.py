@@ -211,9 +211,8 @@ def debug_info(message, level="info", pin=False):
             st.success(message)
         else:
             st.write(message)
-    else:
-        if pin:
-            st.session_state.debug_pinned_message = message  # ✅ 고정 메시지로 등록
+    if pin:
+        st.session_state.debug_pinned_message = message  # ✅ 고정 메시지로 등록
 
 def pause_here(message="⏸️ 디버깅 지점입니다. 계속하려면 버튼을 누르세요."):
     if "pause_continue" not in st.session_state:
