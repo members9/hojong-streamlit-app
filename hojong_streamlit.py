@@ -580,7 +580,7 @@ if submitted and user_input.strip():
     # 시간대 설정
     current_time = get_kst_time()
     
-    if not st.session_state.is_processing:
+    if st.session_state.get("is_processing", False):
         
         st.write("2222222222")
         
