@@ -202,7 +202,7 @@ d = xb.shape[1]
 index_cosine = faiss.IndexFlatIP(d)
 index_cosine.add(xb)
 
-"""
+'''
 index, metadata, index_cosine = load_index_and_metadata()
 
 # ✅ 유틸리티 함수들
@@ -225,7 +225,7 @@ def load_index_and_metadata():
     index_cosine.add(xb)
     
     return index, metadata, index_cosine
-"""
+'''
 
 def get_embedding(text, model="text-embedding-3-small"):
     if text in st.session_state.embedding_cache:
