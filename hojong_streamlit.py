@@ -854,7 +854,7 @@ if submitted and user_input.strip():
             })
             st.rerun()
         
-        debug_info("🤖 호종이가 추천 내용을 정리 중입니다...", pin=True)
+        # debug_info("🤖 호종이가 추천 내용을 정리 중입니다...", pin=True)
         # 추천 결과 기반 응답 생성
         unique_last_results = [
             s for s in last_results
