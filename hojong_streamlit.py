@@ -132,7 +132,7 @@ st.markdown("""
         }
         .info-msg {
             background-color: #fff3cd !important; 
-            font-size: 11px !important;
+            font-size: 14px !important;
             border-left: 6px solid #ffeeba !important;
             border-radius: 6px 6px 6px 6px !important; 
             padding: 10px !important;
@@ -173,7 +173,7 @@ st.markdown("""
             .user-msg-time, chatbot-msg-time {
                 font-size: 9x;
             }   
-            .user-guide {
+            .user-guide, info-msg{
                 font-size: 11px !important;
                 line-height: 1.3 !important;
             }
