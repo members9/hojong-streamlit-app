@@ -185,6 +185,15 @@ if "user_query_history" not in st.session_state:
 if "embedding_query_text" not in st.session_state:
     st.session_state.embedding_query_text = None
 
+
+
+index, metadata, index_cosine = load_index_and_metadata()
+
+# ✅ 유틸리티 함수들
+def normalize(vecs):
+    norms = np.linalg.norm(vecs, axis=1, keepdims=True)
+    return vecs / norms
+
 # ✅ FAISS 인덱스 및 메타데이터 로드
 @st.cache_resource
 def load_index_and_metadata():
@@ -200,13 +209,6 @@ def load_index_and_metadata():
     index_cosine.add(xb)
     
     return index, metadata, index_cosine
-
-index, metadata, index_cosine = load_index_and_metadata()
-
-# ✅ 유틸리티 함수들
-def normalize(vecs):
-    norms = np.linalg.norm(vecs, axis=1, keepdims=True)
-    return vecs / norms
 
 def get_embedding(text, model="text-embedding-3-small"):
     if text in st.session_state.embedding_cache:
