@@ -7,7 +7,6 @@ from collections import deque
 import itertools
 from datetime import datetime
 from zoneinfo import ZoneInfo  # Python 3.9 이상
-from openai import OpenAI
 from sentence_transformers import SentenceTransformer
 
 
@@ -27,6 +26,10 @@ if not st.session_state.authenticated:
 
 # ✅ 나머지 앱 실행
 st.set_page_config(layout="wide")
+
+import os
+from openai import OpenAI
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # ✅ OpenAI API 키 설정
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
