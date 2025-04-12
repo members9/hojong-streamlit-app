@@ -157,7 +157,11 @@ st.markdown("""
             }
             .user-msg, .chatbot-msg {
                 font-size: 12px !important;
-                line-height: 1.4 !important;
+                line-height: 1.3 !important;
+            }
+            .user-guide {
+                font-size: 11px !important;
+                line-height: 1.3 !important;
             }
         }
         
