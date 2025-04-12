@@ -1,3 +1,4 @@
+
 import streamlit as st
 import faiss
 import pickle
@@ -9,29 +10,24 @@ from datetime import datetime
 from zoneinfo import ZoneInfo  # Python 3.9 이상
 from sentence_transformers import SentenceTransformer
 
-
-# ✅ 진입 암호 입력 로직 (4자리 숫자 예: 1234)
+# ✅ 진입 암호 입력 로직 (4자리 숫자 예: 7299)
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
     st.markdown("## 🔐 접근 권한이 필요합니다")
     password_input = st.text_input("4자리 숫자 비밀번호를 입력하세요:", type="password")
-    if password_input and password_input.strip() == "7299":  # 비밀번호는 여기서 설정
+    if password_input and password_input.strip() == "7299":
         st.session_state.authenticated = True
         st.experimental_rerun()
     elif password_input:
         st.error("❌ 비밀번호가 틀렸습니다.")
-    st.stop()  # ❗ 중요: 인증되지 않으면 아래 실행 중단
+    st.stop()
 
-# ✅ 나머지 앱 실행
+# ✅ 인증 이후 실행
 st.set_page_config(layout="wide")
 
-import os
 from openai import OpenAI
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
-# ✅ OpenAI API 키 설정
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # ✅ 스타일 및 반응형 CSS 추가
