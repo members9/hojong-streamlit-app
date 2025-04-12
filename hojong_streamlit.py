@@ -591,14 +591,15 @@ if submitted and user_input.strip():
             
             # 이전 질문으로 기준 임베딩 복원
             if st.session_state.user_query_history:
-                st.session_state.embedding_query_text = st.session_state.user_query_history[-1]
+                # st.session_state.embedding_query_text = st.session_state.user_query_history[-1]
+                st.session_state.embedding_query_text = "홈페이지 디자인 전문 업체 추천"
             
-            pause_here("🧪 001 last_results : " + str(st.session_state.embedding_query_text))
+            # pause_here("🧪 001 last_results : " + str(st.session_state.embedding_query_text))
             
             # 검색 로직 직접 실행
             best_mode = is_best_recommendation_query(st.session_state.embedding_query_text)
             
-            pause_here("🧪 002 best_mode : " + str(best_mode))
+            # pause_here("🧪 002 best_mode : " + str(best_mode))
             
             exclude = None if best_mode else st.session_state.excluded_keys
             last_results = recommend_services(
