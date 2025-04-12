@@ -516,7 +516,7 @@ with st.form("chat_form", clear_on_submit=True):
 st.markdown("""
     <div class="user-guide">
         ℹ️ 사용법 안내:<br>
-        •&nbsp;<b>"자세히 기업명"</b>을 입력하면 해당 기업의 상세 정보를 확인할 수 있어요.<br>
+        •&nbsp;<b>"자세히 기업명 서비스명"</b>을 입력하면 해당 상세 정보를 확인할 수 있어요. (기업명과 서비스명은 단어 일부만 입력하셔도 되요.)<br>
         •&nbsp;<b>"강력 추천"</b> 을 포함하여 입력하면 앞서 제시된 서비스들을 포함한 전체 추천을 받아볼 수 있어요.<br>
         •&nbsp;<b>"초기화"</b>를 입력하면 대화 내용과 추천 기록을 모두 지울 수 있어요.<br>
         •&nbsp;<b>"디버그"</b>를 입력하면 디버그 모드로 전환할 수 있어요.<br>
@@ -581,7 +581,7 @@ if submitted and user_input.strip():
             if not matches:
                 reply = "⚠️ 해당 키워드를 포함한 기업명이 없습니다."
             elif len(matches) > 1:
-                reply = "⚠️ 여러 개의 항목이 일치합니다. 더 구체적으로 입력해 주세요.\n" + "\n".join([f"- {s['기업명']} / {s['서비스명']}" for s in matches])
+                reply = "⚠️ 여러 개의 항목이 일치합니다. 더 구체적으로 입력해 주세요.\n" + "\n".join([f"- {s['기업명']} : {s['서비스명']}" for s in matches])
             else:
                 s = matches[0]
                 service_link = f"https://www.tourvoucher.or.kr/user/svcManage/svc/BD_selectSvc.do?svcNo={s['서비스번호']}"
