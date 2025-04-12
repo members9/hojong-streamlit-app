@@ -849,20 +849,20 @@ if submitted and user_input.strip():
         if st.session_state.user_query_history:
             previous_input = st.session_state.user_query_history[-1]
             if not is_followup_question(previous_input, user_input):
-                debug_info("🤖 호종이가 신규 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=True)
+                debug_info("🤖 호종이가 신규 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
                 st.session_state.embedding_query_text = user_input
             else:
                 # 후속 질문이면 이전 임베딩 유지
-                debug_info("🤖 호종이가 후속 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=True)
+                debug_info("🤖 호종이가 후속 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
         else:    
             # 최초 질문인 경우
-            debug_info("🤖 호종이가 최초 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=True)
+            debug_info("🤖 호종이가 최초 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
             st.session_state.embedding_query_text = user_input
         
         # 질문 히스토리에 추가
         st.session_state.user_query_history.append(user_input)
         
-        debug_info("🤖 호종이가 관련 서비스를 찾는 중입니다...", pin=True)
+        debug_info("🤖 호종이가 관련 서비스를 찾는 중입니다...", pin=False)
         # 추천 모드 설정 및 서비스 추천
         best_mode = is_best_recommendation_query(user_input)
         exclude = None if best_mode else st.session_state.excluded_keys
@@ -883,7 +883,7 @@ if submitted and user_input.strip():
             })
             st.rerun()
         
-        debug_info("🤖 호종이가 추천 내용을 정리 중입니다...", pin=True)
+        debug_info("🤖 호종이가 추천 내용을 정리 중입니다...", pin=False)
         # 추천 결과 기반 응답 생성
         unique_last_results = [
             s for s in last_results
