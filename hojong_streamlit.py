@@ -531,6 +531,9 @@ for msg in st.session_state.chat_messages:
         """, unsafe_allow_html=True)
 
 if st.session_state.get("is_processing", False):
+    
+    st.write("!3333333333333333333333")
+    
     if st.session_state.debug_mode and "debug_pinned_message" in st.session_state:
         st.markdown(f"""
             <div style="background-color:#fff3cd; border-left: 6px solid #ffeeba; padding:10px; margin-bottom:10px;">
@@ -541,6 +544,8 @@ if st.session_state.get("is_processing", False):
     user_input = st.session_state.pending_input
     del st.session_state.pending_input
     st.session_state.is_processing = False  # 분석 완료 시 메시지 제거
+    
+    st.write("4444444444444444444 user_input + " + str(user_input))
 
 # 입력 폼
 with st.form("chat_form", clear_on_submit=True):
@@ -567,11 +572,18 @@ if submitted and user_input.strip():
     # 시간대 설정
     current_time = get_kst_time()
     
+    st.write("5555555555555555555555555")
+    
     if not st.session_state.is_processing:
+        
+        st.write("!1111111111111111111111111111111111111")
+        
         # 사용자 입력 저장만 함 (GPT 호출은 다음 루프에서)
         st.session_state.pending_input = user_input
         st.session_state.is_processing = True  # 분석 중 상태 True 설정
         st.rerun()
+    
+    st.write("!2222222222222222222222")
     
     # ✅ fallback 상황인지 먼저 체크하고, 사용자 입력을 아직 저장하지 않음
     if st.session_state.pending_fallback:
@@ -924,3 +936,6 @@ if submitted and user_input.strip():
         })
         
         st.rerun()
+        
+else:
+    st.write("6666666666666666666666666666666666666666")
