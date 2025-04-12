@@ -131,7 +131,7 @@ SIMILARITY_THRESHOLD = 0.30
 MAX_HISTORY_LEN = 5  # 질문과 답변 히스로리 저장 컨텍스트 개수
 
 # ✅ OpenAI API 키 설정
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # ✅ 로컬 모델 초기화 (필요 시)
 if not USE_OPENAI_EMBEDDING:
@@ -213,7 +213,7 @@ def get_embedding(text, model="text-embedding-3-small"):
         return st.session_state.embedding_cache[text]
 
     if USE_OPENAI_EMBEDDING:
-        response = openai.Embedding.create(input=[text], model=model)
+        response = client.embeddings.create(input=[text], model=model)
         embedding = response['data'][0]['embedding']
     else:
         embedding = local_model.encode([text])[0].tolist()
@@ -232,7 +232,6 @@ def is_followup_question(prev, current):
         {"role": "user", "content": f"이전 질문: {prev}\n현재 질문: {current}"}
     ]
     try:
-        client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=messages
@@ -310,7 +309,6 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     return results
 
 def ask_gpt(messages):
-    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
     response = client.chat.completions.create(model="gpt-4o", messages=messages)
     return response.choices[0].message.content
 
