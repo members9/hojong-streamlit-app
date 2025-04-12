@@ -345,7 +345,7 @@ def is_relevant_question(query, threshold=Q_SIMILARITY_THRESHOLD):
     max_similarity = D[0][0]
     return max_similarity >= threshold
 
-def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, top_n=3):
+def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, top_n=MAX_HISTORY_LEN):
     """
     벡터 유사도 기반 추천 결과 중 상위 N개의 평균 유사도가 threshold 이상인지 확인.
     관련도가 낮으면 False 반환 → GPT 호출 방지 가능.
