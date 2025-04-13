@@ -652,10 +652,7 @@ if submitted and user_input.strip():
         st.session_state.pending_input = user_input
         st.session_state.is_processing = True  # 분석 중 상태 True 설정
         debug_info("🤖 잠시만 기다려 주세요. 최적의 답변을 준비 중입니다...", pin=True)
-        if st.session_state.debug_mode:
-            pause_here()
-        else: 
-            st.rerun()
+        st.rerun()
     else:
         debug_info("🤖 잠시만 기다려 주세요. 최적의 답변을 준비 중입니다...", pin=True)
         st.session_state.is_processing = False  
