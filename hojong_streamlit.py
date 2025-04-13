@@ -932,11 +932,10 @@ if submitted and user_input.strip():
                     st.rerun()
                 # 지금한 질문이 사업과 관련없으나, 이전과 후속 대화인 경우임. --> 후속 대화로 인지
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
-                #     지금 : 더 알려줘 
+                #     지금 : 다른 사례는 없어? 
                 else:
                     st.write(">>>>> 2.지금 질문한 내용이 사업과 관련이 없어. 하지만 지금 얘기한건 이전에 얘기와는 연관되어 있어.")
                     st.session_state.embedding_query_text = st.session_state.embedding_query_text
-                    pause_here()
                     
             # 지금한 질문이 사업과 관련없고, 최초 대화인 경우임 또는 Fallback 후 초기화 된 이후임. --> 에러!
             else: 
@@ -963,15 +962,13 @@ if submitted and user_input.strip():
                 if not is_followup_question(previous_input, user_input):
                     st.write(">>>>> 4.지금 질문한 내용이 앞에서 얘기한 사업이랑은 전혀 관련이 없어. 하지만 새롭게 다른 사업과 관련있는 얘기하면 좋은거야.")
                     st.session_state.embedding_query_text = user_input
-                    pause_here()
-                
+                    
                 # 지금한 질문이 사업과 관련 있고, 이전의 대화와고 관련이 있음.   --> 후속 대화로 인지    
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
                 #     지금 : 홈페이지 구축 업체를 추가로 알려줘.
                 else:
                     st.write(">>>>> 5.지금 질문한 내용이 앞에서 얘기한 사업과 관련이 있어. 그리고 지금 얘기한 것도 구체적으로 사업과 관련이 되어 있어.")
                     st.session_state.embedding_query_text = st.session_state.embedding_query_text
-                    pause_here()
                     
             # 지금한 질문이 사업과 관련있고, 최초 대화한 경우 또는 Fallback 후 초기화 된 이후임. --> 신규 대화로 인지
             else:
@@ -1077,6 +1074,16 @@ if submitted and user_input.strip():
             "content": gpt_reply, 
             "timestamp": current_time
         })
-        
+                
+        if st.session_state.debug_mode:
+            debug_info("unique_last_results = " + st.session_state.unique_last_results)
+            debug_info("context = " + context)
+            debug_info("gpt_prompt = " + gpt_prompt)
+            debug_info("gpt_reply = " + gpt_reply)
+            debug_info("conversation_history = " + st.session_state.conversation_history)
+            debug_info("last_results = " + st.session_state.last_results)
+            debug_info("all_results = " + st.session_state.all_results)
+            
+            pause_here()
         st.rerun()
         
