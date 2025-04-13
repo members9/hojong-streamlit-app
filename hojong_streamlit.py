@@ -412,12 +412,12 @@ def summarize_query(query):
 # ✅ get_embedding 호출 전 요약 처리 (벡터 검색 이전)
 def get_embedding_with_optional_summary(text, model="text-embedding-3-small"):
     # 너무 긴 경우만 요약
-    if len(text) > 150:
-        debug_info("📌 질문이 길어 GPT로 요약 후 벡터화합니다.", pin=True)
-        text = summarize_query(text)
-        st.session_state.embedding_query_text_summary = text
-        debug_info(f"📌 gpt 요약: " + text)
-    return get_embedding(text, model)
+    # if len(text) > 150:
+    debug_info("📌 질문이 길어 GPT로 요약 후 벡터화합니다.", pin=True)
+    text = summarize_query(text)
+    st.session_state.embedding_query_text_summary = text
+    debug_info(f"📌 gpt 요약: " + text)
+    # return get_embedding(text, model)
 
 def is_best_recommendation_query(query):
     keywords = ["강력 추천", "강추"]
@@ -969,7 +969,7 @@ if submitted and user_input.strip():
                 previous_input = st.session_state.user_query_history[-1]
                 # 지금한 질문이 사업과 관련 있으나, 이전과 지금이 서로 연속성은 없는 경우. --> 신규 대화로 전환     
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
-                #     지금 : 아니야. 디자인 홍보 업체를 새로 알려줘. 
+                #     지금 : 아니야. 디자인 홍보 업체를 새로 알려줘. 또는 왜 저 기업들을 추천했는지 상세히 알려줄래? (???)
                 if not is_followup_question(previous_input, user_input):
                     debug_info("📚 4. 지금 질문한 내용이 사업과는 관련있지만, 앞에서 얘기한 사업이랑은 전혀 관련이 없어. 하지만 새롭게 다른 사업과 관련있는 얘기하면 좋은거야.")
                     # st.session_state.embedding_query_text = user_input
