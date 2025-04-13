@@ -652,7 +652,10 @@ if submitted and user_input.strip():
         st.session_state.pending_input = user_input
         st.session_state.is_processing = True  # 분석 중 상태 True 설정
         debug_info("🤖 잠시만 기다려 주세요. 최적의 답변을 준비 중입니다...", pin=True)
-        st.rerun()
+        if st.session_state.debug_mode:
+            pause_here()
+        else: 
+            st.rerun()
     else:
         debug_info("🤖 잠시만 기다려 주세요. 최적의 답변을 준비 중입니다...", pin=True)
         st.session_state.is_processing = False  
@@ -792,7 +795,10 @@ if submitted and user_input.strip():
             st.session_state.embedding_query_vector = None  # 벡터 캐싱 초기화
             # st.rerun()
         
-        st.rerun() 
+        if st.session_state.debug_mode:
+            pause_here()
+        else: 
+            st.rerun()
 
     # 사용자 메시지 저장
     # st.session_state.chat_messages.append({"role": "user", "content": user_input, "timestamp": current_time})
@@ -1019,7 +1025,10 @@ if submitted and user_input.strip():
                 "timestamp": current_time
             })
             debug_info(f"🤖 ...", pin=True)
-            st.rerun()
+            if st.session_state.debug_mode:
+                pause_here()
+            else: 
+                st.rerun()
         
         debug_info("🤖 추천 내용을 정리 중입니다...", pin=False)
         # 추천 결과 기반 응답 생성
@@ -1092,6 +1101,6 @@ if submitted and user_input.strip():
             if "all_results" in st.session_state:
                 debug_info("📚 all_results = " + json.dumps(list(st.session_state.all_results), ensure_ascii=False, indent=2))
             pause_here()
-            
-        st.rerun()
+        else:    
+            st.rerun()
         
