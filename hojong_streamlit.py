@@ -418,7 +418,7 @@ def get_embedding_with_optional_summary(text, model="text-embedding-3-small"):
     #     st.session_state.embedding_query_text_summary = text
     #     debug_info(f"📌 gpt 요약: " + text)
     
-    debug_info("📌 질문이 길어 GPT로 요약 후 벡터화합니다.", pin=True)
+    # debug_info("📌 질문이 길어 GPT로 요약 후 벡터화합니다.", pin=True)
     text = summarize_query(text)
     st.session_state.embedding_query_text_summary = text
     debug_info(f"📌 gpt 요약: " + text)
@@ -644,7 +644,7 @@ st.markdown("""
         •&nbsp;<b>"초기화"</b>를 입력하면 대화 내용과 추천 기록을 모두 지울 수 있어요.<br>
         •&nbsp;<b>"복합적인 조건들"</b>을 이용한 질문이나 <b>"의미적으로 유사한 정보"</b> 검색으로 편리하게 사용해 보세요.<br>
         - 예를들어 "우리 회사는 외국인에게 국내 유명 관광지역을 소개하고 숙박을 연결해주는 서비스를 하고 있어. 회사 홈페이지를 디자인 중심으로 개편하고 싶고, 참 다국어는 필수고, 숙박지를 예약하고 결제하는 쇼핑몰 기능이 반드시 필요해. 또한 인스타그램으로 홍보도 잘 하는 것도 필수고. 이런걸 만족시킬 수 있는 조합을 만들어줘. 단, 예산은 합쳐서 5,000만원까지이고, 기간은 3.5개월안에는 마쳐야 해. 많은 소통을 위해 가급적 수도권 지역에 있는 회사였으면 좋겠고, 매출도 30억 이상되며 인원도 많아서 안정적인 지원도 받았으면 하고. 이런 회사들로 찾아봐줘. 또 어떻게 이들을 조합하면 되는지, 왜 추천했는지도 상세히 알려줘.<br>
-        - 또는 "삼성전자와 유사한 서비스를 제공하는 다른 기업을 추천해줘." 
+        - 또는 "답변에서 제시한 서비스와 유사한 서비스를 제공하는 다른 기업을 추천해줘." 
     </div>
 """, unsafe_allow_html=True)
 
