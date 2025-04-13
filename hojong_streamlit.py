@@ -909,29 +909,75 @@ if submitted and user_input.strip():
         # 대화 이력에 사용자 입력 추가
         st.session_state.conversation_history.append({"role": "user", "content": user_input})
         
-        # 질문 관련성 확인
+        # 지금 질문한 내용이 사업과 관련이 없어.
         if not is_relevant_question(user_input):
-            reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
-            st.session_state.chat_messages.append({
-                "role": "assistant", 
-                "content": reply, 
-                "timestamp": current_time
-            })
-            st.rerun()
-        
-        # 후속 질문 판단
-        if st.session_state.user_query_history:
-            previous_input = st.session_state.user_query_history[-1]
-            if not is_followup_question(previous_input, user_input):
-                debug_info("🤖 신규 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
-                st.session_state.embedding_query_text = user_input
+            
+            # 지금한 질문이 사업과 관련없고, 최초 대화가 아닌 경우 경우임. 단, 지금한 질문은 사업과 관련성이 없어도 이전 대화와의 연계성을 검토
+            if st.session_state.user_query_history:
+                previous_input = st.session_state.user_query_history[-1]
+                
+                # 이전과 지금이 서로 진짜 관련없는 얘기인 경우이면서, 사업과도 연관성이 없는 상황임 --> 에러!
+                if not is_followup_question(previous_input, user_input):
+                    reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
+                    st.session_state.chat_messages.append({
+                        "role": "assistant", 
+                        "content": reply, 
+                        "timestamp": current_time
+                    })
+                    st.rerun()
+                # 이전과 지금이 서로 관련있는 후속 얘기인 경우이면서, 사업과도 연관성이 없는 상황임. --> 후속 대화로 인지
+                # ex. 이전 : 홈페이지 구축 업체 알려줘.
+                #     지금 : 더 알려줘 
+                else:
+                    st.session_state.embedding_query_text = st.session_state.embedding_query_text
+                
+            # 지금한 질문이 사업과 관련없고, 최초 대화인 경우임. --> 에러!
+            else: 
+                reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
+                st.session_state.chat_messages.append({
+                    "role": "assistant", 
+                    "content": reply, 
+                    "timestamp": current_time
+                })
+                st.rerun()
+                
+        # 지금한 질문한 내용이 사업과 관련이 있음.
+        else:
+            
+            # 지금한 질문이 사업과 관련있고, 최초 대화가 아닌 경우임. 다만 지금한 질문이 이전과 관련성을 검토한다.
+            if st.session_state.user_query_history:
+                
+                previous_input = st.session_state.user_query_history[-1]
+                # 이전과 지금이 서로 진짜 관련없는 얘기인 경우이나 사업에는 관련있는 상황임. --> 신규 대화로 전환     
+                if not is_followup_question(previous_input, user_input):
+                    st.session_state.embedding_query_text = user_input
+                
+                # 이전과 지금이 서로 관련이 있고, 사업에도 관련있는 상황임.  --> 후속 대화로 인지    
+                # ex. 이전 : 홈페이지 구축 업체 알려줘.
+                #     지금 : 홈페이지 구축 업체를 추가로 알려줘 
+                else:
+                    st.session_state.embedding_query_text = st.session_state.embedding_query_text
+                    
+            # 지금한 질문이 사업과 관련있고, 최초 대화한 경우임. --> 신규 대화로 인지
             else:
-                # 후속 질문이면 이전 임베딩 유지
-                debug_info("🤖 후속 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
-        else:    
-            # 최초 질문인 경우
-            debug_info("🤖 최초 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
-            st.session_state.embedding_query_text = user_input
+                st.session_state.embedding_query_text = user_input
+                
+    
+        # # 후속 질문 판단
+        # if st.session_state.user_query_history:
+        #     previous_input = st.session_state.user_query_history[-1]
+        #     if not is_followup_question(previous_input, user_input):
+        #         debug_info("🤖 신규 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
+        #         st.session_state.embedding_query_text = user_input
+        #     else:
+        #         # 후속 질문이면 이전 임베딩 유지
+        #         debug_info("🤖 후속 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
+        # else:    
+        #     # 최초 질문인 경우
+        #     debug_info("🤖 최초 질문으로 인식하고 관련 서비스를 찾는 중입니다...", pin=False)
+        #     st.session_state.embedding_query_text = user_input
+        
+        
         
         # 질문 히스토리에 추가
         st.session_state.user_query_history.append(user_input)
