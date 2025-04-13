@@ -388,7 +388,7 @@ def summarize_query(query):
     prompt = f"""사용자의 질문이 다음과 같습니다:\n\n{query}\n\n
                 이 질문을 벡터 임베딩에 적합하도록 핵심 키워드 중심으로 요약해 주세요. 
                 불필요한 서사나 예시는 제거하고, 핵심 목적/조건/희망사항만 정리해 주세요.
-                출력은 1~2문장 정도의 간결한 문장으로 해주세요."""
+                출력은 (질문의 총 길이를 100으로 나눈 수)만큼의 문장 수로 작성 해주세요."""
     
     try:
         response = client.chat.completions.create(
@@ -410,6 +410,7 @@ def get_embedding_with_optional_summary(text, model="text-embedding-3-small"):
         debug_info("📌 질문이 길어 GPT로 요약 후 벡터화합니다.", pin=True)
         text = summarize_query(text)
         st.session_state.embedding_query_text_summary = text
+        debug_info(f"📊 gpt 요약: " + text)
     return get_embedding(text, model)
 
 def is_best_recommendation_query(query):
