@@ -957,7 +957,10 @@ if submitted and user_input.strip():
                 #     지금 : 다른 사례는 없어? 
                 else:
                     debug_info("📚 2. 지금 질문한 내용이 사업과 관련이 없어. 하지만 지금 얘기한건 이전에 얘기와는 연관되어 있어.")
-                    st.session_state.embedding_query_text = "**이전 질문** : " + previous_input + "\n**지금 질문** : " + user_input
+                    last_gpt_reply = get_last_assistant_reply()
+                    if last_gpt_reply:
+                        debug_info("📚 마지막 GPT 응답:\n" + last_gpt_reply)
+                    st.session_state.embedding_query_text = "**이전 답변** : " + last_gpt_reply + "\n**지금 질문** : " + user_input
                     
             # 지금한 질문이 사업과 관련없고, 최초 대화인 경우임 또는 Fallback 후 초기화 된 이후임. --> 에러!
             else: 
@@ -994,7 +997,10 @@ if submitted and user_input.strip():
                 #     지금 : 홈페이지 구축 업체를 추가로 알려줘.
                 else:
                     debug_info("📚 5. 지금 질문한 내용이 사업과는 관련도 있고, 앞에서 얘기한 사업과 관련이 있어. 그리고 지금 얘기한 것도 구체적으로 사업과 관련이 되어 있어.")
-                    st.session_state.embedding_query_text = "**이전 질문** : " + previous_input + "\n**지금 질문** :" + user_input
+                    last_gpt_reply = get_last_assistant_reply()
+                    if last_gpt_reply:
+                        debug_info("📚 마지막 GPT 응답:\n" + last_gpt_reply)
+                    st.session_state.embedding_query_text = "**이전 답변** : " + last_gpt_reply + "\n**지금 질문** :" + user_input
                     
             # 지금한 질문이 사업과 관련있고, 최초 대화한 경우 또는 Fallback 후 초기화 된 이후임. --> 신규 대화로 인지
             else:
