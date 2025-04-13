@@ -260,7 +260,7 @@ if "conversation_history" not in st.session_state:
                 "- 답변은 반드시 사용자 질문의 요약으로 시작해 주세요.\n"
                 "- 반드시 아래 형식으로 시작해 주세요: '질문 요약: \"...\"'\n"
                 "- 이후 이어서 본문을 작성해 주세요.\n"
-                "- 목록으로 출력할 경우 반드시 아래 형식으로 출력하세요:\n"
+                "- 만일 목록으로 출력할 경우 반드시 아래 형식으로 출력하세요:\n"
                 "\n"
                 "  1. \"서비스명\"\n"
                 "     - \"기업명\" (기업ID: XXXX)\n"
@@ -392,8 +392,8 @@ def summarize_query(query):
     긴 사용자 질문을 유사도 임베딩에 적합하도록 요약
     """
     prompt = f"""사용자의 질문이 다음과 같습니다:\n\n{query}\n\n
-                이 질문을 벡터 임베딩에 적합하도록 핵심 키워드 중심으로 요약해 주세요. 
-                불필요한 서사나 예시는 제거하고, 핵심 목적/조건/희망사항만 정리해 주세요.
+                이 질문을 벡터 임베딩에 적합하도록 핵심 키워드 중심으로 요약해 주세요.\n 
+                불필요한 서사나 예시는 제거하고, 핵심 목적/조건/희망사항만 정리해 주세요.\n
                 출력은 (질문의 총 길이를 100으로 나눈 수)만큼의 문장 수로 작성 해주세요."""
     
     try:
@@ -586,6 +586,12 @@ def make_prompt(query, context, is_best=False):
 
 📌 {extra}
 """
+
+def get_last_assistant_reply():
+    for msg in reversed(st.session_state.conversation_history):
+        if msg["role"] == "assistant":
+            return msg["content"]
+    return None  # 없는 경우
 
 # ✅ UI 출력 영역
 st.markdown("""
@@ -951,7 +957,7 @@ if submitted and user_input.strip():
                 #     지금 : 다른 사례는 없어? 
                 else:
                     debug_info("📚 2. 지금 질문한 내용이 사업과 관련이 없어. 하지만 지금 얘기한건 이전에 얘기와는 연관되어 있어.")
-                    st.session_state.embedding_query_text = "[이전 질문 : ]" + previous_input + "\n[지금 질문 : ]" + user_input
+                    st.session_state.embedding_query_text = "**이전 질문** : " + previous_input + "\n**지금 질문** : " + user_input
                     
             # 지금한 질문이 사업과 관련없고, 최초 대화인 경우임 또는 Fallback 후 초기화 된 이후임. --> 에러!
             else: 
@@ -978,14 +984,17 @@ if submitted and user_input.strip():
                 if not is_followup_question(previous_input, user_input):
                     debug_info("📚 4. 지금 질문한 내용이 사업과는 관련있지만, 앞에서 얘기한 사업이랑은 전혀 관련이 없어. 하지만 새롭게 다른 사업과 관련있는 얘기하면 좋은거야.")
                     # st.session_state.embedding_query_text = user_input
-                    st.session_state.embedding_query_text = "[이전 질문 : ]" + previous_input + "\n[지금 질문 : ]" + user_input
+                    last_gpt_reply = get_last_assistant_reply()
+                    if last_gpt_reply:
+                        debug_info("📚 마지막 GPT 응답:\n" + last_gpt_reply)
+                    st.session_state.embedding_query_text = "**이전 답변** : " + last_gpt_reply + "\n**지금 질문** : " + user_input
                     
                 # 지금한 질문이 사업과 관련 있고, 이전의 대화와고 관련이 있음.   --> 후속 대화로 인지    
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
                 #     지금 : 홈페이지 구축 업체를 추가로 알려줘.
                 else:
                     debug_info("📚 5. 지금 질문한 내용이 사업과는 관련도 있고, 앞에서 얘기한 사업과 관련이 있어. 그리고 지금 얘기한 것도 구체적으로 사업과 관련이 되어 있어.")
-                    st.session_state.embedding_query_text = "[이전 질문 : ]" + previous_input + "\n[지금 질문 : ]" + user_input
+                    st.session_state.embedding_query_text = "**이전 질문** : " + previous_input + "\n**지금 질문** :" + user_input
                     
             # 지금한 질문이 사업과 관련있고, 최초 대화한 경우 또는 Fallback 후 초기화 된 이후임. --> 신규 대화로 인지
             else:
