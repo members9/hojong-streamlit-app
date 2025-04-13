@@ -11,6 +11,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo  # Python 3.9 이상
 from sentence_transformers import SentenceTransformer
 import time
+import json
 
 # ✅ 진입 암호 입력 로직 (4자리 숫자 예: 7299)
 if "authenticated" not in st.session_state:
@@ -1076,13 +1077,13 @@ if submitted and user_input.strip():
         })
                 
         if st.session_state.debug_mode:
-            debug_info("unique_last_results = " + st.session_state.unique_last_results)
-            debug_info("context = " + context)
-            debug_info("gpt_prompt = " + gpt_prompt)
-            debug_info("gpt_reply = " + gpt_reply)
-            debug_info("conversation_history = " + st.session_state.conversation_history)
-            debug_info("last_results = " + st.session_state.last_results)
-            debug_info("all_results = " + st.session_state.all_results)
+            debug_info("📦 unique_last_results = " + json.dumps(st.session_state.unique_last_results, ensure_ascii=False, indent=2))
+            debug_info("📘 context =\n" + context)
+            debug_info("🧾 gpt_prompt =\n" + gpt_prompt)
+            debug_info("🤖 gpt_reply =\n" + gpt_reply)
+            debug_info("🧠 conversation_history = " + json.dumps(list(st.session_state.conversation_history), ensure_ascii=False, indent=2))
+            debug_info("📋 last_results = " + json.dumps(st.session_state.last_results, ensure_ascii=False, indent=2))
+            debug_info("📚 all_results = " + json.dumps(list(st.session_state.all_results), ensure_ascii=False, indent=2))
             
             pause_here()
         st.rerun()
