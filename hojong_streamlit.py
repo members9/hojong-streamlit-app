@@ -413,11 +413,16 @@ def summarize_query(query):
 def get_embedding_with_optional_summary(text, model="text-embedding-3-small"):
     # 너무 긴 경우만 요약
     # if len(text) > 150:
+    #     debug_info("📌 질문이 길어 GPT로 요약 후 벡터화합니다.", pin=True)
+    #     text = summarize_query(text)
+    #     st.session_state.embedding_query_text_summary = text
+    #     debug_info(f"📌 gpt 요약: " + text)
+    
     debug_info("📌 질문이 길어 GPT로 요약 후 벡터화합니다.", pin=True)
     text = summarize_query(text)
     st.session_state.embedding_query_text_summary = text
     debug_info(f"📌 gpt 요약: " + text)
-    # return get_embedding(text, model)
+    return get_embedding(text, model)
 
 def is_best_recommendation_query(query):
     keywords = ["강력 추천", "강추"]
