@@ -416,7 +416,7 @@ def get_embedding_with_optional_summary(text, model="text-embedding-3-small"):
         debug_info("📌 질문이 길어 GPT로 요약 후 벡터화합니다.", pin=True)
         text = summarize_query(text)
         st.session_state.embedding_query_text_summary = text
-        debug_info(f"📊 gpt 요약: " + text)
+        debug_info(f"📌 gpt 요약: " + text)
     return get_embedding(text, model)
 
 def is_best_recommendation_query(query):
@@ -439,10 +439,10 @@ def is_related_results_enough(ranked_results, threshold=A_SIMILARITY_THRESHOLD, 
     """
     threshold = threshold or st.session_state.A_SIMILARITY_THRESHOLD
     top_n = top_n or st.session_state.TOP_N
-    debug_info(f"📊 threshold : " + str(threshold))
-    debug_info(f"📊 top_n : " + str(top_n))
+    debug_info(f"📌 threshold : " + str(threshold))
+    debug_info(f"📌 top_n : " + str(top_n))
     if not ranked_results or len(ranked_results) < top_n:
-        debug_info(f"📊 관련도가 낮으면 False 반환 → GPT 호출 방지 가능.")
+        debug_info(f"📌 관련도가 낮으면 False 반환 → GPT 호출 방지 가능.")
         return False
     top_scores = [score for score, _ in ranked_results[:top_n]]
     avg_score = sum(top_scores) / len(top_scores)
@@ -477,7 +477,7 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     # ⛔ 유사도 낮을 경우 GPT 호출도 생략할 수 있도록 빈 리스트 반환
     debug_info(f"✅ 파라미터 조정되었는지 확인: 임계값={st.session_state.A_SIMILARITY_THRESHOLD}, TOP_N={st.session_state.TOP_N}", "success")
     if not is_related_results_enough(ranked, st.session_state.A_SIMILARITY_THRESHOLD, st.session_state.TOP_N):
-        debug_info("⚠️ 추천 결과의 연관성이 낮아 fallback 루프로 진입합니다.", "warning")
+        debug_info("📌 추천 결과의 연관성이 낮아 fallback 루프로 진입합니다.", "warning")
         st.session_state.pending_fallback = True
         return []
     
@@ -485,12 +485,12 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
         
     # ✅ 4. 제외할 키 (기업ID + 서비스유형 + 서비스명) 정의
     if exclude_keys:
-        debug_info(f"\n\n🚫 [STEP 2] 제외 대상 키 수: {len(exclude_keys)}")
+        debug_info(f"\n\n📌 [STEP 2] 제외 대상 키 수: {len(exclude_keys)}")
         for i, key in enumerate(list(exclude_keys)[:10]):
             company_name = company_lookup.get(str(key[0]), "알 수 없음")
             debug_info(f" - 제외 {i+1}: 기업ID={key[0]} / 기업명={company_name} / {key[1]} / {key[2]}")
     else:
-        debug_info("\n\n🚫 [STEP 2] 제외 대상 없음")
+        debug_info("\n\n📌 [STEP 2] 제외 대상 없음")
 
     # 4. 중복 제거 및 제외 대상 필터링
     seen_keys = set()
@@ -506,7 +506,7 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     filtered.sort(key=lambda x: x[0], reverse=True)
     
     # ✅ 상위 30개까지 출력 (디버깅 또는 로그 확인용)
-    debug_info(f"\n✅ [STEP 3] 필터링 후 상위 30개:")
+    debug_info(f"\n📌 [STEP 3] 필터링 후 상위 30개:")
     for i, (score, s) in enumerate(filtered[:30]):
         debug_info(f"{i+1}. [{score:.4f}] {s['기업명']} / {s.get('서비스유형')} / {s.get('서비스명')}")
 
@@ -659,7 +659,7 @@ if submitted and user_input.strip():
     
     # ✅ fallback 상황인지 먼저 체크하고, 사용자 입력을 아직 저장하지 않음
     if st.session_state.pending_fallback:
-        debug_info("✅ fallback 상태 감지됨 : " + str(st.session_state.fallback_attempt), "success")
+        debug_info("📚 fallback 상태 감지됨 : " + str(st.session_state.fallback_attempt), "success")
         
         if user_input.strip().lower() == "네" and st.session_state.fallback_attempt < FALLBACK_ATTEMPT_NUM:
             # 파라미터 조정
@@ -674,13 +674,13 @@ if submitted and user_input.strip():
             #     "timestamp": current_time
             # })
             
-            debug_info(f"✅ 파라미터 조정됨: 임계값={st.session_state.A_SIMILARITY_THRESHOLD}, TOP_N={st.session_state.TOP_N}", "success")
+            debug_info(f"📚 파라미터 조정됨: 임계값={st.session_state.A_SIMILARITY_THRESHOLD}, TOP_N={st.session_state.TOP_N}", "success")
             
             # 이전 질문으로 기준 임베딩 복원
             #if st.session_state.user_query_history:
             #    st.session_state.embedding_query_text += ("," + st.session_state.user_query_history[-1])
             
-            debug_info(f"✅ embedding_query_text : " + str(st.session_state.embedding_query_text))
+            debug_info(f"📚 embedding_query_text : " + str(st.session_state.embedding_query_text))
             # pause_here("🧪 001 last_results : " + str(st.session_state.embedding_query_text))
             
             # 검색 로직 직접 실행
@@ -925,7 +925,7 @@ if submitted and user_input.strip():
                 
                 # 지금한 질문이 사업과 관련없고, 이전과 지금이 서로 진짜 관련없는 상황임 --> 에러!
                 if not is_followup_question(previous_input, user_input):
-                    debug_info(">>>>> 1. 지금 질문한 내용이 사업과 관련이 없어. 더구나 이전한 얘기와도 연계가 없어.")
+                    debug_info("📚 1. 지금 질문한 내용이 사업과 관련이 없어. 더구나 이전한 얘기와도 연계가 없어.")
                     st.session_state.user_query_history.append(user_input)
                     reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
                     st.session_state.chat_messages.append({
@@ -938,12 +938,12 @@ if submitted and user_input.strip():
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
                 #     지금 : 다른 사례는 없어? 
                 else:
-                    debug_info(">>>>> 2.지금 질문한 내용이 사업과 관련이 없어. 하지만 지금 얘기한건 이전에 얘기와는 연관되어 있어.")
+                    debug_info("📚 2. 지금 질문한 내용이 사업과 관련이 없어. 하지만 지금 얘기한건 이전에 얘기와는 연관되어 있어.")
                     st.session_state.embedding_query_text = "[이전 질문 : ]" + previous_input + "\n[지금 질문 : ]" + user_input
                     
             # 지금한 질문이 사업과 관련없고, 최초 대화인 경우임 또는 Fallback 후 초기화 된 이후임. --> 에러!
             else: 
-                debug_info(">>>>> 3.지금 질문한 내용이 사업과 관련이 없어. 하지만 최초부터 이런 관련없는 얘기하면 안되는거야.")
+                debug_info("📚 3. 지금 질문한 내용이 사업과 관련이 없어. 하지만 최초부터 이런 관련없는 얘기하면 안되는거야.")
                 st.session_state.user_query_history.append(user_input)
                 reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
                 st.session_state.chat_messages.append({
@@ -964,19 +964,19 @@ if submitted and user_input.strip():
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
                 #     지금 : 디자인 홍보 업체도 알려줘. 
                 if not is_followup_question(previous_input, user_input):
-                    debug_info(">>>>> 4.지금 질문한 내용이 앞에서 얘기한 사업이랑은 전혀 관련이 없어. 하지만 새롭게 다른 사업과 관련있는 얘기하면 좋은거야.")
+                    debug_info("📚 4. 지금 질문한 내용이 앞에서 얘기한 사업이랑은 전혀 관련이 없어. 하지만 새롭게 다른 사업과 관련있는 얘기하면 좋은거야.")
                     st.session_state.embedding_query_text = user_input
                     
                 # 지금한 질문이 사업과 관련 있고, 이전의 대화와고 관련이 있음.   --> 후속 대화로 인지    
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
                 #     지금 : 홈페이지 구축 업체를 추가로 알려줘.
                 else:
-                    debug_info(">>>>> 5.지금 질문한 내용이 앞에서 얘기한 사업과 관련이 있어. 그리고 지금 얘기한 것도 구체적으로 사업과 관련이 되어 있어.")
+                    debug_info("📚 5. 지금 질문한 내용이 앞에서 얘기한 사업과 관련이 있어. 그리고 지금 얘기한 것도 구체적으로 사업과 관련이 되어 있어.")
                     st.session_state.embedding_query_text = "[이전 질문 : ]" + previous_input + "\n[지금 질문 : ]" + user_input
                     
             # 지금한 질문이 사업과 관련있고, 최초 대화한 경우 또는 Fallback 후 초기화 된 이후임. --> 신규 대화로 인지
             else:
-                debug_info(">>>>> 6.지금 질문한 내용이 사업과 관련이 있어. 그리고 지금 최초로 얘기한 것도 사업과 관련이 되어 있어.")
+                debug_info("📚 6. 지금 질문한 내용이 사업과 관련이 있어. 그리고 지금 최초로 얘기한 것도 사업과 관련이 되어 있어.")
                 st.session_state.embedding_query_text = user_input
                 
     
@@ -1001,6 +1001,7 @@ if submitted and user_input.strip():
         
         # # 질문 히스토리에 추가
         st.session_state.user_query_history.append(user_input)
+        debug_info("📚 embedding_query_text = " + st.session_state.embedding_query_text, pin=False)
         
         debug_info("🤖 관련 서비스를 찾는 중입니다...", pin=False)
         # 추천 모드 설정 및 서비스 추천
@@ -1083,18 +1084,20 @@ if submitted and user_input.strip():
         })
                 
         if st.session_state.debug_mode:
+            if "embedding_query_text" in st.session_state:
+                debug_info("📚 embedding_query_text =\n" + st.session_state.embedding_query_text)
             if "unique_last_results" in st.session_state:
-                debug_info("📦 unique_last_results = " + json.dumps(st.session_state.unique_last_results, ensure_ascii=False, indent=2))
+                debug_info("📚 unique_last_results = " + json.dumps(st.session_state.unique_last_results, ensure_ascii=False, indent=2))
             if "context" in locals():
-                debug_info("📘 context =\n" + context)
+                debug_info("📚 context =\n" + context)
             if "gpt_prompt" in locals():
-                debug_info("🧾 gpt_prompt =\n" + gpt_prompt)
+                debug_info("📚 gpt_prompt =\n" + gpt_prompt)
             if "gpt_reply" in locals():
-                debug_info("🤖 gpt_reply =\n" + gpt_reply)
+                debug_info("📚 gpt_reply =\n" + gpt_reply)
             if "conversation_history" in st.session_state:
-                debug_info("🧠 conversation_history = " + json.dumps(list(st.session_state.conversation_history), ensure_ascii=False, indent=2))
+                debug_info("📚 conversation_history = " + json.dumps(list(st.session_state.conversation_history), ensure_ascii=False, indent=2))
             if "last_results" in st.session_state:
-                debug_info("📋 last_results = " + json.dumps(st.session_state.last_results, ensure_ascii=False, indent=2))
+                debug_info("📚 last_results = " + json.dumps(st.session_state.last_results, ensure_ascii=False, indent=2))
             if "all_results" in st.session_state:
                 debug_info("📚 all_results = " + json.dumps(list(st.session_state.all_results), ensure_ascii=False, indent=2))
             pause_here()
