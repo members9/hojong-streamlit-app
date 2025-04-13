@@ -922,7 +922,7 @@ if submitted and user_input.strip():
                 
                 # 지금한 질문이 사업과 관련없고, 이전과 지금이 서로 진짜 관련없는 상황임 --> 에러!
                 if not is_followup_question(previous_input, user_input):
-                    st.write(">>>>> 1. 지금 질문한 내용이 사업과 관련이 없어. 더구나 이전한 얘기와도 연계가 없어.")
+                    debug_info(">>>>> 1. 지금 질문한 내용이 사업과 관련이 없어. 더구나 이전한 얘기와도 연계가 없어.")
                     st.session_state.user_query_history.append(user_input)
                     reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
                     st.session_state.chat_messages.append({
@@ -935,12 +935,12 @@ if submitted and user_input.strip():
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
                 #     지금 : 다른 사례는 없어? 
                 else:
-                    st.write(">>>>> 2.지금 질문한 내용이 사업과 관련이 없어. 하지만 지금 얘기한건 이전에 얘기와는 연관되어 있어.")
+                    debug_info(">>>>> 2.지금 질문한 내용이 사업과 관련이 없어. 하지만 지금 얘기한건 이전에 얘기와는 연관되어 있어.")
                     st.session_state.embedding_query_text = st.session_state.embedding_query_text
                     
             # 지금한 질문이 사업과 관련없고, 최초 대화인 경우임 또는 Fallback 후 초기화 된 이후임. --> 에러!
             else: 
-                st.write(">>>>> 3.지금 질문한 내용이 사업과 관련이 없어. 하지만 최초부터 이런 관련없는 얘기하면 안되는거야.")
+                debug_info(">>>>> 3.지금 질문한 내용이 사업과 관련이 없어. 하지만 최초부터 이런 관련없는 얘기하면 안되는거야.")
                 st.session_state.user_query_history.append(user_input)
                 reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
                 st.session_state.chat_messages.append({
@@ -961,19 +961,19 @@ if submitted and user_input.strip():
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
                 #     지금 : 디자인 홍보 업체도 알려줘. 
                 if not is_followup_question(previous_input, user_input):
-                    st.write(">>>>> 4.지금 질문한 내용이 앞에서 얘기한 사업이랑은 전혀 관련이 없어. 하지만 새롭게 다른 사업과 관련있는 얘기하면 좋은거야.")
+                    debug_info(">>>>> 4.지금 질문한 내용이 앞에서 얘기한 사업이랑은 전혀 관련이 없어. 하지만 새롭게 다른 사업과 관련있는 얘기하면 좋은거야.")
                     st.session_state.embedding_query_text = user_input
                     
                 # 지금한 질문이 사업과 관련 있고, 이전의 대화와고 관련이 있음.   --> 후속 대화로 인지    
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
                 #     지금 : 홈페이지 구축 업체를 추가로 알려줘.
                 else:
-                    st.write(">>>>> 5.지금 질문한 내용이 앞에서 얘기한 사업과 관련이 있어. 그리고 지금 얘기한 것도 구체적으로 사업과 관련이 되어 있어.")
+                    debug_info(">>>>> 5.지금 질문한 내용이 앞에서 얘기한 사업과 관련이 있어. 그리고 지금 얘기한 것도 구체적으로 사업과 관련이 되어 있어.")
                     st.session_state.embedding_query_text = st.session_state.embedding_query_text
                     
             # 지금한 질문이 사업과 관련있고, 최초 대화한 경우 또는 Fallback 후 초기화 된 이후임. --> 신규 대화로 인지
             else:
-                st.write(">>>>> 6.지금 질문한 내용이 사업과 관련이 있어. 그리고 지금 최초로 얘기한 것도 사업과 관련이 되어 있어.")
+                debug_info(">>>>> 6.지금 질문한 내용이 사업과 관련이 있어. 그리고 지금 최초로 얘기한 것도 사업과 관련이 되어 있어.")
                 st.session_state.embedding_query_text = user_input
                 
     
@@ -1077,14 +1077,21 @@ if submitted and user_input.strip():
         })
                 
         if st.session_state.debug_mode:
-            debug_info("📦 unique_last_results = " + json.dumps(st.session_state.unique_last_results, ensure_ascii=False, indent=2))
-            debug_info("📘 context =\n" + context)
-            debug_info("🧾 gpt_prompt =\n" + gpt_prompt)
-            debug_info("🤖 gpt_reply =\n" + gpt_reply)
-            debug_info("🧠 conversation_history = " + json.dumps(list(st.session_state.conversation_history), ensure_ascii=False, indent=2))
-            debug_info("📋 last_results = " + json.dumps(st.session_state.last_results, ensure_ascii=False, indent=2))
-            debug_info("📚 all_results = " + json.dumps(list(st.session_state.all_results), ensure_ascii=False, indent=2))
-            
+            if "unique_last_results" in st.session_state:
+                debug_info("📦 unique_last_results = " + json.dumps(st.session_state.unique_last_results, ensure_ascii=False, indent=2))
+            if "context" in locals():
+                debug_info("📘 context =\n" + context)
+            if "gpt_prompt" in locals():
+                debug_info("🧾 gpt_prompt =\n" + gpt_prompt)
+            if "gpt_reply" in locals():
+                debug_info("🤖 gpt_reply =\n" + gpt_reply)
+            if "conversation_history" in st.session_state:
+                debug_info("🧠 conversation_history = " + json.dumps(list(st.session_state.conversation_history), ensure_ascii=False, indent=2))
+            if "last_results" in st.session_state:
+                debug_info("📋 last_results = " + json.dumps(st.session_state.last_results, ensure_ascii=False, indent=2))
+            if "all_results" in st.session_state:
+                debug_info("📚 all_results = " + json.dumps(list(st.session_state.all_results), ensure_ascii=False, indent=2))
             pause_here()
+            
         st.rerun()
         
