@@ -912,33 +912,38 @@ if submitted and user_input.strip():
         # 지금 질문한 내용이 사업과 관련이 없어.
         if not is_relevant_question(user_input):
             
-            # 지금한 질문이 사업과 관련없고, 최초 대화가 아닌 경우 경우임. 단, 지금한 질문은 사업과 관련성이 없어도 이전 대화와의 연계성을 검토
+             # 지금한 질문이 사업과 관련없고, 최초 대화가 아닌 경우 경우임. 단, 지금한 질문은 사업과 관련성이 없어도 이전 대화와의 연계성을 검토
             if st.session_state.user_query_history:
                 previous_input = st.session_state.user_query_history[-1]
                 
                 # 이전과 지금이 서로 진짜 관련없는 얘기인 경우이면서, 사업과도 연관성이 없는 상황임 --> 에러!
                 if not is_followup_question(previous_input, user_input):
+                    st.write(">>>>> 1. 지금 질문한 내용이 사업과 관련이 없어. 더구나 이전한 얘기와고 연계가 없어.")
                     reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
                     st.session_state.chat_messages.append({
                         "role": "assistant", 
                         "content": reply, 
                         "timestamp": current_time
                     })
+                    pause_here()
                     st.rerun()
                 # 이전과 지금이 서로 관련있는 후속 얘기인 경우이면서, 사업과도 연관성이 없는 상황임. --> 후속 대화로 인지
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
                 #     지금 : 더 알려줘 
                 else:
+                    st.write(">>>>> 2.지금 질문한 내용이 사업과 관련이 없어. 하지만 지금 얘기한건 이전에 얘기와는 연관되어 있어.")
                     st.session_state.embedding_query_text = st.session_state.embedding_query_text
                 
             # 지금한 질문이 사업과 관련없고, 최초 대화인 경우임. --> 에러!
             else: 
+                st.write(">>>>> 3.지금 질문한 내용이 사업과 관련이 없어. 하지만 최초부터 이런 관련없는 얘기하면 안되는거야.")
                 reply = "⚠️ 죄송하지만, 질문의 내용을 조금 더 관광기업이나 서비스와 관련된 내용으로 다시 해 주세요."
                 st.session_state.chat_messages.append({
                     "role": "assistant", 
                     "content": reply, 
                     "timestamp": current_time
                 })
+                pause_here()
                 st.rerun()
                 
         # 지금한 질문한 내용이 사업과 관련이 있음.
@@ -950,16 +955,19 @@ if submitted and user_input.strip():
                 previous_input = st.session_state.user_query_history[-1]
                 # 이전과 지금이 서로 진짜 관련없는 얘기인 경우이나 사업에는 관련있는 상황임. --> 신규 대화로 전환     
                 if not is_followup_question(previous_input, user_input):
+                    st.write(">>>>> 4.지금 질문한 내용이 앞에서 얘기한 사업이랑은 전혀 관련이 없어. 하지만 새롭게 다른 사업과 관련있는 얘기하면 좋은거야.")
                     st.session_state.embedding_query_text = user_input
                 
                 # 이전과 지금이 서로 관련이 있고, 사업에도 관련있는 상황임.  --> 후속 대화로 인지    
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
                 #     지금 : 홈페이지 구축 업체를 추가로 알려줘 
                 else:
+                    st.write(">>>>> 5.지금 질문한 내용이 앞에서 얘기한 사업과 관련이 있어. 그리고 지금 얘기한 것도 구체적으로 사업과 관련이 되어 있어.")
                     st.session_state.embedding_query_text = st.session_state.embedding_query_text
                     
             # 지금한 질문이 사업과 관련있고, 최초 대화한 경우임. --> 신규 대화로 인지
             else:
+                st.write(">>>>> 6.지금 질문한 내용이 사업과 관련이 있어. 그리고 지금 최초로 얘기한 것도 다른 사업과 관련이 되어 있어.")
                 st.session_state.embedding_query_text = user_input
                 
     
