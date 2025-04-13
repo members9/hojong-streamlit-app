@@ -805,6 +805,7 @@ if submitted and user_input.strip():
             "content": f"🛠️ 디버그 모드가 {mode_status}되었습니다.", 
             "timestamp": current_time
         })
+        debug_info(f"🤖 앗! 비밀이 해제되었습니다. 유용하게 사용하세요.", pin=True)
         st.rerun()
     
     # 초기화 명령 처리
@@ -837,6 +838,7 @@ if submitted and user_input.strip():
             "content": "🤖 잠시 머리 좀 비우고 다시 돌아왔습니다.", 
             "timestamp": current_time
         })
+        debug_info(f"🤖 자~ 이제 다시 관광기업 서비스에 대해 물어보세요.", pin=True)
         st.rerun()
     
     # '자세히' 명령 처리
@@ -901,6 +903,7 @@ if submitted and user_input.strip():
             "content": reply, 
             "timestamp": current_time
         })
+        debug_info(f"🤖 링크를 누르시면 관광공사 홈페이지 기업 및 서비스 화면으로 이동합니다.", pin=True)
         st.rerun()
     
     # 일반 질문 처리
