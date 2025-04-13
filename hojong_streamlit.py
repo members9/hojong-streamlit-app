@@ -456,8 +456,10 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
         exclude_keys = set()
     
     if "embedding_query_vector" in st.session_state and st.session_state.embedding_query_vector is not None:
+        debug_info(f"\n📌 이전 생성된 벡터 재사용")
         query_vec = st.session_state.embedding_query_vector
     else:
+        debug_info(f"\n📌 새로운 쿼리를 기준으로 요약 후 새로운 벡터 생성")
         query_vec = get_embedding_with_optional_summary(query)
         st.session_state.embedding_query_vector = query_vec
     query_vec = np.array(query_vec).astype('float32').reshape(1, -1)
