@@ -294,6 +294,10 @@ if "user_query_history" not in st.session_state:
     st.session_state.user_query_history = []
 if "embedding_query_text" not in st.session_state:
     st.session_state.embedding_query_text = None
+if "embedding_query_text_summary" not in st.session_state:
+    st.session_state.embedding_query_text_summary = None
+if "embedding_query_vector" not in st.session_state:
+    st.session_state.embedding_query_vector = None  # 벡터 캐싱 초기화
 if "pending_fallback" not in st.session_state:
     st.session_state.pending_fallback = False
 if "fallback_attempt" not in st.session_state:
@@ -374,13 +378,47 @@ def is_followup_question(prev, current):
         return result
     except Exception as e:
         return True  # 오류 시 기본은 후속 질문으로 간주
+    
+    
+# ✅ 요약 함수 추가 (GPT 사용)
+def summarize_query(query):
+    """
+    긴 사용자 질문을 유사도 임베딩에 적합하도록 요약
+    """
+    prompt = f"""사용자의 질문이 다음과 같습니다:\n\n{query}\n\n
+                이 질문을 벡터 임베딩에 적합하도록 핵심 키워드 중심으로 요약해 주세요. 
+                불필요한 서사나 예시는 제거하고, 핵심 목적/조건/희망사항만 정리해 주세요.
+                출력은 1~2문장 정도의 간결한 문장으로 해주세요."""
+    
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "당신은 AI 질의 요약 도우미입니다."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        debug_info(f"❌ 요약 실패: {str(e)}", level="error")
+        return query  # 실패하면 원본 사용
+
+# ✅ get_embedding 호출 전 요약 처리 (벡터 검색 이전)
+def get_embedding_with_optional_summary(text, model="text-embedding-3-small"):
+    # 너무 긴 경우만 요약
+    if len(text) > 150:
+        debug_info("📌 질문이 길어 GPT로 요약 후 벡터화합니다.", pin=True)
+        text = summarize_query(text)
+        st.session_state.embedding_query_text_summary = text
+    return get_embedding(text, model)
 
 def is_best_recommendation_query(query):
     keywords = ["강력 추천", "강추"]
     return any(k in query for k in keywords)
 
 def is_relevant_question(query, threshold=Q_SIMILARITY_THRESHOLD): 
-    query_vec = get_embedding(query)
+    query_vec = get_embedding_with_optional_summary(query)
+    st.session_state.embedding_query_vector = query_vec
     query_vec = np.array(query_vec).astype('float32').reshape(1, -1)
     query_vec = normalize(query_vec)
     D, _ = index_cosine.search(query_vec, 1)
@@ -410,8 +448,11 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     if exclude_keys is None:
         exclude_keys = set()
     
-    # 1. 질의에 대한 임베딩 생성 및 정규화
-    query_vec = get_embedding(query)
+    if "embedding_query_vector" in st.session_state and st.session_state.embedding_query_vector is not None:
+        query_vec = st.session_state.embedding_query_vector
+    else:
+        query_vec = get_embedding_with_optional_summary(query)
+        st.session_state.embedding_query_vector = query_vec
     query_vec = np.array(query_vec).astype('float32').reshape(1, -1)
     query_vec = normalize(query_vec)
 
@@ -508,6 +549,7 @@ def make_summary_context(summary_memory):
     ])
 
 def make_prompt(query, context, is_best=False):
+    summarized = st.session_state.embedding_query_text_summary or query
     if is_best:
         history = make_summary_context(st.session_state.all_results)
         extra = f"지금까지 추천한 서비스 목록은 다음과 같습니다:\n\n{history}\n\n이전에 추천된 기업도 포함해서 조건에 가장 부합하는 최고의 조합을 제시해주세요."
@@ -519,7 +561,7 @@ def make_prompt(query, context, is_best=False):
 당신은 관광수혜기업에게 추천 서비스를 제공하는 AI 상담사입니다.
 
 사용자의 질문은 다음과 같습니다:
-"{query}"
+"{summarized}"
 
 그리고 관련된 서비스 목록은 아래와 같습니다:
 {context}
@@ -738,6 +780,9 @@ if submitted and user_input.strip():
             st.session_state.A_SIMILARITY_THRESHOLD = A_SIMILARITY_THRESHOLD
             st.session_state.TOP_N = MAX_HISTORY_LEN
             st.session_state.user_query_history = []
+            st.session_state.embedding_query_text = None
+            st.session_state.embedding_query_text_summary = None
+            st.session_state.embedding_query_vector = None  # 벡터 캐싱 초기화
             # st.rerun()
         
         st.rerun() 
@@ -767,6 +812,8 @@ if submitted and user_input.strip():
         st.session_state.embedding_cache = {}
         st.session_state.followup_cache = {}        
         st.session_state.embedding_query_text = None
+        st.session_state.embedding_query_text_summary = None
+        st.session_state.embedding_query_vector = None  # 벡터 캐싱 초기화
         st.session_state.excluded_keys.clear()
         st.session_state.all_results.clear()
         st.session_state.last_results = []
