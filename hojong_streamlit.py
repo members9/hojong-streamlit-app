@@ -969,16 +969,17 @@ if submitted and user_input.strip():
                 previous_input = st.session_state.user_query_history[-1]
                 # 지금한 질문이 사업과 관련 있으나, 이전과 지금이 서로 연속성은 없는 경우. --> 신규 대화로 전환     
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
-                #     지금 : 디자인 홍보 업체도 알려줘. 
+                #     지금 : 아니야. 디자인 홍보 업체를 새로 알려줘. 
                 if not is_followup_question(previous_input, user_input):
-                    debug_info("📚 4. 지금 질문한 내용이 앞에서 얘기한 사업이랑은 전혀 관련이 없어. 하지만 새롭게 다른 사업과 관련있는 얘기하면 좋은거야.")
-                    st.session_state.embedding_query_text = user_input
+                    debug_info("📚 4. 지금 질문한 내용이 사업과는 관련있지만, 앞에서 얘기한 사업이랑은 전혀 관련이 없어. 하지만 새롭게 다른 사업과 관련있는 얘기하면 좋은거야.")
+                    # st.session_state.embedding_query_text = user_input
+                    st.session_state.embedding_query_text = "[이전 질문 : ]" + previous_input + "\n[지금 질문 : ]" + user_input
                     
                 # 지금한 질문이 사업과 관련 있고, 이전의 대화와고 관련이 있음.   --> 후속 대화로 인지    
                 # ex. 이전 : 홈페이지 구축 업체 알려줘.
                 #     지금 : 홈페이지 구축 업체를 추가로 알려줘.
                 else:
-                    debug_info("📚 5. 지금 질문한 내용이 앞에서 얘기한 사업과 관련이 있어. 그리고 지금 얘기한 것도 구체적으로 사업과 관련이 되어 있어.")
+                    debug_info("📚 5. 지금 질문한 내용이 사업과는 관련도 있고, 앞에서 얘기한 사업과 관련이 있어. 그리고 지금 얘기한 것도 구체적으로 사업과 관련이 되어 있어.")
                     st.session_state.embedding_query_text = "[이전 질문 : ]" + previous_input + "\n[지금 질문 : ]" + user_input
                     
             # 지금한 질문이 사업과 관련있고, 최초 대화한 경우 또는 Fallback 후 초기화 된 이후임. --> 신규 대화로 인지
