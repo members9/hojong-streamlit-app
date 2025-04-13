@@ -455,13 +455,18 @@ def recommend_services(query, top_k=5, exclude_keys=None, use_random=True):
     if exclude_keys is None:
         exclude_keys = set()
     
-    if "embedding_query_vector" in st.session_state and st.session_state.embedding_query_vector is not None:
-        debug_info(f"\n📌 이전 생성된 벡터 재사용")
-        query_vec = st.session_state.embedding_query_vector
-    else:
-        debug_info(f"\n📌 새로운 쿼리를 기준으로 요약 후 새로운 벡터 생성")
-        query_vec = get_embedding_with_optional_summary(query)
-        st.session_state.embedding_query_vector = query_vec
+    # 벡터를 재사용하려 했으나, 하기 이유 발생으로 재사용 안함.
+    # 이전 질문: 홈페이지 구축 업체 알려줘 → 벡터 A
+    # 지금 질문: 디자인 업체도 알려줘 → 벡터 A 그대로 사용
+    # → "디자인"이 강조되어야 할 텍스트에 "홈페이지" 벡터를 쓰게 됨
+    # if "embedding_query_vector" in st.session_state and st.session_state.embedding_query_vector is not None:
+    #     debug_info(f"\n📌 이전 생성된 벡터 재사용")
+    #     query_vec = st.session_state.embedding_query_vector
+    # else:
+    #     debug_info(f"\n📌 새로운 쿼리를 기준으로 요약 후 새로운 벡터 생성")
+
+    query_vec = get_embedding_with_optional_summary(query)
+    st.session_state.embedding_query_vector = query_vec
     query_vec = np.array(query_vec).astype('float32').reshape(1, -1)
     query_vec = normalize(query_vec)
 
